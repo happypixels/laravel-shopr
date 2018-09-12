@@ -9,7 +9,7 @@ use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Observers\OrderObserver;
 use Illuminate\Support\Facades\Event;
 
-class ShopServiceProvider extends ServiceProvider
+class ShoprServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap services.
