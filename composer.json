@@ -1,0 +1,38 @@
+{
+    "name": "happypixels/laravel-shopr",
+    "description": "A webshop foundation that gives you more flexibility",
+    "authors": [
+        {
+            "name": "Mattias Persson",
+            "email": "mattias@happypixels.se"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "league/omnipay": "^3",
+        "omnipay/stripe": "^3.0",
+        "moneyphp/money": "^3.1"
+    },
+    "require-dev": {
+        "vlucas/phpdotenv": "^2.4",
+        "orchestra/testbench": "^3.4",
+        "mockery/mockery": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Happypixels\\Shopr\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Happypixels\\Shopr\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Happypixels\\Shopr\\ShopServiceProvider"
+            ]
+        }
+    }
+}
