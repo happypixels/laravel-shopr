@@ -1,6 +1,7 @@
 {
     "name": "happypixels/laravel-shopr",
     "description": "A webshop foundation that gives you more flexibility",
+    "license": "MIT",
     "authors": [
         {
             "name": "Mattias Persson",
