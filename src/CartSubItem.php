@@ -2,6 +2,8 @@
 
 namespace Happypixels\Shopr;
 
+use Happypixels\Shopr\Money\Formatter;
+
 class CartSubItem
 {
     public $shoppableType;
@@ -16,18 +18,22 @@ class CartSubItem
 
     public $total;
 
-    public function __construct($shoppableType, $shoppableId, $quantity, $options = [])
+    public $price;
+
+    public function __construct($shoppableType, $shoppableId, $quantity, $options = [], $price = null)
     {
-        $this->shoppableType = $shoppableType;
-        $this->shoppableId   = $shoppableId;
-        $this->shoppable     = (new $shoppableType)::findOrFail($shoppableId);
-        $this->quantity      = $quantity;
-        $this->options       = $options;
-        $this->total         = $this->total();
+        $this->shoppableType   = $shoppableType;
+        $this->shoppableId     = $shoppableId;
+        $this->shoppable       = (new $shoppableType)::findOrFail($shoppableId);
+        $this->quantity        = $quantity;
+        $this->options         = $options;
+        $this->price           = (is_numeric($price)) ? $price : $this->shoppable->getPrice();
+        $this->price_formatted = (new Formatter)->format($this->price);
+        $this->total           = $this->total();
     }
 
     private function total()
     {
-        return $this->quantity * $this->shoppable->price;
+        return $this->quantity * $this->price;
     }
 }

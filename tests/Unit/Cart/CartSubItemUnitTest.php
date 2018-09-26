@@ -26,4 +26,22 @@ class CartSubItemUnitTest extends TestCase
 
         $this->assertEquals($model->price * 2, $cart->items()->first()->subItems->first()->total);
     }
+
+    /** @test */
+    public function it_has_price()
+    {
+        $cart  = app(Cart::class);
+        $model = TestShoppable::first();
+        $cart->addItem(get_class($model), $model->id, 2, [], [
+            [
+                'shoppable_type' => get_class($model),
+                'shoppable_id'   => 1
+            ]
+        ]);
+
+        $subItem = $cart->items()->first()->subItems->first();
+
+        $this->assertEquals(500, $subItem->price);
+        $this->assertEquals('$500.00', $subItem->price_formatted);
+    }
 }

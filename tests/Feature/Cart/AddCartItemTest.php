@@ -115,6 +115,7 @@ class AddCartItemTest extends TestCase
             'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
             'shoppable_id'   => 1,
             'quantity'       => 2,
+            'price'          => 50,
         ];
 
         // Add an identical sub item.
@@ -124,5 +125,6 @@ class AddCartItemTest extends TestCase
 
         $subItems = $cart->items()->first()->subItems;
         $this->assertEquals(1, $subItems->count());
+        $this->assertEquals(50, $subItems->first()->price);
     }
 }

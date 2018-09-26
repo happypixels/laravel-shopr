@@ -33,9 +33,9 @@ class CartItem
         $this->quantity        = $quantity;
         $this->options         = $options;
         $this->subItems        = $this->addSubItems($subItems);
-        $this->total           = $this->total();
         $this->price           = ($price) ?? $this->shoppable->getPrice();
         $this->price_formatted = (new Formatter)->format($this->price);
+        $this->total           = $this->total();
     }
 
     private function addSubItems($subItems = [])
@@ -48,12 +48,14 @@ class CartItem
 
         foreach ($subItems as $item) {
             $options = (!empty($item['options'])) ? $item['options'] : [];
+            $price   = (!empty($item['price']) && is_numeric($item['price'])) ? $item['price'] : null;
 
             $items->push(new CartSubItem(
                 $item['shoppable_type'],
                 $item['shoppable_id'],
                 $this->quantity,
-                $options
+                $options,
+                $price
             ));
         }
 
@@ -64,11 +66,11 @@ class CartItem
     {
         $total = 0;
 
-        $total += $this->quantity * $this->shoppable->price;
+        $total += $this->quantity * $this->price;
 
         if ($this->subItems->count()) {
             foreach ($this->subItems as $subItem) {
-                $total += $subItem->quantity * $subItem->shoppable->price;
+                $total += $subItem->total;
             }
         }
 

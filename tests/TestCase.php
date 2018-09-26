@@ -10,7 +10,7 @@ class TestCase extends Orchestra
 {
     protected function getPackageProviders($app)
     {
-        return ['Happypixels\Shopr\ShopServiceProvider'];
+        return ['Happypixels\Shopr\ShoprServiceProvider'];
     }
 
     public function setUp()

@@ -26,7 +26,7 @@ class CartUnitTest extends TestCase
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 3);
 
-        $this->assertEquals($model->price * 3, $cart->total());
+        $this->assertEquals(1500, $cart->total());
     }
 
     /** @test */
@@ -38,6 +38,7 @@ class CartUnitTest extends TestCase
             [
                 'shoppable_type' => get_class($model),
                 'shoppable_id'   => 1,
+                'price'          => 50
             ],
             [
                 'shoppable_type' => get_class($model),
@@ -45,8 +46,9 @@ class CartUnitTest extends TestCase
             ]
         ]);
 
-        // Each sub item gets the parent quantity, so 2. Which means 2 + 2 + 2 = 6.
-        $this->assertEquals($model->price * 6, $cart->total());
+        // Each sub item gets the parent quantity, so 2. We have 6 models in total. 2 of these cost 50 each.
+        // So 500*4 + 50*2.
+        $this->assertEquals(2100, $cart->total());
     }
 
     /** @test */

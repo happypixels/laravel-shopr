@@ -57,13 +57,8 @@ class SessionCartRepository implements Cart
         $total = 0;
 
         foreach ($this->items() as $item) {
-            $total += $item->quantity * $item->price;
-
-            if ($item->subItems->count()) {
-                foreach ($item->subItems as $subItem) {
-                    $total += $subItem->quantity * $subItem->shoppable->price;
-                }
-            }
+            // This includes the sub items.
+            $total += $item->total;
         }
 
         return $total;
@@ -187,7 +182,7 @@ class SessionCartRepository implements Cart
                         'shoppable_type' => get_class($subItem->shoppable),
                         'shoppable_id'   => $subItem->shoppable->id,
                         'title'          => $subItem->shoppable->title,
-                        'price'          => $subItem->shoppable->price,
+                        'price'          => $subItem->price,
                         'options'        => $subItem->options
                     ]);
                 }

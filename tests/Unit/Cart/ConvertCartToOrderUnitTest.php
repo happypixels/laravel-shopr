@@ -87,7 +87,7 @@ class ConvertCartToOrderUnitTest extends TestCase
         $cart  = app(Cart::class);
         $model = TestShoppable::first();
         $item  = $cart->addItem(get_class($model), $model->id, 1, [], [
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1],
+            ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'price' => 50],
             ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'options' => ['color' => 'Green']],
         ]);
 
@@ -99,6 +99,8 @@ class ConvertCartToOrderUnitTest extends TestCase
         $this->assertEquals(1, $items->first()->children->first()->shoppable_id);
         $this->assertEquals(get_class($model), $items->first()->children->first()->shoppable_type);
         $this->assertEquals('Green', $items->first()->children->last()->options['color']);
+        $this->assertEquals(50.00, $items->first()->children->first()->price);
+        $this->assertEquals(500.00, $items->first()->children->last()->price);
     }
 
     /** @test */
