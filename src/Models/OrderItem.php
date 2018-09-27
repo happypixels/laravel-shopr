@@ -40,4 +40,9 @@ class OrderItem extends Model
     {
         return $this->hasMany(OrderItem::class, 'parent_id');
     }
+
+    public function shoppable()
+    {
+        return $this->morphTo();
+    }
 }

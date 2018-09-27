@@ -77,6 +77,27 @@ class OrderCreatedCustomerMailTest extends TestCase
         });
     }
 
+    /** @test */
+    public function item_shoppables_are_loaded()
+    {
+        config(['shopr.admin_emails' => ['test@example.org']]);
+
+        Mail::fake();
+
+        $order = $this->createTestOrder();
+
+        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) use ($order) {
+            $message->build();
+
+            $shoppable = $order->items->first()->shoppable;
+
+            return (
+                $shoppable !== null &&
+                $shoppable->title === 'Test product'
+            );
+        });
+    }
+
     private function createTestOrder()
     {
         $cart  = app(Cart::class);
