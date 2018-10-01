@@ -98,11 +98,20 @@ class SessionCartRepository implements Cart
         $items = $this->items();
 
         foreach ($items as $index => $item) {
-            if ($item->id === $id) {
-                if (!empty($data['quantity'])) {
-                    $items[$index]->quantity = $data['quantity'];
+            if ($item->id !== $id || empty($data['quantity'])) {
+                continue;
+            }
+
+            $items[$index]->quantity = intval($data['quantity']);
+
+            if (!empty($items[$index]->subItems)) {
+                foreach ($items[$index]->subItems as $i => $subItem) {
+                    $items[$index]->subItems[$i]->quantity = intval($data['quantity']);
+                    $items[$index]->subItems[$i]->total    = $items[$index]->subItems[$i]->total();
                 }
             }
+
+            $items[$index]->total = $items[$index]->total();
         }
 
         $this->session->put($this->cartKey, $items);

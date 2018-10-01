@@ -32,7 +32,7 @@ class CartSubItem
         $this->total           = $this->total();
     }
 
-    private function total()
+    public function total()
     {
         return $this->quantity * $this->price;
     }

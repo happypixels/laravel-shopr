@@ -62,7 +62,7 @@ class CartItem
         return $items;
     }
 
-    private function total()
+    public function total()
     {
         $total = 0;
 
