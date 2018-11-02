@@ -2,9 +2,10 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Support\Facades\Event;
 
 class RemoveCartItemTest extends TestCase
 {
@@ -24,5 +25,26 @@ class RemoveCartItemTest extends TestCase
 
         $this->assertEquals(1, $cart->count());
         $this->assertEquals($item->id, $cart->items()->first()->id);
+    }
+
+    /** @test */
+    public function it_fires_event()
+    {
+        $cart   = app(Cart::class);
+        $model  = TestShoppable::first();
+        $item   = $cart->addItem(get_class($model), 1, 1, $options = []);
+
+        Event::fake();
+
+        $this->json('DELETE', 'api/shopr/cart/items/' . $item->id)
+            ->assertStatus(200)
+            ->assertJsonFragment(['count' => 0]);
+
+        Event::assertDispatched('shopr.cart.items.deleted', function ($event, $data) use ($item) {
+            return (
+                $item->id === $data->id &&
+                serialize($item) === serialize($data)
+            );
+        });
     }
 }

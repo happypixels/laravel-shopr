@@ -2,8 +2,9 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Support\Facades\Event;
 
 class AddCartItemTest extends TestCase
 {
@@ -126,5 +127,30 @@ class AddCartItemTest extends TestCase
         $subItems = $cart->items()->first()->subItems;
         $this->assertEquals(1, $subItems->count());
         $this->assertEquals(50, $subItems->first()->price);
+    }
+
+    /** @test */
+    public function it_fires_event()
+    {
+        $cart = app(Cart::class);
+
+        $data = [
+            'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
+            'shoppable_id'   => 1,
+            'price'          => 50,
+        ];
+
+        Event::fake();
+
+        $response = $this->json('POST', 'api/shopr/cart/items', $data)->assertStatus(200);
+
+        $item = $cart->items()->first();
+
+        Event::assertDispatched('shopr.cart.items.added', function ($event, $data) use ($item) {
+            return (
+                $item->id === $data->id &&
+                serialize($item) === serialize($data)
+            );
+        });
     }
 }

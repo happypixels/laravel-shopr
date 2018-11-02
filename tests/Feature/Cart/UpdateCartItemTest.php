@@ -2,9 +2,10 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Support\Facades\Event;
 
 class UpdateCartItemTest extends TestCase
 {
@@ -43,5 +44,28 @@ class UpdateCartItemTest extends TestCase
         $subItems = $cart->items()->first()->subItems;
         $this->assertEquals([2, 2], $subItems->pluck('quantity')->toArray());
         $this->assertEquals([1000, 1000], $subItems->pluck('total')->toArray());
+    }
+
+    /** @test */
+    public function it_fires_event()
+    {
+        $cart  = app(Cart::class);
+        $model = TestShoppable::first();
+        $item  = $cart->addItem(get_class($model), 1, 1);
+
+        Event::fake();
+
+        $response = $this->json('PATCH', 'api/shopr/cart/items/' . $item->id, ['quantity' => 2])
+            ->assertStatus(200)
+            ->assertJsonFragment(['count' => 2]);
+
+        $item = $cart->items()->first();
+
+        Event::assertDispatched('shopr.cart.items.updated', function ($event, $data) use ($item) {
+            return (
+                $item->id === $data->id &&
+                serialize($item) === serialize($data)
+            );
+        });
     }
 }

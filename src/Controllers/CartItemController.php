@@ -2,10 +2,11 @@
 
 namespace Happypixels\Shopr\Controllers;
 
-use Illuminate\Routing\Controller;
 use Happypixels\Shopr\Contracts\Cart;
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Event;
 
 class CartItemController extends Controller
 {
@@ -25,7 +26,7 @@ class CartItemController extends Controller
             'shoppable_id'   => 'required'
         ]);
 
-        $this->cart->addItem(
+        $item = $this->cart->addItem(
             $request->shoppable_type,
             $request->shoppable_id,
             $request->get('quantity', 1),
@@ -34,19 +35,25 @@ class CartItemController extends Controller
             $request->get('price', null)
         );
 
+        Event::fire('shopr.cart.items.added', $item);
+
         return $this->cart->summary();
     }
 
     public function update(Request $request, $id)
     {
-        $this->cart->updateItem($id, $request->all());
+        $item = $this->cart->updateItem($id, $request->all());
+
+        Event::fire('shopr.cart.items.updated', $item);
 
         return $this->cart->summary();
     }
 
     public function destroy($id)
     {
-        $this->cart->removeItem($id);
+        $item = $this->cart->removeItem($id);
+
+        Event::fire('shopr.cart.items.deleted', $item);
 
         return $this->cart->summary();
     }

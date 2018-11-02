@@ -96,6 +96,7 @@ class SessionCartRepository implements Cart
     public function updateItem($id, $data)
     {
         $items = $this->items();
+        $item  = null;
 
         foreach ($items as $index => $item) {
             if ($item->id !== $id || empty($data['quantity'])) {
@@ -112,26 +113,30 @@ class SessionCartRepository implements Cart
             }
 
             $items[$index]->total = $items[$index]->total();
+            $item                 = $items[$index];
         }
 
         $this->session->put($this->cartKey, $items);
 
-        return $items;
+        return $item;
     }
 
     public function removeItem($id)
     {
         $items = $this->items();
+        $item  = null;
 
         foreach ($items as $index => $item) {
             if ($item->id === $id) {
+                $item = $items[$index];
+
                 unset($items[$index]);
             }
         }
 
         $this->session->put($this->cartKey, $items);
 
-        return $items;
+        return $item;
     }
 
     public function clear()
