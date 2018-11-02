@@ -35,7 +35,7 @@ class ShoprServiceProvider extends ServiceProvider
 
         // We manually register the events here rather than automatically registering the observer
         // because we want to be in control of when the events are fired.
-        Event::listen('shopr.order.created', function (Order $order) {
+        Event::listen('shopr.orders.created', function (Order $order) {
             (new OrderObserver)->created($order);
         });
     }

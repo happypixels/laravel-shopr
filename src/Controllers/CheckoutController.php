@@ -59,7 +59,7 @@ class CheckoutController extends Controller
             $order->payment_status                = 'paid';
             $order->save();
 
-            Event::fire('shopr.order.created', $order);
+            Event::fire('shopr.orders.created', $order);
 
             return response()->json(['redirect' => route('shopr.order-confirmation') . '?token=' . $order->token], 200);
         } else {
