@@ -22,11 +22,8 @@ class ShoprServiceProvider extends ServiceProvider
             __DIR__ . '/../config/shopr.php' => config_path('shopr.php'),
         ], 'config');
 
-        if (!class_exists('CreateOrderTables')) {
-            $this->publishes([
-                __DIR__ . '/../database/migrations/create_order_tables.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_order_tables.php'),
-            ], 'migrations');
-        }
+        $this->publishMigration('CreateOrderTables', 'create_order_tables');
+        $this->publishMigration('CreateDiscountCouponsTable', 'create_discount_coupons_table');
 
         $this->loadRoutesFrom(__DIR__ . '/Routes/api.php');
         $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
@@ -48,5 +45,25 @@ class ShoprServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(Cart::class, SessionCartRepository::class);
+    }
+
+    /**
+     * Attempts to publish a migration file.
+     *
+     * @param  string $classname
+     * @param  string $filename
+     * @return boolean
+     */
+    private function publishMigration($classname, $filename)
+    {
+        if (class_exists($classname)) {
+            return false;
+        }
+
+        $this->publishes([
+            __DIR__ . '/../database/migrations/'.$filename.'.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_'.$filename.'.php'),
+        ], 'migrations');
+
+        return true;
     }
 }

@@ -39,6 +39,8 @@ class TestCase extends Orchestra
         TestShoppable::create(['title' => 'Test product', 'price' => 500]);
 
         include_once __DIR__ . '/../database/migrations/create_order_tables.php.stub';
+        include_once __DIR__ . '/../database/migrations/create_discount_coupons_table.php.stub';
         (new \CreateOrderTables())->up();
+        (new \CreateDiscountCouponsTable())->up();
     }
 }

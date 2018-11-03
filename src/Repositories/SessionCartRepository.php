@@ -207,4 +207,8 @@ class SessionCartRepository implements Cart
 
         return $order;
     }
+
+    public function applyDiscountCoupon(DiscountCoupon $coupon)
+    {
+    }
 }
