@@ -16,6 +16,7 @@ class ApplyDiscountTest extends TestCase
 
         $response = $this->json('POST', 'api/shopr/cart/discounts', ['code' => 'TESTCODE'])
             ->assertStatus(422)
+            ->assertJsonValidationErrors(['code'])
             ->assertJsonFragment(['code' => ['Invalid discount coupon.']]);
     }
 
@@ -32,6 +33,7 @@ class ApplyDiscountTest extends TestCase
 
         $response = $this->json('POST', 'api/shopr/cart/discounts', ['code' => 'The Code'])
             ->assertStatus(422)
+            ->assertJsonValidationErrors(['code'])
             ->assertJsonFragment(['code' => ['Invalid discount coupon.']]);
     }
 
@@ -48,16 +50,62 @@ class ApplyDiscountTest extends TestCase
             'value'       => 50
         ]);
 
-        $this->assertEquals(450, app(Cart::class)->total());
+        $response = $this->json('POST', 'api/shopr/cart/discounts', ['code' => 'The Code'])
+            ->assertStatus(200);
+
+        $cart = app(Cart::class);
+
+        // The amount is applied.
+        $this->assertEquals(450, $cart->total());
+        $this->assertEquals(2, $cart->items()->count());
     }
 
     /** @test */
     public function it_applies_percentage_discounts()
     {
+        $this->addItem();
+
+        DiscountCoupon::create([
+            'code'        => 'The Code',
+            'valid_from'  => now()->subDays(1),
+            'valid_until' => now()->addDays(1),
+            'is_fixed'    => 0,
+            'value'       => 20 // 20% = 100.
+        ]);
+
+        $response = $this->json('POST', 'api/shopr/cart/discounts', ['code' => 'The Code'])
+            ->assertStatus(200);
+
+        $cart = app(Cart::class);
+
+        // The amount is applied.
+        $this->assertEquals(400, $cart->total());
+        $this->assertEquals(2, $cart->items()->count());
     }
 
     /** @test */
     public function it_aborts_if_code_is_already_applied()
+    {
+        $this->addItem();
+
+        DiscountCoupon::create([
+            'code'        => 'The Code',
+            'valid_from'  => now()->subDays(1),
+            'valid_until' => now()->addDays(1),
+            'is_fixed'    => 1,
+            'value'       => 50
+        ]);
+
+        $response = $this->json('POST', 'api/shopr/cart/discounts', ['code' => 'The Code'])
+            ->assertStatus(200);
+        $response = $this->json('POST', 'api/shopr/cart/discounts', ['code' => 'The Code'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['code'])
+            ->assertJsonFragment(['That discount coupon has already been applied.']);
+    }
+
+    /** @test */
+    public function the_code_is_case_sensitive()
     {
     }
 

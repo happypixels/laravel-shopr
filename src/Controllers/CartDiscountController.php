@@ -3,7 +3,9 @@
 namespace Happypixels\Shopr\Controllers;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Rules\ValidDiscountCoupon;
+use Happypixels\Shopr\Models\DiscountCoupon;
+use Happypixels\Shopr\Rules\CouponHasntBeenApplied;
+use Happypixels\Shopr\Rules\CouponIsValid;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -29,7 +31,11 @@ class CartDiscountController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'code' => ['required', new ValidDiscountCoupon]
+            'code' => [
+                'required',
+                new CouponHasntBeenApplied,
+                new CouponIsValid
+            ]
         ]);
 
         $coupon = DiscountCoupon::valid()->where('code', $request->code)->first();

@@ -2,12 +2,13 @@
 
 namespace Happypixels\Shopr\Repositories;
 
-use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\CartItem;
-use Illuminate\Support\Collection;
+use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Helpers\SessionHelper;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Money\Formatter;
+use Illuminate\Support\Collection;
 
 class SessionCartRepository implements Cart
 {
@@ -208,7 +209,51 @@ class SessionCartRepository implements Cart
         return $order;
     }
 
+    /**
+     * Calculates the total value of the coupon and adds it to the cart.
+     *
+     * @param  DiscountCoupon $coupon
+     * @return CartItem
+     */
     public function applyDiscountCoupon(DiscountCoupon $coupon)
     {
+        if ($coupon->is_fixed) {
+            $amount = -$coupon->value;
+        } else {
+            $percentage = $coupon->value / 100;
+            $amount     = -($this->total() * $percentage);
+        }
+
+        return $this->addItem(
+            'Happypixels\Shopr\Models\DiscountCoupon',
+            $coupon->id,
+            1,
+            [],
+            [],
+            $amount
+        );
+    }
+
+    /**
+     * Iterates all the current items in the cart and returns true if one of them is
+     * a discount coupon matching the given code.
+     *
+     * @param  string  $code
+     * @return boolean
+     */
+    public function hasDiscountCoupon($code)
+    {
+        $items = $this->items();
+
+        foreach ($items as $item) {
+            if (
+                $item->shoppableType === 'Happypixels\Shopr\Models\DiscountCoupon' &&
+                $item->shoppable->getTitle() === $code
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

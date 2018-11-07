@@ -2,10 +2,9 @@
 
 namespace Happypixels\Shopr\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DiscountCoupon extends Model
+class DiscountCoupon extends Shoppable
 {
     use SoftDeletes;
 
@@ -17,6 +16,16 @@ class DiscountCoupon extends Model
         'is_fixed',
         'value',
     ];
+
+    /**
+     * The name/title of the model.
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->code;
+    }
 
     public function scopeValid($query)
     {

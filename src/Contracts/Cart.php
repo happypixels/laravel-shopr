@@ -33,4 +33,6 @@ interface Cart
     public function convertToOrder($gateway, $userData = []);
 
     public function applyDiscountCoupon(DiscountCoupon $coupon);
+
+    public function hasDiscountCoupon($code);
 }
