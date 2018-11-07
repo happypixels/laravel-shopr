@@ -2,12 +2,13 @@
 
 namespace Happypixels\Shopr\Repositories;
 
-use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\CartItem;
-use Illuminate\Support\Collection;
+use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Helpers\SessionHelper;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Money\Formatter;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 
 class SessionCartRepository implements Cart
 {
@@ -81,14 +82,22 @@ class SessionCartRepository implements Cart
             );
         });
 
-        // If an identical item already exists in the cart, add to it's quantity. Otherwise, push it.
+        // If an identical item already exists in the cart, add to it's quantity.
+        // Otherwise, push it.
         if ($identicals->count() > 0) {
             $items->where('id', $identicals->first()->id)->first()->quantity += $quantity;
+            $item->quantity = $items->where('id', $identicals->first()->id)->first()->quantity;
+
+            $event = 'updated';
         } else {
             $items->push($item);
+
+            $event = 'added';
         }
 
         $this->session->put($this->cartKey, $items);
+
+        Event::fire('shopr.cart.items.'.$event, $item);
 
         return $item;
     }
@@ -118,6 +127,8 @@ class SessionCartRepository implements Cart
 
         $this->session->put($this->cartKey, $items);
 
+        Event::fire('shopr.cart.items.updated', $item);
+
         return $item;
     }
 
@@ -136,12 +147,16 @@ class SessionCartRepository implements Cart
 
         $this->session->put($this->cartKey, $items);
 
+        Event::fire('shopr.cart.items.deleted', $item);
+
         return $item;
     }
 
     public function clear()
     {
         $this->session->put($this->cartKey, collect([]));
+
+        Event::fire('shopr.cart.cleared');
     }
 
     public function isEmpty()
