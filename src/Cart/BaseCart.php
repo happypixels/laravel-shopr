@@ -28,7 +28,7 @@ abstract class BaseCart implements Cart
 
         foreach ($this->items() as $item) {
             // This includes the sub items.
-            $total += $item->total;
+            $total += $item->total();
         }
 
         return $total;

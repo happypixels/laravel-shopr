@@ -70,7 +70,7 @@ class CartItem
 
         if ($this->subItems->count()) {
             foreach ($this->subItems as $subItem) {
-                $total += $subItem->total;
+                $total += $subItem->total();
             }
         }
 
