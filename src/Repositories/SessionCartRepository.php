@@ -3,6 +3,7 @@
 namespace Happypixels\Shopr\Repositories;
 
 use Happypixels\Shopr\CartItem;
+use Happypixels\Shopr\Cart\BaseCart;
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Helpers\SessionHelper;
 use Happypixels\Shopr\Models\Order;
@@ -10,7 +11,7 @@ use Happypixels\Shopr\Money\Formatter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 
-class SessionCartRepository implements Cart
+class SessionCartRepository extends BaseCart
 {
     private $cartKey = 'shopr.cart';
     private $session;
@@ -41,28 +42,6 @@ class SessionCartRepository implements Cart
     public function items() : Collection
     {
         return $this->session->get($this->cartKey) ?: collect([]);
-    }
-
-    public function subTotal()
-    {
-        return $this->total() - $this->taxTotal();
-    }
-
-    public function taxTotal()
-    {
-        return ($this->total() * config('shopr.tax')) / 100;
-    }
-
-    public function total()
-    {
-        $total = 0;
-
-        foreach ($this->items() as $item) {
-            // This includes the sub items.
-            $total += $item->total;
-        }
-
-        return $total;
     }
 
     public function addItem($shoppableType, $shoppableId, $quantity = 1, $options = [], $subItems = [], $price = null) : CartItem
@@ -157,16 +136,6 @@ class SessionCartRepository implements Cart
         $this->session->put($this->cartKey, collect([]));
 
         Event::fire('shopr.cart.cleared');
-    }
-
-    public function isEmpty()
-    {
-        return $this->count() === 0;
-    }
-
-    public function count()
-    {
-        return $this->items()->sum('quantity');
     }
 
     public function convertToOrder($gateway, $userData = [])

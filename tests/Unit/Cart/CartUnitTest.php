@@ -54,27 +54,27 @@ class CartUnitTest extends TestCase
     /** @test */
     public function sub_total_returns_the_full_total_minus_tax()
     {
-        config(['shopr.tax' => 20]);
+        config(['shopr.tax' => 25]);
 
         $cart  = app(Cart::class);
         $model = TestShoppable::first();
-        $cart->addItem(get_class($model), $model->id, 3);
+        $cart->addItem(get_class($model), $model->id, 5);
 
-        // 20% of 1500 is 300. Subtotal should be 1200.
-        $this->assertEquals(1200, $cart->subTotal());
+        // 25% tax of 2500 = 500. Subtotal should be 2000.
+        $this->assertEquals(2000, $cart->subTotal());
     }
 
     /** @test */
     public function tax_total_returns_the_total_tax()
     {
-        config(['shopr.tax' => 20]);
+        config(['shopr.tax' => 25]);
 
         $cart  = app(Cart::class);
         $model = TestShoppable::first();
-        $cart->addItem(get_class($model), $model->id, 3);
+        $cart->addItem(get_class($model), $model->id, 5);
 
-        // 20% of 1500 is 300.
-        $this->assertEquals(300, $cart->taxTotal());
+        // 25% tax of 2500 = 500
+        $this->assertEquals(500, $cart->taxTotal());
     }
 
     /** @test */

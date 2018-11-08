@@ -25,7 +25,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     /** @test */
     public function it_creates_the_order()
     {
-        config(['shopr.tax' => 20]);
+        config(['shopr.tax' => 25]);
 
         $cart  = app(Cart::class);
         $model = TestShoppable::first();
