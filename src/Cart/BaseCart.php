@@ -3,23 +3,18 @@
 namespace Happypixels\Shopr\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Helpers\Tax;
 
 abstract class BaseCart implements Cart
 {
     public function subTotal()
     {
-        return $this->total() - $this->taxTotal();
+        return Tax::getSubTotal($this->total());
     }
 
     public function taxTotal()
     {
-        $tax = config('shopr.tax');
-
-        if (!$tax || $tax <= 0) {
-            return 0;
-        }
-
-        return $this->total() * $tax / (100 + $tax);
+        return Tax::getTax($this->total());
     }
 
     public function total()

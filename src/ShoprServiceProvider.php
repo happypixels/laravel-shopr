@@ -2,12 +2,12 @@
 
 namespace Happypixels\Shopr;
 
-use Illuminate\Support\ServiceProvider;
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Repositories\SessionCartRepository;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Observers\OrderObserver;
+use Happypixels\Shopr\Repositories\SessionCartRepository;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
 
 class ShoprServiceProvider extends ServiceProvider
 {
