@@ -60,8 +60,8 @@ class FormatterTest extends TestCase
         $cart->addItem(get_class($model), 1, 1);
         $summary = $cart->summary();
 
-        $this->assertEquals('$500.00', $summary['sub_total_formatted']);
-        $this->assertEquals('$0.00', $summary['tax_total_formatted']);
+        $this->assertEquals('$400.00', $summary['sub_total_formatted']);
+        $this->assertEquals('$100.00', $summary['tax_total_formatted']);
         $this->assertEquals('$500.00', $summary['total_formatted']);
     }
 
