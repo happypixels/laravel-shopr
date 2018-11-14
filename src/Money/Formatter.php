@@ -11,7 +11,7 @@ class Formatter
 {
     public function format($amount)
     {
-        $money = new Money($amount * 100, new Currency(strtoupper($this->getCurrency())));
+        $money = new Money((int) $amount * 100, new Currency(strtoupper($this->getCurrency())));
 
         $numberFormatter = new \NumberFormatter($this->getLocale(), \NumberFormatter::CURRENCY);
         $moneyFormatter  = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
