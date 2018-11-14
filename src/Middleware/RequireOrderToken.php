@@ -3,7 +3,7 @@
 namespace Happypixels\Shopr\Middleware;
 
 use Closure;
-use Happypixels\Shopr\Models\Order;
+use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
 
 class RequireOrderToken
 {
@@ -19,10 +19,16 @@ class RequireOrderToken
     {
         $token = $request->query('token');
 
-        if (!$token || Order::where('token', $token)->where('payment_status', 'paid')->count() === 0) {
+        if (!$request->query('token') || !$request->query('gateway')) {
             return redirect('/');
         }
 
+        $provider = PaymentProviderManager::make($request);
+
+        if (!$provider->allowConfirmationPage($request->query('token'))) {
+            return redirect('/');
+        }
+                
         return $next($request);
     }
 }
