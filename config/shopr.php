@@ -55,9 +55,9 @@ return [
             'username' => env('KLARNA_USERNAME', ''),
             'secret' => env('KLARNA_SECRET', ''),
 
-            'checkout_url' => env('APP_URL').'/se/shop?sid={checkout.order.id}',
-            'confirmation_url' => env('APP_URL').'/se/confirmation?token={checkout.order.id}&gateway=KlarnaCheckout',
-            'terms_url' => env('APP_URL').'/se/shop/terms',
+            'checkout_url' => env('APP_URL').'/checkout?sid={checkout.order.id}',
+            'confirmation_url' => env('APP_URL').'/confirmation?token={checkout.order.id}&gateway=KlarnaCheckout',
+            'terms_url' => env('APP_URL').'/terms',
             'push_url' => env('APP_URL').'/shopr/webhooks/kco',
             'validation_url' => null,
         ]
