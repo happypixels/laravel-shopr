@@ -17,8 +17,6 @@ class RequireOrderToken
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        $token = $request->query('token');
-
         if (!$request->query('token') || !$request->query('gateway')) {
             return redirect('/');
         }

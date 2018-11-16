@@ -2,23 +2,33 @@
 
 namespace Happypixels\Shopr\PaymentProviders;
 
+use Happypixels\Shopr\Models\Order;
+use Happypixels\Shopr\Traits\PaymentProviders\HandlesProviderOrders;
 use Illuminate\Support\Facades\Event;
 
 class KlarnaCheckout extends PaymentProvider
 {
-    public function create($order)
+    use HandlesProviderOrders;
+
+    /**
+     * Creates an incomplete order in Klarnas system.
+     * The response has an html snippet which is used to finish the checkout.
+     *
+     * @return array
+     */
+    public function createProviderOrder()
     {
         $taxRate = config('shopr.tax');
 
         $data['amount']           = $this->cart->total();
         $data['currency']         = config('shopr.currency');
-        $data['locale']           = app()->getLocale();
-        $data['purchase_country'] = app()->getLocale();
+        $data['locale']           = 'sv-se'; //en-us, en-gb
+        $data['purchase_country'] = 'se'; //gb, us
         $data['tax_amount']       = $this->cart->taxTotal();
-        $data['notify_url']       = route('shop.klarna.push');
-        $data['confirmation_url'] = config('shopr.gateways.klarna_checkout.confirmation_url');
-        $data['return_url']       = config('shopr.gateways.klarna_checkout.checkout_url');
-        $data['terms_url']        = config('shopr.gateways.klarna_checkout.terms_url');
+        $data['notify_url']       = $this->config['push_url'];
+        $data['confirmation_url'] = $this->config['confirmation_url'];
+        $data['return_url']       = $this->config['checkout_url'];
+        $data['terms_url']        = $this->config['terms_url'];
         $data['validation_url']   = config('app.url');
 
         $data['items'] = [];
@@ -34,14 +44,11 @@ class KlarnaCheckout extends PaymentProvider
             ];
         }
 
-        $response = $gateway->authorize($data)->send()->getData();
+        $response = $this->gateway->authorize($data)->send()->getData();
 
         if (empty($response['order_id']) || empty($response['html_snippet'])) {
-            // Throw exception.
+            throw new \Exception('Unable to process the order.', 400);
         }
-
-        $order->transaction_id = $response['order_id'];
-        $order->save();
 
         return $response;
     }
@@ -57,25 +64,36 @@ class KlarnaCheckout extends PaymentProvider
     }
 
     /**
-     * Require the order ID and that the cart isn't empty to proceed to the order confirmation.
+     * Require the order reference (token) to proceed to the order confirmation.
      *
      * @param  string $token
      * @return boolean
      */
     public function allowConfirmationPage($token)
     {
-        return (!empty($token) || $this->cart->isEmpty());
+        return (!empty($token));
     }
 
     /**
-     * Retrieves the order from Klarna, creates a matching order in our database and fires the created-event.
+     * Returns the order identified by token from the database.
      *
-     * @param  string $token The order ID stored in Klarna's system.
+     * @param  string $token
+     * @return Order
+     */
+    public function getOrderFromDatabase($token)
+    {
+        return Order::where('transaction_id', $token)->first();
+    }
+
+    /**
+     * Retrieves the confirmed order from Klarna, creates a matching order in our database and fires the created-event.
+     *
+     * @param  string $identifier The order ID stored in Klarna's system.
      * @return Happypixels\Shopr\Models\Order|false
      */
-    public function getConfirmedOrder($token)
+    public function storeConfirmedProviderOrder($identifier)
     {
-        $response = $this->gateway->fetchTransaction(['transactionReference' => $token])->send()->getData();
+        $response = $this->gateway->fetchTransaction(['transactionReference' => $identifier])->send()->getData();
         
         if (empty($response['management'])) {
             return false;
@@ -98,7 +116,7 @@ class KlarnaCheckout extends PaymentProvider
         }
 
         $order->transaction_reference = $response['klarna_reference'];
-        $order->transaction_id = $token;
+        $order->transaction_id = $identifier;
         $order->payment_status = ($response['remaining_authorized_amount'] > 0) ? 'pending' : 'paid';
         $order->save();
 

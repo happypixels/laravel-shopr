@@ -3,6 +3,7 @@
 namespace Happypixels\Shopr\PaymentProviders;
 
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Models\Order;
 use Illuminate\Http\Request;
 use Omnipay\Omnipay;
 
@@ -74,5 +75,26 @@ class PaymentProvider
     public function getConfigKey()
     {
         return snake_case($this->getProviderName());
+    }
+
+    /**
+     * Determines whether the gateway needs to create orders in the provider system.
+     *
+     * @return boolean
+     */
+    public function createsProviderOrders()
+    {
+        return false;
+    }
+
+    /**
+     * Returns the order identified by token from the database.
+     *
+     * @param  string $token
+     * @return Order
+     */
+    public function getOrderFromDatabase($token)
+    {
+        return Order::where('token', $token)->first();
     }
 }

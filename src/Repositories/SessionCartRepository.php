@@ -138,13 +138,19 @@ class SessionCartRepository extends BaseCart
         Event::fire('shopr.cart.cleared');
     }
 
-    public function convertToOrder($gateway, $userData = [])
+    public function convertToOrder($gateway, $userData = [], $reference = null)
     {
         if ($this->isEmpty()) {
             return false;
         }
 
-        $order = Order::create([
+        if ($reference) {
+            $order = Order::firstOrNew(['transaction_reference' => $reference]);
+        } else {
+            $order = new Order;
+        }
+
+        $order->fill([
             'user_id'          => auth()->id(),
             'payment_gateway'  => $gateway,
             'payment_status'   => 'pending',

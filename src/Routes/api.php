@@ -14,4 +14,6 @@ Route::group(['prefix' => 'api/shopr', 'namespace' => 'Happypixels\Shopr\Control
     Route::apiResource('cart/items', 'CartItemController', ['only' => ['store', 'update', 'destroy']]);
 
     Route::post('checkout/charge', 'CheckoutController@charge');
+
+    Route::post('orders', 'OrderController@store');
 });

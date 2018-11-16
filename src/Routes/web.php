@@ -21,15 +21,8 @@ Route::group(['middleware' => $middleware], function () {
 
     // Order confirmation.
     if (config('shopr.templates.order-confirmation')) {
-        Route::get('order-confirmation', function () {
-            $order = Happypixels\Shopr\Models\Order::with('items')
-                ->where('token', request('token'))
-                ->where('payment_status', 'paid')
-                ->firstOrFail();
-
-            return view(config('shopr.templates.order-confirmation'))->with('order', $order);
-        })
-        ->name('shopr.order-confirmation')
-        ->middleware(Happypixels\Shopr\Middleware\RequireOrderToken::class);
+        Route::get('order-confirmation', 'Happypixels\Shopr\Controllers\Web\OrderController@confirm')
+            ->name('shopr.order-confirmation')
+            ->middleware(Happypixels\Shopr\Middleware\RequireOrderToken::class);
     }
 });
