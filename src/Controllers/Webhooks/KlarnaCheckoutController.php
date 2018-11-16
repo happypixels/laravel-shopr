@@ -55,4 +55,15 @@ class KlarnaCheckoutController extends Controller
 
         return response()->json(null, 200);
     }
+
+    /**
+     * The Klarna validation. Currently not supported, allow all.
+     *
+     * @param  Request $request
+     * @return Response
+     */
+    public function validate(Request $request)
+    {
+        return response()->json(null, 200);
+    }
 }

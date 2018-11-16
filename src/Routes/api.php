@@ -18,6 +18,7 @@ Route::group(['prefix' => 'api/shopr', 'namespace' => 'Happypixels\Shopr\Control
     Route::post('orders', 'OrderController@store');
 
     Route::group(['prefix' => 'webhooks', 'namespace' => 'Webhooks'], function () {
+        Route::post('kco/validate', 'KlarnaCheckoutController@validate');
         Route::post('kco/push', 'KlarnaCheckoutController@push');
     });
 });

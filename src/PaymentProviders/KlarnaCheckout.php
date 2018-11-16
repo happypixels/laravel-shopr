@@ -92,10 +92,10 @@ class KlarnaCheckout extends PaymentProvider
         $data['purchase_country'] = 'se'; //gb, us
         $data['tax_amount']       = $this->cart->taxTotal();
         $data['notify_url']       = env('APP_URL').'/api/shopr/webhooks/kco/push?token={checkout.order.id}';
+        $data['validation_url']   = env('APP_URL').'/api/shopr/webhooks/kco/validate';
         $data['confirmation_url'] = $this->config['confirmation_url'];
         $data['return_url']       = $this->config['checkout_url'];
         $data['terms_url']        = $this->config['terms_url'];
-        $data['validation_url']   = config('app.url');
 
         $data['items'] = [];
 
