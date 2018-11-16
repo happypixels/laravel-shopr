@@ -11,46 +11,37 @@ class KlarnaCheckout extends PaymentProvider
     use HandlesProviderOrders;
 
     /**
-     * Creates an incomplete order in Klarnas system.
-     * The response has an html snippet which is used to finish the checkout.
+     * Returns the order data from Klarna.
      *
+     * @param  string $token
      * @return array
      */
-    public function createProviderOrder()
+    public function getProviderOrder($token)
     {
-        $taxRate = config('shopr.tax');
+        return $this->gateway->fetchTransaction(['transactionReference' => $token])->send()->getData();
+    }
 
-        $data['amount']           = $this->cart->total();
-        $data['currency']         = config('shopr.currency');
-        $data['locale']           = 'sv-se'; //en-us, en-gb
-        $data['purchase_country'] = 'se'; //gb, us
-        $data['tax_amount']       = $this->cart->taxTotal();
-        $data['notify_url']       = $this->config['push_url'];
-        $data['confirmation_url'] = $this->config['confirmation_url'];
-        $data['return_url']       = $this->config['checkout_url'];
-        $data['terms_url']        = $this->config['terms_url'];
-        $data['validation_url']   = config('app.url');
+    /**
+     * Acknowledges an order in Klarnas system.
+     *
+     * @param  string $token
+     * @return boolean
+     */
+    public function acknowledgeOrder($token)
+    {
+        return $this->gateway->acknowledge(['transactionReference' => $token])->send()->isSuccessful();
+    }
 
-        $data['items'] = [];
-
-        foreach ($this->cart->items() as $item) {
-            $data['items'][] = [
-                'type'             => 'physical',
-                'name'             => $item->shoppable->getTitle(),
-                'quantity'         => $item->quantity,
-                'tax_rate'         => $taxRate,
-                'price'            => $item->price,
-                'total_tax_amount' => $item->total() * $taxRate / (100 + $taxRate)
-            ];
-        }
-
-        $response = $this->gateway->authorize($data)->send()->getData();
-
-        if (empty($response['order_id']) || empty($response['html_snippet'])) {
-            throw new \Exception('Unable to process the order.', 400);
-        }
-
-        return $response;
+    /**
+     * Captures the given amount for the order matching the given token.
+     *
+     * @param  string $token
+     * @param  float $amount
+     * @return boolean
+     */
+    public function captureAmount($token, $amount)
+    {
+        return $this->gateway->capture(['transactionReference' => $token, 'amount' => $amount])->send()->isSuccessful();
     }
 
     /**
@@ -86,6 +77,49 @@ class KlarnaCheckout extends PaymentProvider
     }
 
     /**
+     * Creates an incomplete order in Klarnas system.
+     * The response has an html snippet which is used to finish the checkout.
+     *
+     * @return array
+     */
+    public function createProviderOrder()
+    {
+        $taxRate = config('shopr.tax');
+
+        $data['amount']           = $this->cart->total();
+        $data['currency']         = config('shopr.currency');
+        $data['locale']           = 'sv-se'; //en-us, en-gb
+        $data['purchase_country'] = 'se'; //gb, us
+        $data['tax_amount']       = $this->cart->taxTotal();
+        $data['notify_url']       = env('APP_URL').'/api/shopr/webhooks/kco/push?token={checkout.order.id}';
+        $data['confirmation_url'] = $this->config['confirmation_url'];
+        $data['return_url']       = $this->config['checkout_url'];
+        $data['terms_url']        = $this->config['terms_url'];
+        $data['validation_url']   = config('app.url');
+
+        $data['items'] = [];
+
+        foreach ($this->cart->items() as $item) {
+            $data['items'][] = [
+                'type'             => 'physical',
+                'name'             => $item->shoppable->getTitle(),
+                'quantity'         => $item->quantity,
+                'tax_rate'         => $taxRate,
+                'price'            => $item->price,
+                'total_tax_amount' => $item->total() * $taxRate / (100 + $taxRate)
+            ];
+        }
+
+        $response = $this->gateway->authorize($data)->send()->getData();
+
+        if (empty($response['order_id']) || empty($response['html_snippet'])) {
+            throw new \Exception('Unable to process the order.', 400);
+        }
+
+        return $response;
+    }
+
+    /**
      * Retrieves the confirmed order from Klarna, creates a matching order in our database and fires the created-event.
      *
      * @param  string $identifier The order ID stored in Klarna's system.
@@ -93,7 +127,7 @@ class KlarnaCheckout extends PaymentProvider
      */
     public function storeConfirmedProviderOrder($identifier)
     {
-        $response = $this->gateway->fetchTransaction(['transactionReference' => $identifier])->send()->getData();
+        $response = $this->getProviderOrder($identifier);
         
         if (empty($response['management'])) {
             return false;
@@ -123,5 +157,28 @@ class KlarnaCheckout extends PaymentProvider
         Event::fire('shopr.orders.created', $order);
 
         return $order;
+    }
+
+    /**
+     * Determines the selected payment method. All methods except invoice means direct payment.
+     * Full list of available payment methods can be found here:
+     * https://developers.klarna.com/api/#order-management-api__orderinitial_payment_method__type
+     *
+     * @param  array $orderResponse
+     * @return string
+     */
+    public function determinePaymentStatus($orderResponse)
+    {
+        if ($orderResponse['checkout']['status'] !== 'checkout_complete') {
+            return 'pending';
+        }
+
+        $paymentMethod = strtolower($orderResponse['management']['initial_payment_method']['type']);
+
+        if ($paymentMethod === 'invoice') {
+            return 'billed';
+        }
+
+        return 'paid';
     }
 }
