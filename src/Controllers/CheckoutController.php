@@ -2,10 +2,11 @@
 
 namespace Happypixels\Shopr\Controllers;
 
-use Illuminate\Routing\Controller;
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
+use Happypixels\Shopr\Rules\CartNotEmpty;
 use Illuminate\Http\Request;
-use Omnipay\Omnipay;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Event;
 
 class CheckoutController extends Controller
@@ -20,20 +21,18 @@ class CheckoutController extends Controller
     /**
      * Charges the order sum through the desired payment gateway.
      *
+     * @param  Request $request
      * @return mixed
      */
     public function charge(Request $request)
     {
         $request->validate([
-            'gateway'    => 'required',
-            'email'      => 'required|email',
+            'gateway' => 'required',
+            'email' => 'required|email',
             'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255'
+            'last_name' => 'required|string|max:255',
+            'cart' => [new CartNotEmpty]
         ]);
-
-        if ($this->cart->isEmpty()) {
-            return response()->json(['message' => 'Your cart is empty.'], 400);
-        }
 
         // Create the order.
         $order = $this->cart->convertToOrder($request->gateway, $request->only([
@@ -44,14 +43,13 @@ class CheckoutController extends Controller
             return response()->json(['message' => 'Unable to process your order.'], 400);
         }
 
-        // Make the purchase.
-        $gateway = Omnipay::create($request->gateway);
-        $gateway->initialize(config('shopr.gateways.' . str_slug($request->gateway, '_')));
-        $response = $gateway->purchase([
-            'amount'   => $order->total,
-            'currency' => config('shopr.currency'),
-            'token'    => $request->token
-        ])->send();
+        // Attempt to make the purchase.
+        try {
+            $provider = PaymentProviderManager::make($request);
+            $response = $provider->charge($order);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Unable to process your payment.'], 400);
+        }
 
         // Handle the response.
         if ($response->isRedirect()) {
@@ -65,7 +63,7 @@ class CheckoutController extends Controller
 
             Event::fire('shopr.orders.created', $order);
 
-            return response()->json(['redirect' => route('shopr.order-confirmation') . '?token=' . $order->token], 200);
+            return response()->json(['redirect' => route('shopr.order-confirmation') . '?token=' . $order->token.'&gateway='.$order->payment_gateway], 200);
         } else {
             return response()->json(['response' => $response->getMessage()], 400);
         }
