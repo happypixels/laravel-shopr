@@ -9,6 +9,13 @@ use Illuminate\Routing\Controller;
 
 class OrderController extends Controller
 {
+    /**
+     * Confirms a placed order and stores it in the database.
+     * Applicable when the provider creates an unconfirmed order before we can create it in our database.
+     *
+     * @param  Request $request
+     * @return Response
+     */
     public function confirm(Request $request)
     {
         $provider = PaymentProviderManager::make($request);

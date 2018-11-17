@@ -93,8 +93,8 @@ class KlarnaCheckout extends PaymentProvider
         $data['tax_amount']       = $this->cart->taxTotal();
         $data['notify_url']       = env('APP_URL').'/api/shopr/webhooks/kco/push?token={checkout.order.id}';
         $data['validation_url']   = env('APP_URL').'/api/shopr/webhooks/kco/validate';
-        $data['confirmation_url'] = route('shopr.order-confirmation').'?token={checkout.order.id}&gateway=KlarnaCheckout';
-        $data['return_url']       = route('shopr.checkout').'?token={checkout.order.id}&gateway=KlarnaCheckout';
+        $data['confirmation_url'] = $this->getConfirmationUrl().'?token={checkout.order.id}&gateway=KlarnaCheckout';
+        $data['return_url']       = $this->getCheckoutUrl().'?token={checkout.order.id}&gateway=KlarnaCheckout';
         $data['terms_url']        = $this->config['terms_url'];
 
         $data['items'] = [];
@@ -204,5 +204,25 @@ class KlarnaCheckout extends PaymentProvider
         }
 
         return 'paid';
+    }
+
+    /**
+     * Returns the checkout url.
+     *
+     * @return string
+     */
+    protected function getCheckoutUrl()
+    {
+        return $this->config['checkout_url'] ?? route('shopr.checkout');
+    }
+
+    /**
+     * Returns the confirmation url.
+     *
+     * @return string
+     */
+    protected function getConfirmationUrl()
+    {
+        return $this->config['confirmation_url'] ?? route('shopr.order-confirmation');
     }
 }
