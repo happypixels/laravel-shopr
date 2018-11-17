@@ -88,26 +88,50 @@ class KlarnaCheckout extends PaymentProvider
 
         $data['amount']           = $this->cart->total();
         $data['currency']         = config('shopr.currency');
-        $data['locale']           = 'sv-se'; //en-us, en-gb
-        $data['purchase_country'] = 'se'; //gb, us
+        $data['locale']           = $this->config['store_locale']; //en-us, en-gb, sv-se
+        $data['purchase_country'] = $this->config['store_country']; //gb, us, se
         $data['tax_amount']       = $this->cart->taxTotal();
         $data['notify_url']       = env('APP_URL').'/api/shopr/webhooks/kco/push?token={checkout.order.id}';
         $data['validation_url']   = env('APP_URL').'/api/shopr/webhooks/kco/validate';
-        $data['confirmation_url'] = $this->config['confirmation_url'];
-        $data['return_url']       = $this->config['checkout_url'];
+        $data['confirmation_url'] = route('shopr.order-confirmation').'?token={checkout.order.id}&gateway=KlarnaCheckout';
+        $data['return_url']       = route('shopr.checkout').'?token={checkout.order.id}&gateway=KlarnaCheckout';
         $data['terms_url']        = $this->config['terms_url'];
 
         $data['items'] = [];
 
         foreach ($this->cart->items() as $item) {
             $data['items'][] = [
-                'type'             => 'physical',
-                'name'             => $item->shoppable->getTitle(),
-                'quantity'         => $item->quantity,
-                'tax_rate'         => $taxRate,
-                'price'            => $item->price,
-                'total_tax_amount' => $item->total() * $taxRate / (100 + $taxRate)
+                'type' => 'physical',
+                'name' => $item->shoppable->getTitle(),
+                'quantity' => $item->quantity,
+                'tax_rate' => $taxRate,
+                'price' => $item->price,
+                'total_tax_amount' => $item->total() * $taxRate / (100 + $taxRate),
+                'merchant_data' => json_encode([
+                    'shoppable_id' => $item->shoppableId,
+                    'shoppable_type' => $item->shoppableType,
+                    'options' => $item->options
+                ])
             ];
+
+            if ($item->subItems->count() > 0) {
+                foreach ($item->subItems as $subItem) {
+                    $data['items'][] = [
+                        'type' => 'physical',
+                        'name' => $subItem->shoppable->getTitle(),
+                        'quantity' => $subItem->quantity,
+                        'tax_rate' => $taxRate,
+                        'price' => $subItem->price,
+                        'total_tax_amount' => $subItem->total() * $taxRate / (100 + $taxRate),
+                        'merchant_data' => json_encode([
+                            'parent' => $item->id,
+                            'shoppable_id' => $subItem->shoppableId,
+                            'shoppable_type' => $subItem->shoppableType,
+                            'options' => $subItem->options
+                        ])
+                    ];
+                }
+            }
         }
 
         $response = $this->gateway->authorize($data)->send()->getData();
