@@ -36,8 +36,7 @@ class OrderController extends Controller
 
             return $provider->createProviderOrder();
         } catch (\Exception $e) {
-            info($e->getMessage());
-            return response()->json('We were unable to process your order.', 400);
+            return response()->json('We were unable to process your order: '.$e->getMessage(), 400);
         }
     }
 
