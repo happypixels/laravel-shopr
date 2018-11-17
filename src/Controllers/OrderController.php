@@ -31,16 +31,13 @@ class OrderController extends Controller
             'cart' => [new CartNotEmpty]
         ]);
 
-        try {
-            $provider = PaymentProviderManager::make($request);
+        // try {
+        $provider = PaymentProviderManager::make($request);
 
-            return $provider->createProviderOrder();
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'We were unable to process your order.',
-                'exception' => json_encode($e)
-            ], 400);
-        }
+        return $provider->createProviderOrder();
+        // } catch (\Exception $e) {
+        //     return response()->json('We were unable to process your order.', 400);
+        // }
     }
 
     /**
