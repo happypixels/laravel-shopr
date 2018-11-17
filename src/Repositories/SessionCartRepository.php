@@ -169,6 +169,8 @@ class SessionCartRepository extends BaseCart
             'country'          => optional($userData)['country'],
         ]);
 
+        $order->save();
+
         foreach ($this->items() as $item) {
             $parent = $order->items()->create([
                 'shoppable_type' => get_class($item->shoppable),
