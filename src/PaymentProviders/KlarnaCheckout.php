@@ -91,8 +91,8 @@ class KlarnaCheckout extends PaymentProvider
         $data['locale']           = $this->config['store_locale']; //en-us, en-gb, sv-se
         $data['purchase_country'] = $this->config['store_country']; //gb, us, se
         $data['tax_amount']       = $this->cart->taxTotal();
-        $data['notify_url']       = env('APP_URL').'/api/shopr/webhooks/kco/push?token={checkout.order.id}';
-        $data['validation_url']   = env('APP_URL').'/api/shopr/webhooks/kco/validate';
+        $data['notify_url']       = config('app.url').'/api/shopr/webhooks/kco/push?token={checkout.order.id}';
+        $data['validation_url']   = config('app.url').'/api/shopr/webhooks/kco/validate';
         $data['confirmation_url'] = $this->getConfirmationUrl().'?token={checkout.order.id}&gateway=KlarnaCheckout';
         $data['return_url']       = $this->getCheckoutUrl().'?token={checkout.order.id}&gateway=KlarnaCheckout';
         $data['terms_url']        = $this->config['terms_url'];
