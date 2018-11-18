@@ -15,7 +15,7 @@ Route::group(['prefix' => 'api/shopr', 'namespace' => 'Happypixels\Shopr\Control
 
     Route::post('checkout/charge', 'CheckoutController@charge');
 
-    Route::any('orders', 'OrderController@store');
+    Route::post('orders', 'OrderController@store');
     Route::post('orders/confirm', 'OrderController@confirm');
 
     Route::group(['prefix' => 'webhooks', 'namespace' => 'Webhooks'], function () {
