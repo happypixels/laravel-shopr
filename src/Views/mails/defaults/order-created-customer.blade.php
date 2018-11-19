@@ -3,14 +3,6 @@
 <p>Your order has been received and will be processed shortly.</p>
 
 <h2 style="margin-bottom: 5px;">Order number: #{{ $order->id }}</h2>
-<p style="margin-top: 0;">
-    Payment status:
-    @if($order->payment_status === 'paid')
-        <span style="color: green;">Paid</span>
-    @else
-        <span style="color: yellow;">Awaiting payment</span>
-    @endif
-</p>
 
 <table style="width: 100%; text-align: left;" cellspacing="0" cellpadding="0">
     <thead>

@@ -13,12 +13,6 @@
 <p>
     <b>Payment option</b><br>
     {{$order->payment_gateway}} 
-    
-    @if($order->payment_status === 'paid')
-        <span style="color: green">(Paid)</span>
-    @else
-        <span style="color: yellow">(Awaiting payment)</span>
-    @endif
 </p>
 
 <p>
