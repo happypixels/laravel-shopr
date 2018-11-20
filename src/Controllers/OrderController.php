@@ -71,4 +71,23 @@ class OrderController extends Controller
 
         return response()->json(['order' => $order]);
     }
+
+    /**
+     * Returns a confirmation of the order. Requires the gateway parameter.
+     *
+     * @param  Request $request
+     * @param  string  $token
+     * @return Response
+     */
+    public function confirmation(Request $request, $token)
+    {
+        $request->validate([
+            'gateway' => 'required|string'
+        ]);
+
+        $provider = PaymentProviderManager::make($request);
+        $order = $provider->getOrderFromDatabase($token);
+
+        return ['order' => $order->only(['id', 'transaction_reference'])];
+    }
 }

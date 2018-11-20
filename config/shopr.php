@@ -11,6 +11,14 @@ return [
     ],
 
     /**
+     * URLs to the pages necessary for the checkout flow.
+     * These pages are required by many payment providers.
+     */
+    'checkout_url' => env('APP_URL').'/checkout',
+    'confirmation_url' => env('APP_URL').'/confirmation',
+    'terms_url' => env('APP_URL').'/terms',
+
+    /**
      * The default currency. This will affect all money formatting.
      */
     'currency' => 'USD',
@@ -54,7 +62,6 @@ return [
         'klarna_checkout' => [
             'username' => env('KLARNA_USERNAME', ''),
             'secret' => env('KLARNA_SECRET', ''),
-            'terms_url' => env('APP_URL').'/terms',
 
             // See "Locale & Country" on https://developers.klarna.com/api/#data-types for details.
             'store_locale' => 'en-us',

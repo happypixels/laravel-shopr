@@ -18,7 +18,10 @@ class KlarnaCheckout extends PaymentProvider
      */
     public function getProviderOrder($token)
     {
-        return $this->gateway->fetchTransaction(['transactionReference' => $token])->send()->getData();
+        return $this->gateway
+            ->fetchTransaction(['transactionReference' => $token])
+            ->send()
+            ->getData();
     }
 
     /**
@@ -29,7 +32,10 @@ class KlarnaCheckout extends PaymentProvider
      */
     public function acknowledgeOrder($token)
     {
-        return $this->gateway->acknowledge(['transactionReference' => $token])->send()->isSuccessful();
+        return $this->gateway
+            ->acknowledge(['transactionReference' => $token])
+            ->send()
+            ->isSuccessful();
     }
 
     /**
@@ -41,7 +47,10 @@ class KlarnaCheckout extends PaymentProvider
      */
     public function captureAmount($token, $amount)
     {
-        return $this->gateway->capture(['transactionReference' => $token, 'amount' => $amount])->send()->isSuccessful();
+        return $this->gateway
+            ->capture(['transactionReference' => $token, 'amount' => $amount])
+            ->send()
+            ->isSuccessful();
     }
 
     /**
@@ -86,16 +95,19 @@ class KlarnaCheckout extends PaymentProvider
     {
         $taxRate = config('shopr.tax');
 
-        $data['amount']           = $this->cart->total();
-        $data['currency']         = config('shopr.currency');
-        $data['locale']           = $this->config['store_locale']; //en-us, en-gb, sv-se
+        // Order details.
+        $data['amount'] = $this->cart->total();
+        $data['currency'] = config('shopr.currency');
+        $data['locale'] = $this->config['store_locale']; //en-us, en-gb, sv-se
         $data['purchase_country'] = $this->config['store_country']; //gb, us, se
-        $data['tax_amount']       = $this->cart->taxTotal();
-        $data['notify_url']       = config('app.url').'/api/shopr/webhooks/kco/push?token={checkout.order.id}';
-        $data['validation_url']   = config('app.url').'/api/shopr/webhooks/kco/validate';
-        $data['confirmation_url'] = $this->getConfirmationUrl().'?token={checkout.order.id}&gateway=KlarnaCheckout';
-        $data['return_url']       = $this->getCheckoutUrl().'?token={checkout.order.id}&gateway=KlarnaCheckout';
-        $data['terms_url']        = $this->config['terms_url'];
+        $data['tax_amount'] = $this->cart->taxTotal();
+
+        // Merchant urls.
+        $data['notify_url'] = config('app.url').'/api/shopr/webhooks/kco/push?token={checkout.order.id}';
+        $data['validation_url'] = config('app.url').'/api/shopr/webhooks/kco/validate';
+        $data['confirmation_url'] = config('shopr.confirmation_url').'?token={checkout.order.id}&gateway=KlarnaCheckout';
+        $data['return_url'] = config('shopr.checkout_url').'?token={checkout.order.id}&gateway=KlarnaCheckout';
+        $data['terms_url'] = config('shopr.terms_url');
 
         $data['items'] = [];
 
@@ -204,25 +216,5 @@ class KlarnaCheckout extends PaymentProvider
         }
 
         return 'paid';
-    }
-
-    /**
-     * Returns the checkout url.
-     *
-     * @return string
-     */
-    protected function getCheckoutUrl()
-    {
-        return $this->config['checkout_url'] ?? route('shopr.checkout');
-    }
-
-    /**
-     * Returns the confirmation url.
-     *
-     * @return string
-     */
-    protected function getConfirmationUrl()
-    {
-        return $this->config['confirmation_url'] ?? route('shopr.order-confirmation');
     }
 }
