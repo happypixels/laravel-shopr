@@ -63,7 +63,9 @@ class CheckoutController extends Controller
 
             Event::fire('shopr.orders.created', $order);
 
-            return response()->json(['redirect' => route('shopr.order-confirmation') . '?token=' . $order->token.'&gateway='.$order->payment_gateway], 200);
+            return response()->json([
+                'redirect' => config('shopr.confirmation_url') . '?token=' . $order->token.'&gateway='.$order->payment_gateway
+            ], 200);
         } else {
             return response()->json(['response' => $response->getMessage()], 400);
         }
