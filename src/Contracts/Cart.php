@@ -34,5 +34,5 @@ interface Cart
 
     public function applyDiscountCoupon(DiscountCoupon $coupon);
 
-    public function hasDiscountCoupon($code);
+    public function hasDiscountCoupon($code) : bool;
 }

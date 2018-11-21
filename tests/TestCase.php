@@ -2,9 +2,11 @@
 
 namespace Happypixels\Shopr\Tests;
 
-use Orchestra\Testbench\TestCase as Orchestra;
+use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Repositories\SessionCartRepository;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Illuminate\Database\Schema\Blueprint;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
@@ -18,6 +20,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         $this->setUpDatabase($this->app);
+        $this->withFactories(__DIR__.'/../database/factories');
 
         // Set a dummy app key in order to encrypt cookies.
         config(['app.key' => 'base64:wbvPP9pBOwifnwu84BeKAVzmwM4TLvkVFowLaPAi6nA=']);
@@ -42,5 +45,13 @@ class TestCase extends Orchestra
         include_once __DIR__ . '/../database/migrations/create_discount_coupons_table.php.stub';
         (new \CreateOrderTables())->up();
         (new \CreateDiscountCouponsTable())->up();
+    }
+
+    public function mockCart()
+    {
+        $mock = \Mockery::mock(SessionCartRepository::class);
+        $this->app->instance(Cart::class, $mock);
+
+        return $mock;
     }
 }

@@ -37,4 +37,14 @@ class Shoppable extends Model implements ShoppableContract
     {
         return $this->price;
     }
+
+    /**
+     * Whether or not the model is a discount coupon.
+     *
+     * @return boolean
+     */
+    public function isDiscount()
+    {
+        return false;
+    }
 }

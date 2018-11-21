@@ -1,11 +1,11 @@
 <?php
 
-namespace Happypixels\Shopr\Rules;
+namespace Happypixels\Shopr\Rules\Discounts;
 
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Illuminate\Contracts\Validation\Rule;
 
-class CouponHasntBeenApplied implements Rule
+class CouponExists implements Rule
 {
     /**
      * Determine if the validation rule passes.
@@ -16,7 +16,7 @@ class CouponHasntBeenApplied implements Rule
      */
     public function passes($attribute, $value)
     {
-        return !(app(Cart::class)->hasDiscountCoupon($value));
+        return DiscountCoupon::where('code', $value)->count() > 0;
     }
 
     /**
@@ -26,6 +26,6 @@ class CouponHasntBeenApplied implements Rule
      */
     public function message()
     {
-        return 'That discount coupon has already been applied.';
+        return 'Invalid discount coupon.';
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace Happypixels\Shopr\Rules;
+namespace Happypixels\Shopr\Rules\Discounts;
 
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Illuminate\Contracts\Validation\Rule;
 
-class CouponIsValid implements Rule
+class DateIsWithinCouponTimespan implements Rule
 {
     /**
      * Determine if the validation rule passes.
@@ -16,7 +16,7 @@ class CouponIsValid implements Rule
      */
     public function passes($attribute, $value)
     {
-        return DiscountCoupon::valid()->where('code', $value)->count() > 0;
+        return DiscountCoupon::where('code', $value)->validTimespan()->count() > 0;
     }
 
     /**

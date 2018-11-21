@@ -225,13 +225,13 @@ class SessionCartRepository extends BaseCart
      * @param  string  $code
      * @return boolean
      */
-    public function hasDiscountCoupon($code)
+    public function hasDiscountCoupon($code) : bool
     {
         $items = $this->items();
 
         foreach ($items as $item) {
             if (
-                $item->shoppableType === 'Happypixels\Shopr\Models\DiscountCoupon' &&
+                $item->shoppable->isDiscount() &&
                 $item->shoppable->getTitle() === $code
             ) {
                 return true;
