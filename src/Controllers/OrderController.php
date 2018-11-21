@@ -88,6 +88,10 @@ class OrderController extends Controller
         $provider = PaymentProviderManager::make($request);
         $order = $provider->getOrderFromDatabase($token);
 
+        if (!$order) {
+            return response()->json('The order could not be found.', 404);
+        }
+
         return ['order' => $order->only(['id', 'transaction_reference'])];
     }
 }
