@@ -6,7 +6,6 @@ use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Event;
 
 class CartItemController extends Controller
 {
@@ -35,25 +34,19 @@ class CartItemController extends Controller
             $request->get('price', null)
         );
 
-        Event::fire('shopr.cart.items.added', $item);
-
         return $this->cart->summary();
     }
 
     public function update(Request $request, $id)
     {
-        $item = $this->cart->updateItem($id, $request->all());
-
-        Event::fire('shopr.cart.items.updated', $item);
+        $this->cart->updateItem($id, $request->all());
 
         return $this->cart->summary();
     }
 
     public function destroy($id)
     {
-        $item = $this->cart->removeItem($id);
-
-        Event::fire('shopr.cart.items.deleted', $item);
+        $this->cart->removeItem($id);
 
         return $this->cart->summary();
     }

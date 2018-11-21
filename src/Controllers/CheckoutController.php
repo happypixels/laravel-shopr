@@ -47,7 +47,11 @@ class CheckoutController extends Controller
         // Make the purchase.
         $gateway = Omnipay::create($request->gateway);
         $gateway->initialize(config('shopr.gateways.' . str_slug($request->gateway, '_')));
-        $response = $gateway->purchase(['amount' => $order->total, 'currency' => 'sek', 'token' => $request->token])->send();
+        $response = $gateway->purchase([
+            'amount'   => $order->total,
+            'currency' => config('shopr.currency'),
+            'token'    => $request->token
+        ])->send();
 
         // Handle the response.
         if ($response->isRedirect()) {

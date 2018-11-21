@@ -2,11 +2,12 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Tests\TestCase;
+use Happypixels\Shopr\CartItem;
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Happypixels\Shopr\CartItem;
+use Illuminate\Support\Facades\Event;
 
 class AddCartItemUnitTest extends TestCase
 {
@@ -141,5 +142,28 @@ class AddCartItemUnitTest extends TestCase
         $item  = $cart->addItem(get_class($model), $model->id, null);
 
         $this->assertTrue($item instanceof CartItem);
+    }
+
+    /** @test */
+    public function it_fires_the_correct_event()
+    {
+        $cart = app(Cart::class);
+
+        Event::fake();
+
+        $model = TestShoppable::first();
+        $item  = $cart->addItem(get_class($model), $model->id, null);
+
+        // The first time the added event is fired.
+        Event::assertDispatched('shopr.cart.items.added', function ($event, $data) use ($item) {
+            return (serialize($item) === serialize($data));
+        });
+
+        $item  = $cart->addItem(get_class($model), $model->id, null);
+
+        // The second time the updated event is fired.
+        Event::assertDispatched('shopr.cart.items.updated', function ($event, $data) use ($item) {
+            return ($item->id === $data->id && $data->quantity === 2);
+        });
     }
 }
