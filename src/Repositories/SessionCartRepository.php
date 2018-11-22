@@ -5,8 +5,8 @@ namespace Happypixels\Shopr\Repositories;
 use Happypixels\Shopr\CartItem;
 use Happypixels\Shopr\Cart\BaseCart;
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Contracts\Shoppable;
 use Happypixels\Shopr\Helpers\SessionHelper;
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Money\Formatter;
 use Illuminate\Support\Collection;
@@ -196,26 +196,23 @@ class SessionCartRepository extends BaseCart
     /**
      * Calculates the total value of the coupon and adds it to the cart.
      *
-     * @param  DiscountCoupon $coupon
-     * @return CartItem
+     * @param  Shoppable $coupon
+     * @return CartItem|false
      */
-    public function applyDiscountCoupon(DiscountCoupon $coupon)
+    public function applyDiscountCoupon(Shoppable $coupon)
     {
+        if (!$coupon->isDiscount()) {
+            return false;
+        }
+
         if ($coupon->is_fixed) {
             $amount = -$coupon->value;
         } else {
             $percentage = $coupon->value / 100;
-            $amount     = -($this->total() * $percentage);
+            $amount = -($this->total() * $percentage);
         }
 
-        return $this->addItem(
-            'Happypixels\Shopr\Models\DiscountCoupon',
-            $coupon->id,
-            1,
-            [],
-            [],
-            $amount
-        );
+        return $this->addItem(get_class($coupon), $coupon->id, 1, [], [], $amount);
     }
 
     /**

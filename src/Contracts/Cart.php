@@ -3,7 +3,6 @@
 namespace Happypixels\Shopr\Contracts;
 
 use Happypixels\Shopr\CartItem;
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Illuminate\Support\Collection;
 
 interface Cart
@@ -32,7 +31,7 @@ interface Cart
 
     public function convertToOrder($gateway, $userData = []);
 
-    public function applyDiscountCoupon(DiscountCoupon $coupon);
+    public function applyDiscountCoupon(Shoppable $coupon);
 
     public function hasDiscountCoupon($code) : bool;
 }
