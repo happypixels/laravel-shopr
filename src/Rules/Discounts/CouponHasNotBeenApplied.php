@@ -16,7 +16,7 @@ class CouponHasNotBeenApplied implements Rule
      */
     public function passes($attribute, $value)
     {
-        return app(Cart::class)->hasDiscountCoupon($value) === false;
+        return app(Cart::class)->hasDiscount($value) === false;
     }
 
     /**

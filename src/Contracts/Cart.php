@@ -19,6 +19,8 @@ interface Cart
 
     public function addItem($shoppableType, $shoppableId, $quantity = 1, $options = [], $subItems = [], $price = null) : CartItem;
 
+    public function addDiscount(Shoppable $coupon);
+
     public function updateItem($id, $data);
 
     public function removeItem($id);
@@ -31,7 +33,5 @@ interface Cart
 
     public function convertToOrder($gateway, $userData = []);
 
-    public function applyDiscountCoupon(Shoppable $coupon);
-
-    public function hasDiscountCoupon($code) : bool;
+    public function hasDiscount($code) : bool;
 }
