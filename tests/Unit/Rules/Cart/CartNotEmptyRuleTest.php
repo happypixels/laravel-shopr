@@ -1,6 +1,6 @@
 <?php
 
-namespace Happypixels\Shopr\Tests\Unit\Cart\Validation;
+namespace Happypixels\Shopr\Tests\Unit\Rules\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Rules\Cart\CartNotEmpty;
