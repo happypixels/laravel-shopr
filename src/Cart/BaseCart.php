@@ -4,10 +4,35 @@ namespace Happypixels\Shopr\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Contracts\Shoppable;
+use Happypixels\Shopr\Money\Formatter;
 use Illuminate\Support\Facades\Event;
 
 abstract class BaseCart implements Cart
 {
+    /**
+     * Returns the full cart summary.
+     *
+     * @return array
+     */
+    public function summary()
+    {
+        $subTotal = $this->subTotal();
+        $taxTotal = $this->taxTotal();
+        $total = $this->total();
+        $formatter = new Formatter;
+
+        return [
+            'items'               => $this->items(),
+            'sub_total'           => $subTotal,
+            'sub_total_formatted' => $formatter->format($subTotal),
+            'tax_total'           => $taxTotal,
+            'tax_total_formatted' => $formatter->format($taxTotal),
+            'total'               => $total,
+            'total_formatted'     => $formatter->format($total),
+            'count'               => $this->count()
+        ];
+    }
+
     /**
      * Returns the sub total of the cart.
      *

@@ -7,7 +7,6 @@ use Happypixels\Shopr\Cart\BaseCart;
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Helpers\SessionHelper;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Money\Formatter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 
@@ -19,24 +18,6 @@ class SessionCartRepository extends BaseCart
     public function __construct(SessionHelper $session)
     {
         $this->session = $session;
-    }
-
-    public function summary()
-    {
-        $subTotal = $this->subTotal();
-        $taxTotal = $this->taxTotal();
-        $total    = $this->total();
-
-        return [
-            'items'               => $this->items(),
-            'sub_total'           => $subTotal,
-            'sub_total_formatted' => (new Formatter)->format($subTotal),
-            'tax_total'           => $taxTotal,
-            'tax_total_formatted' => (new Formatter)->format($taxTotal),
-            'total'               => $total,
-            'total_formatted'     => (new Formatter)->format($total),
-            'count'               => $this->count()
-        ];
     }
 
     public function items() : Collection
