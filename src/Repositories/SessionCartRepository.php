@@ -115,11 +115,11 @@ class SessionCartRepository extends BaseCart
     public function removeItem($id)
     {
         $items = $this->items();
-        $item  = null;
+        $removedItem = null;
 
         foreach ($items as $index => $item) {
             if ($item->id === $id) {
-                $item = $items[$index];
+                $removedItem = $items[$index];
 
                 unset($items[$index]);
             }
@@ -127,9 +127,11 @@ class SessionCartRepository extends BaseCart
 
         $this->session->put($this->cartKey, $items);
 
-        Event::fire('shopr.cart.items.deleted', $item);
+        if ($removedItem) {
+            Event::fire('shopr.cart.items.deleted', $removedItem);
+        }
 
-        return $item;
+        return $removedItem;
     }
 
     public function clear()
