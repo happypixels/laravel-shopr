@@ -4,6 +4,7 @@ namespace Happypixels\Shopr\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Contracts\Shoppable;
+use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Money\Formatter;
 use Illuminate\Support\Facades\Event;
 
@@ -124,24 +125,87 @@ abstract class BaseCart implements Cart
 
     /**
      * Iterates all the current items in the cart and returns true if one of them is
-     * a discount coupon matching the given code.
+     * a discount coupon matching the given code. If no code is provided, it will return false on any
+     * discount coupon.
      *
      * @param  string  $code
      * @return boolean
      */
-    public function hasDiscount($code) : bool
+    public function hasDiscount($code = null) : bool
     {
         $items = $this->items();
 
         foreach ($items as $item) {
-            if (
-                $item->shoppable->isDiscount() &&
-                $item->shoppable->getTitle() === $code
-            ) {
+            $shoppable = $item->shoppable;
+
+            if (!$code && $shoppable->isDiscount()) {
+                return true;
+            } elseif ($shoppable->getTitle() === $code && $shoppable->isDiscount()) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Converts the current cart to an order and clears the cart.
+     *
+     * @param  string $gateway
+     * @param  array  $userData
+     * @return \Happypixels\Shopr\Models\Order|false
+     */
+    public function convertToOrder($gateway, $userData = [])
+    {
+        if ($this->isEmpty()) {
+            return false;
+        }
+
+        $order = Order::create([
+            'user_id'          => auth()->id(),
+            'payment_gateway'  => $gateway,
+            'payment_status'   => 'pending',
+            'delivery_status'  => 'pending',
+            'token'            => Order::generateToken(),
+            'total'            => $this->total(),
+            'sub_total'        => $this->subTotal(),
+            'tax'              => $this->taxTotal(),
+            'email'            => optional($userData)['email'],
+            'phone'            => optional($userData)['phone'],
+            'first_name'       => optional($userData)['first_name'],
+            'last_name'        => optional($userData)['last_name'],
+            'address'          => optional($userData)['address'],
+            'zipcode'          => optional($userData)['zipcode'],
+            'city'             => optional($userData)['city'],
+            'country'          => optional($userData)['country'],
+        ]);
+
+        foreach ($this->items() as $item) {
+            $parent = $order->items()->create([
+                'shoppable_type' => get_class($item->shoppable),
+                'shoppable_id'   => $item->shoppable->id,
+                'quantity'       => $item->quantity,
+                'title'          => $item->shoppable->title,
+                'price'          => $item->price,
+                'options'        => $item->options
+            ]);
+
+            if ($item->subItems->count() > 0) {
+                foreach ($item->subItems as $subItem) {
+                    $parent->children()->create([
+                        'order_id'       => $order->id,
+                        'shoppable_type' => get_class($subItem->shoppable),
+                        'shoppable_id'   => $subItem->shoppable->id,
+                        'title'          => $subItem->shoppable->title,
+                        'price'          => $subItem->price,
+                        'options'        => $subItem->options
+                    ]);
+                }
+            }
+        }
+
+        $this->clear();
+
+        return $order;
     }
 }

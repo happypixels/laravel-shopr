@@ -33,5 +33,5 @@ interface Cart
 
     public function convertToOrder($gateway, $userData = []);
 
-    public function hasDiscount($code) : bool;
+    public function hasDiscount($code = null) : bool;
 }

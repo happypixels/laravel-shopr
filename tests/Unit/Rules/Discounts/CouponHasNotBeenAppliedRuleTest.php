@@ -16,7 +16,7 @@ class CouponHasNotBeenAppliedRuleTest extends TestCase
     }
 
     /** @test */
-    public function it_passes_true_if_coupon_has_not_been_applied()
+    public function it_passes_if_coupon_has_not_been_applied()
     {
         $this->mockCart()->shouldReceive('hasDiscount')->with('TEST')->andReturn(false);
 

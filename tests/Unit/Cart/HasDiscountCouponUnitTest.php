@@ -22,7 +22,7 @@ class HasDiscountCouponUnitTest extends TestCase
     {
         $discount = factory(DiscountCoupon::class)->create(['code' => 'Code']);
         $cart = $this->addCartItem();
-        $item = $cart->addDiscount($discount);
+        $cart->addDiscount($discount);
 
         $this->assertTrue($cart->hasDiscount('Code'));
     }
@@ -32,12 +32,25 @@ class HasDiscountCouponUnitTest extends TestCase
     {
         $discount = factory(DiscountCoupon::class)->create(['code' => 'Code']);
         $cart = $this->addCartItem();
-        $item = $cart->addDiscount($discount);
+        $cart->addDiscount($discount);
 
         $this->assertFalse($cart->hasDiscount('CODE'));
         $this->assertFalse($cart->hasDiscount('CodE'));
         $this->assertFalse($cart->hasDiscount('CoDe'));
         $this->assertTrue($cart->hasDiscount('Code'));
+    }
+
+    /** @test */
+    public function it_looks_for_any_discount_if_code_is_empty()
+    {
+        $discount = factory(DiscountCoupon::class)->create(['code' => 'Code']);
+        $cart = $this->addCartItem();
+
+        $this->assertFalse($cart->hasDiscount());
+
+        $cart->addDiscount($discount);
+
+        $this->assertTrue($cart->hasDiscount());
     }
 
     protected function addCartItem()

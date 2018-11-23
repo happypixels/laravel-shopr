@@ -3,6 +3,7 @@
 namespace Happypixels\Shopr\Controllers;
 
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Rules\Discounts\NotADiscount;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -21,8 +22,8 @@ class CartItemController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'shoppable_type' => 'required',
-            'shoppable_id'   => 'required'
+            'shoppable_type' => ['required', new NotADiscount],
+            'shoppable_id' => 'required',
         ]);
 
         $item = $this->cart->addItem(
