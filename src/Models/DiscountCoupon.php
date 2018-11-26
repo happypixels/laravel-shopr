@@ -13,6 +13,7 @@ class DiscountCoupon extends Shoppable
         'valid_until',
         'uses',
         'code',
+        'description',
         'is_fixed',
         'value',
     ];

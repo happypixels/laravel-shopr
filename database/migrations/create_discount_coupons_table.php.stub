@@ -19,6 +19,7 @@ class CreateDiscountCouponsTable extends Migration
             $table->timestamp('valid_until')->nullable();
             $table->integer('uses')->default(0);
             $table->string('code')->unique();
+            $table->longText('description')->nullable();
             $table->boolean('is_fixed')->default(1);
             $table->decimal('value', 9, 2)->default(0);
 
