@@ -42,7 +42,7 @@ class Shoppable extends Model implements ShoppableContract
      *
      * @return boolean
      */
-    public function isDiscount()
+    public function isDiscount() : bool
     {
         return false;
     }

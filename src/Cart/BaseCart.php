@@ -94,7 +94,9 @@ abstract class BaseCart implements Cart
      */
     public function count()
     {
-        return $this->items()->sum('quantity');
+        return $this->items()->filter(function ($row) {
+            return $row->shoppable->isDiscount() === false;
+        })->sum('quantity');
     }
 
     /**

@@ -2,9 +2,10 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
 
 class CartUnitTest extends TestCase
 {
@@ -86,6 +87,17 @@ class CartUnitTest extends TestCase
         $cart->addItem(get_class($model), $model->id, 2, ['color' => 'Green']);
 
         $this->assertEquals(5, $cart->count());
+    }
+
+    /** @test */
+    public function the_count_does_not_include_discount_coupons()
+    {
+        $cart  = app(Cart::class);
+        $model = TestShoppable::first();
+        $cart->addItem(get_class($model), $model->id, 1);
+        $cart->addDiscount(factory(DiscountCoupon::class)->create());
+
+        $this->assertEquals(1, $cart->count());
     }
 
     /** @test */
