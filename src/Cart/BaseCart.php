@@ -6,10 +6,42 @@ use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Contracts\Shoppable;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Money\Formatter;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 
 abstract class BaseCart implements Cart
 {
+    /**
+     * Returns all items in the cart including discount coupons.
+     *
+     * @return Collection
+     */
+    abstract public function getAllItems() : Collection;
+
+    /**
+     * Returns the regular cart items.
+     *
+     * @return Collection
+     */
+    public function items() : Collection
+    {
+        return $this->getAllItems()->filter(function ($item) {
+            return $item->shoppable->isDiscount() === false;
+        });
+    }
+
+    /**
+     * Returns the discount coupons added to the cart.
+     *
+     * @return Collection
+     */
+    public function discounts() : Collection
+    {
+        return $this->getAllItems()->filter(function ($item) {
+            return $item->shoppable->isDiscount() === true;
+        });
+    }
+
     /**
      * Returns the full cart summary.
      *
@@ -23,14 +55,15 @@ abstract class BaseCart implements Cart
         $formatter = new Formatter;
 
         return [
-            'items'               => $this->items(),
-            'sub_total'           => $subTotal,
+            'items' => $this->items(),
+            'discounts' => $this->discounts(),
+            'sub_total' => $subTotal,
             'sub_total_formatted' => $formatter->format($subTotal),
-            'tax_total'           => $taxTotal,
+            'tax_total' => $taxTotal,
             'tax_total_formatted' => $formatter->format($taxTotal),
-            'total'               => $total,
-            'total_formatted'     => $formatter->format($total),
-            'count'               => $this->count()
+            'total' => $total,
+            'total_formatted' => $formatter->format($total),
+            'count' => $this->count()
         ];
     }
 
@@ -69,7 +102,7 @@ abstract class BaseCart implements Cart
     {
         $total = 0;
 
-        foreach ($this->items() as $item) {
+        foreach ($this->getAllItems() as $item) {
             // This includes the sub items.
             $total += $item->total();
         }
@@ -130,14 +163,12 @@ abstract class BaseCart implements Cart
      */
     public function hasDiscount($code = null) : bool
     {
-        $items = $this->items();
+        $items = $this->discounts();
 
         foreach ($items as $item) {
-            $shoppable = $item->shoppable;
-
-            if (!$code && $shoppable->isDiscount()) {
+            if (!$code) {
                 return true;
-            } elseif ($shoppable->getTitle() === $code && $shoppable->isDiscount()) {
+            } elseif ($item->shoppable->getTitle() === $code) {
                 return true;
             }
         }
@@ -177,7 +208,7 @@ abstract class BaseCart implements Cart
             'country'          => optional($userData)['country'],
         ]);
 
-        foreach ($this->items() as $item) {
+        foreach ($this->getAllItems() as $item) {
             $parent = $order->items()->create([
                 'shoppable_type' => get_class($item->shoppable),
                 'shoppable_id'   => $item->shoppable->id,

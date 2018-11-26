@@ -15,8 +15,8 @@ class CartUnitTest extends TestCase
         $cart = app(Cart::class);
 
         $this->assertEquals([
-            'items', 'sub_total', 'sub_total_formatted', 'tax_total', 'tax_total_formatted',
-            'total', 'total_formatted', 'count'
+            'items', 'discounts', 'sub_total', 'sub_total_formatted', 'tax_total',
+            'tax_total_formatted', 'total', 'total_formatted', 'count'
         ], array_keys($cart->summary()));
     }
 
@@ -109,6 +109,32 @@ class CartUnitTest extends TestCase
 
         $this->assertEquals('Illuminate\Support\Collection', get_class($cart->items()));
         $this->assertEquals('Happypixels\Shopr\CartItem', get_class($cart->items()->first()));
+    }
+
+    /** @test */
+    public function items_dont_include_discounts()
+    {
+        $cart  = app(Cart::class);
+        $model = TestShoppable::first();
+        $cart->addItem(get_class($model), 1);
+        $cart->addDiscount(factory(DiscountCoupon::class)->create());
+
+        $this->assertEquals(1, $cart->items()->count());
+    }
+
+    /** @test */
+    public function discounts_are_a_collection_of_cart_items_with_only_added_discounts()
+    {
+        $cart = app(Cart::class);
+        $model = TestShoppable::first();
+        $discount = factory(DiscountCoupon::class)->create();
+        $cart->addItem(get_class($model), 1);
+        $cart->addDiscount($discount);
+
+        $this->assertEquals('Illuminate\Support\Collection', get_class($cart->discounts()));
+        $this->assertEquals('Happypixels\Shopr\CartItem', get_class($cart->discounts()->first()));
+        $this->assertEquals(1, $cart->discounts()->count());
+        $this->assertEquals($discount->code, $cart->discounts()->first()->shoppable->getTitle());
     }
 
     /** @test */

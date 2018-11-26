@@ -18,10 +18,10 @@ class SessionCartRepository extends BaseCart
     {
         $this->session = $session;
     }
-
-    public function items() : Collection
+    
+    public function getAllItems() : Collection
     {
-        return $this->session->get($this->cartKey) ?: collect([]);
+        return $this->session->get($this->cartKey) ?: collect();
     }
 
     public function addItem($shoppableType, $shoppableId, $quantity = 1, $options = [], $subItems = [], $price = null) : CartItem

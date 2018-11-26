@@ -11,6 +11,8 @@ interface Cart
 
     public function items() : Collection;
 
+    public function discounts() : Collection;
+
     public function subTotal();
 
     public function taxTotal();

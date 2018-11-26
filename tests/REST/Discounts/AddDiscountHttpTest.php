@@ -19,7 +19,7 @@ class AddDiscountHttpTest extends TestCase
         $this->json('POST', 'api/shopr/cart/discounts', ['code' => $discount->code])->assertStatus(200);
 
         $this->assertEquals(450, $cart->total());
-        $this->assertTrue($cart->items()->last()->shoppable->isDiscount());
+        $this->assertTrue($cart->discounts()->first()->shoppable->isDiscount());
     }
 
     /** @test */
