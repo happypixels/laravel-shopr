@@ -2,11 +2,12 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Models\OrderItem;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ConvertCartToOrderUnitTest extends TestCase
@@ -104,6 +105,30 @@ class ConvertCartToOrderUnitTest extends TestCase
     }
 
     /** @test */
+    public function it_stores_discount_coupons_correctly()
+    {
+        config(['shopr.tax' => 25]);
+
+        $discount = factory(DiscountCoupon::class)->create(['is_fixed' => true, 'value' => 300]);
+        $cart = $this->addCartItem();
+        $cart->addDiscount($discount);
+
+        $order = $cart->convertToOrder('stripe', []);
+        $items = OrderItem::where('order_id', $order->id)->get();
+
+        // Tax is calculated on the reduced price.
+        $this->assertEquals(200, $order->total);
+        $this->assertEquals(160, $order->sub_total);
+        $this->assertEquals(40, $order->tax);
+        $this->assertEquals(2, $items->count());
+
+        $coupon = $items->last();
+        $this->assertEquals($discount->code, $coupon->title);
+        $this->assertEquals(-300, $coupon->price);
+        $this->assertEquals(1, $coupon->quantity);
+    }
+
+    /** @test */
     public function it_clears_the_cart()
     {
         $cart  = app(Cart::class);
@@ -129,5 +154,14 @@ class ConvertCartToOrderUnitTest extends TestCase
 
         $this->assertEquals(100, $order->total);
         $this->assertEquals(100, $order->items()->first()->price);
+    }
+
+    public function addCartItem()
+    {
+        $cart = app(Cart::class);
+        $model = factory(TestShoppable::class)->create(['price' => 500]);
+        $cart->addItem(get_class($model), $model->id, 1);
+
+        return $cart;
     }
 }

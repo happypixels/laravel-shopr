@@ -187,7 +187,7 @@ abstract class BaseCart implements Cart
                 'shoppable_type' => get_class($item->shoppable),
                 'shoppable_id'   => $item->shoppable->id,
                 'quantity'       => $item->quantity,
-                'title'          => $item->shoppable->title,
+                'title'          => $item->shoppable->getTitle(),
                 'price'          => $item->price,
                 'options'        => $item->options
             ]);
@@ -198,7 +198,7 @@ abstract class BaseCart implements Cart
                         'order_id'       => $order->id,
                         'shoppable_type' => get_class($subItem->shoppable),
                         'shoppable_id'   => $subItem->shoppable->id,
-                        'title'          => $subItem->shoppable->title,
+                        'title'          => $subItem->shoppable->getTitle(),
                         'price'          => $subItem->price,
                         'options'        => $subItem->options
                     ]);
