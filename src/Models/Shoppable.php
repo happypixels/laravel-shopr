@@ -30,10 +30,9 @@ class Shoppable extends Model implements ShoppableContract
     /**
      * The price of the model.
      *
-     * @param array $input
      * @return mixed
      */
-    public function getPrice($input = [])
+    public function getPrice()
     {
         return $this->price;
     }

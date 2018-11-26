@@ -2,6 +2,7 @@
 
 namespace Happypixels\Shopr\Models;
 
+use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DiscountCoupon extends Shoppable
@@ -42,6 +43,25 @@ class DiscountCoupon extends Shoppable
     public function getTitle()
     {
         return $this->code;
+    }
+
+    /**
+     * The price of the model.
+     *
+     * @return mixed
+     */
+    public function getPrice()
+    {
+        $cart = app(Cart::class);
+
+        if ($this->is_fixed) {
+            $amount = -$this->value;
+        } else {
+            $percentage = $this->value / 100;
+            $amount = -($cart->total() * $percentage);
+        }
+
+        return $amount;
     }
 
     /**

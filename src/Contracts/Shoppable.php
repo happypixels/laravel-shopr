@@ -8,5 +8,5 @@ interface Shoppable
 
     public function getTitle();
 
-    public function getPrice($input = []);
+    public function getPrice();
 }

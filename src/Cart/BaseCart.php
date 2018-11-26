@@ -109,14 +109,7 @@ abstract class BaseCart implements Cart
             return false;
         }
 
-        if ($coupon->is_fixed) {
-            $amount = -$coupon->value;
-        } else {
-            $percentage = $coupon->value / 100;
-            $amount = -($this->total() * $percentage);
-        }
-
-        $item = $this->addItem(get_class($coupon), $coupon->id, 1, [], [], $amount);
+        $item = $this->addItem(get_class($coupon), $coupon->id, 1, [], [], $coupon->getPrice());
 
         $coupon->increment('uses');
 
