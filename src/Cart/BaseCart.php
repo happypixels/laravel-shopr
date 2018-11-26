@@ -118,6 +118,8 @@ abstract class BaseCart implements Cart
 
         $item = $this->addItem(get_class($coupon), $coupon->id, 1, [], [], $amount);
 
+        $coupon->increment('uses');
+
         Event::fire('shopr.cart.discounts.added', $item);
 
         return $item;

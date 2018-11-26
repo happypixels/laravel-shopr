@@ -61,6 +61,19 @@ class AddDiscountCouponUnitTest extends TestCase
         });
     }
 
+    /** @test */
+    public function it_increments_the_coupon_uses()
+    {
+        $discount = factory(DiscountCoupon::class)->create(['is_fixed' => true, 'value' => 300]);
+        $cart = $this->addCartItem();
+
+        $this->assertEquals(0, $discount->uses);
+
+        $cart->addDiscount($discount);
+
+        $this->assertEquals(1, $discount->uses);
+    }
+
     public function addCartItem()
     {
         $cart = app(Cart::class);
