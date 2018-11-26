@@ -4,12 +4,9 @@ namespace Happypixels\Shopr\Controllers;
 
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Models\DiscountCoupon;
-use Happypixels\Shopr\Rules\CouponHasntBeenApplied;
-use Happypixels\Shopr\Rules\CouponIsValid;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Event;
 
 class CartDiscountController extends Controller
 {
@@ -30,19 +27,15 @@ class CartDiscountController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'code' => [
-                'required',
-                new CouponHasntBeenApplied,
-                new CouponIsValid
-            ]
-        ]);
+        // Validate the configurated rules.
+        $rules = ['required', 'string'];
+        $rules = array_merge($rules, config('shopr.discount_coupons.validation_rules') ?? []);
+        
+        $this->validate($request, ['code' => $rules]);
 
-        $coupon = DiscountCoupon::valid()->where('code', $request->code)->first();
+        $coupon = DiscountCoupon::where('code', $request->code)->first();
 
-        $this->cart->applyDiscountCoupon($coupon);
-
-        #Event::fire('shopr.cart.discount.applied', $coupon);
+        $this->cart->addDiscount($coupon);
 
         return $this->cart->summary();
     }

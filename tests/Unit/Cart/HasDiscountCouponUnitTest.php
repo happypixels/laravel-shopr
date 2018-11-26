@@ -53,7 +53,7 @@ class HasDiscountCouponUnitTest extends TestCase
         $this->assertTrue($cart->hasDiscount());
     }
 
-    protected function addCartItem()
+    public function addCartItem()
     {
         $cart = app(Cart::class);
         $model = factory(TestShoppable::class)->create(['price' => 500]);

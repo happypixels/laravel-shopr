@@ -61,7 +61,7 @@ class AddDiscountCouponUnitTest extends TestCase
         });
     }
 
-    protected function addCartItem()
+    public function addCartItem()
     {
         $cart = app(Cart::class);
         $model = factory(TestShoppable::class)->create(['price' => 500]);

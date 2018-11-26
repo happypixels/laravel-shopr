@@ -54,4 +54,23 @@ class TestCase extends Orchestra
 
         return $mock;
     }
+
+    public function addCartItem()
+    {
+        $cart = app(Cart::class);
+        $model = TestShoppable::first();
+        
+        return $cart->addItem(get_class($model), 1, 1);
+    }
+
+    /**
+     * Define environment setup.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
+     * @return void
+     */
+    protected function getEnvironmentSetUp($app)
+    {
+        $app['config']->set('shopr', require(__DIR__.'/../config/shopr.php'));
+    }
 }
