@@ -28,8 +28,8 @@ class SessionCartRepository extends BaseCart
     {
         $quantity = (is_numeric($quantity) && $quantity > 0) ? $quantity : 1;
 
-        $items = $this->items();
-        $item  = new CartItem($shoppableType, $shoppableId, $quantity, $options, $subItems, $price);
+        $items = $this->getAllItems();
+        $item = new CartItem($shoppableType, $shoppableId, $quantity, $options, $subItems, $price);
 
         // Find already added items that are identical to current selection.
         $identicals = $items->filter(function ($row) use ($item) {
@@ -63,7 +63,7 @@ class SessionCartRepository extends BaseCart
 
     public function updateItem($id, $data)
     {
-        $items = $this->items();
+        $items = $this->getAllItems();
         $item  = null;
 
         foreach ($items as $index => $item) {
@@ -93,7 +93,7 @@ class SessionCartRepository extends BaseCart
 
     public function removeItem($id)
     {
-        $items = $this->items();
+        $items = $this->getAllItems();
         $removedItem = null;
 
         foreach ($items as $index => $item) {

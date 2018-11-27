@@ -27,7 +27,7 @@ abstract class BaseCart implements Cart
     {
         return $this->getAllItems()->filter(function ($item) {
             return $item->shoppable->isDiscount() === false;
-        });
+        })->values();
     }
 
     /**
@@ -39,7 +39,7 @@ abstract class BaseCart implements Cart
     {
         return $this->getAllItems()->filter(function ($item) {
             return $item->shoppable->isDiscount() === true;
-        });
+        })->values();
     }
 
     /**
@@ -127,9 +127,7 @@ abstract class BaseCart implements Cart
      */
     public function count()
     {
-        return $this->items()->filter(function ($row) {
-            return $row->shoppable->isDiscount() === false;
-        })->sum('quantity');
+        return $this->items()->sum('quantity');
     }
 
     /**
@@ -163,9 +161,7 @@ abstract class BaseCart implements Cart
      */
     public function hasDiscount($code = null) : bool
     {
-        $items = $this->discounts();
-
-        foreach ($items as $item) {
+        foreach ($this->discounts() as $item) {
             if (!$code) {
                 return true;
             } elseif ($item->shoppable->getTitle() === $code) {

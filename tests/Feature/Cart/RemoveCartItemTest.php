@@ -3,6 +3,7 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
@@ -25,6 +26,24 @@ class RemoveCartItemTest extends TestCase
 
         $this->assertEquals(1, $cart->count());
         $this->assertEquals($item->id, $cart->items()->first()->id);
+    }
+
+    /** @test */
+    public function it_does_not_remove_discount_coupons()
+    {
+        $discount = factory(DiscountCoupon::class)->create();
+        $cart = app(Cart::class);
+        $model = TestShoppable::first();
+        $item = $cart->addItem(get_class($model), $model->id, 1);
+        $item2 = $cart->addItem(get_class($model), $model->id, 1, $options = ['size' => 'L']);
+
+        $cart->addDiscount($discount);
+
+        $this->json('DELETE', 'api/shopr/cart/items/' . $item2->id)
+            ->assertStatus(200)
+            ->assertJsonFragment(['count' => 1]);
+
+        $this->assertTrue($cart->hasDiscount($discount->code));
     }
 
     /** @test */

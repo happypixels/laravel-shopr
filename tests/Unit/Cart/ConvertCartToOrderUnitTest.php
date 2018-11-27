@@ -17,7 +17,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     /** @test */
     public function it_aborts_if_the_cart_is_empty()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
 
         $this->assertFalse($cart->convertToOrder('stripe'));
         $this->assertEquals(0, Order::count());
