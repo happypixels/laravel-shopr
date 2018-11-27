@@ -26,6 +26,6 @@ class CouponHasNotBeenApplied implements Rule
      */
     public function message()
     {
-        return 'That discount coupon has already been applied.';
+        return trans('shopr::discounts.coupon_already_applied');
     }
 }

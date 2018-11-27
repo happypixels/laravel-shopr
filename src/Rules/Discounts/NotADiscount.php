@@ -24,6 +24,6 @@ class NotADiscount implements Rule
      */
     public function message()
     {
-        return 'Invalid shoppable.';
+        return trans('shopr::shoppables.invalid_shoppable');
     }
 }

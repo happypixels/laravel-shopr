@@ -26,6 +26,6 @@ class OnlyOneCouponPerOrder implements Rule
      */
     public function message()
     {
-        return 'A discount coupon has already been applied.';
+        return trans('shopr::discounts.other_coupon_applied');
     }
 }

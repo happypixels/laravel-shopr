@@ -26,6 +26,6 @@ class CouponExists implements Rule
      */
     public function message()
     {
-        return 'Invalid discount coupon.';
+        return trans('shopr::discounts.invalid_coupon');
     }
 }

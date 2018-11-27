@@ -24,6 +24,6 @@ class CartNotEmpty implements Rule
      */
     public function message()
     {
-        return 'Your cart is empty.';
+        return trans('shopr::cart.cart_is_empty');
     }
 }

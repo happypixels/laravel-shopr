@@ -30,6 +30,13 @@ class ShoprServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__ . '/Views', 'shopr');
 
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'shopr');
+        $this->publishes([
+            __DIR__ . '/../resources/lang' => resource_path('lang/vendor/shopr'),
+        ], 'translations');
+
+        $this->mergeConfigFrom(__DIR__.'/../config/shopr.php', 'shopr');
+
         // We manually register the events here rather than automatically registering the observer
         // because we want to be in control of when the events are fired.
         Event::listen('shopr.orders.created', function (Order $order) {
