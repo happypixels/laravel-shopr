@@ -19,6 +19,11 @@ class DiscountCoupon extends Shoppable
         'value',
     ];
 
+    protected $casts = [
+        'valid_from' => 'datetime',
+        'valid_until' => 'datetime',
+    ];
+
     /**
      * Only returns coupons where the current date is within their time limits.
      *
