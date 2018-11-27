@@ -22,6 +22,7 @@ class CreateDiscountCouponsTable extends Migration
             $table->longText('description')->nullable();
             $table->boolean('is_fixed')->default(1);
             $table->decimal('value', 9, 2)->default(0);
+            $table->decimal('lower_cart_limit', 9, 2)->nullable();
 
             $table->timestamps();
             $table->softDeletes();

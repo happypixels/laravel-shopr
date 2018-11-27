@@ -17,6 +17,7 @@ class DiscountCoupon extends Shoppable
         'description',
         'is_fixed',
         'value',
+        'lower_cart_limit'
     ];
 
     protected $casts = [
@@ -51,22 +52,30 @@ class DiscountCoupon extends Shoppable
     }
 
     /**
-     * The price of the model.
+     * The calculated, negative value of the discount coupon.
      *
      * @return mixed
      */
     public function getPrice()
     {
-        $cart = app(Cart::class);
+        return -($this->getCalculatedPositiveValue());
+    }
 
+    /**
+     * Returns the positive calculated value of the coupon.
+     * Can be used to determine how much the coupon is worth.
+     *
+     * @return float
+     */
+    public function getCalculatedPositiveValue()
+    {
         if ($this->is_fixed) {
-            $amount = -$this->value;
-        } else {
-            $percentage = $this->value / 100;
-            $amount = -($cart->total() * $percentage);
+            return $this->value;
         }
 
-        return $amount;
+        $percentage = $this->value / 100;
+
+        return (app(Cart::class)->total() * $percentage);
     }
 
     /**

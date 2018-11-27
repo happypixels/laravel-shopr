@@ -54,6 +54,7 @@ return [
             new Happypixels\Shopr\Rules\Discounts\CouponHasNotBeenApplied,
             new Happypixels\Shopr\Rules\Discounts\CouponExists,
             new Happypixels\Shopr\Rules\Discounts\DateIsWithinCouponTimespan,
+            new Happypixels\Shopr\Rules\Discounts\CartValueAboveCouponLimit
         ]
     ],
 

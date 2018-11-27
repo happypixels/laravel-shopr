@@ -76,6 +76,23 @@ class AddDiscountValidationHttpTest extends TestCase
     }
 
     /** @test */
+    public function cart_value_is_high_enough()
+    {
+        $discount = factory(DiscountCoupon::class)->create(['lower_cart_limit' => 600]);
+        $discount2 = factory(DiscountCoupon::class)->create(['value' => 600, 'is_fixed' => 1]);
+
+        $this->addCartItem();
+
+        $response = $this->json('POST', 'api/shopr/cart/discounts', ['code' => $discount->code])
+            ->assertStatus(422)
+            ->assertJsonFragment([trans('shopr::discounts.invalid_coupon')]);
+
+        $response = $this->json('POST', 'api/shopr/cart/discounts', ['code' => $discount2->code])
+            ->assertStatus(422)
+            ->assertJsonFragment([trans('shopr::discounts.invalid_coupon')]);
+    }
+
+    /** @test */
     public function it_validates_custom_rules()
     {
         $rules = config('shopr.discount_coupons.validation_rules');
