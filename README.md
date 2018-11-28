@@ -1,4 +1,5 @@
 # laravel-shopr
+[![Build Status](https://travis-ci.com/happypixels/laravel-shopr.svg?branch=master)](https://travis-ci.com/happypixels/laravel-shopr)
 [![StyleCI](https://styleci.io/repos/148448571/shield)](https://styleci.io/repos/148448571)
 
 A developer-friendly e-commerce foundation for your Laravel app. 
