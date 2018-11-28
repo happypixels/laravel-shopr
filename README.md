@@ -1,4 +1,6 @@
 # laravel-shopr
+[![StyleCI](https://styleci.io/repos/148448571/shield)](https://styleci.io/repos/148448571)
+
 A developer-friendly e-commerce foundation for your Laravel app. 
 All the features you need for your webshop but without sacrificing you as a developer. 
 Full documentation here: https://laravel-shopr.happypixels.se
