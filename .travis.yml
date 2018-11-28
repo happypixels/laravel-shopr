@@ -6,13 +6,14 @@ php:
   - 7.3
 
 before_install:
+  - sudo apt-get update
   - travis_retry composer self-update
 
 install:
-  - travis_retry composer update --prefer-source --prefer-lowest
+  - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
 script:
-  - phpunit
+  - vendor/bin/phpunit
 
 branches:
   only:
