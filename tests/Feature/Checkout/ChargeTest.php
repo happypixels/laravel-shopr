@@ -2,9 +2,9 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Checkout;
 
+use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Happypixels\Shopr\Contracts\Cart;
 
 class ChargeTest extends TestCase
 {
@@ -25,7 +25,7 @@ class ChargeTest extends TestCase
             'email'      => 'test@example.com',
             'gateway'    => 'stripe',
             'first_name' => 'Testy',
-            'last_name'  => 'McTestface'
+            'last_name'  => 'McTestface',
         ])
             ->assertStatus(400)
             ->assertJsonFragment(['message' => 'Your cart is empty.']);

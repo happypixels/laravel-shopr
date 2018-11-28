@@ -2,12 +2,12 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Tests\TestCase;
-use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\OrderItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class ConvertCartToOrderUnitTest extends TestCase
 {
@@ -16,7 +16,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     /** @test */
     public function it_aborts_if_the_cart_is_empty()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
 
         $this->assertFalse($cart->convertToOrder('stripe'));
         $this->assertEquals(0, Order::count());
@@ -27,7 +27,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     {
         config(['shopr.tax' => 25]);
 
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1);
 
@@ -65,7 +65,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     /** @test */
     public function it_creates_an_item_for_each_cart_row()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1, ['color' => 'Green']);
         $cart->addItem(get_class($model), 1, 2, ['size' => 'Large']);
@@ -84,9 +84,9 @@ class ConvertCartToOrderUnitTest extends TestCase
     /** @test */
     public function it_stores_the_sub_items_in_the_database()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
-        $item  = $cart->addItem(get_class($model), $model->id, 1, [], [
+        $item = $cart->addItem(get_class($model), $model->id, 1, [], [
             ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'price' => 50],
             ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'options' => ['color' => 'Green']],
         ]);
@@ -106,7 +106,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     /** @test */
     public function it_clears_the_cart()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1, ['color' => 'Green']);
         $cart->addItem(get_class($model), 1, 2, ['size' => 'Large']);
@@ -121,7 +121,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     /** @test */
     public function it_takes_price_overrides_into_account()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1, [], [], 100);
 

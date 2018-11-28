@@ -3,9 +3,9 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class CartControllerTest extends TestCase
 {
@@ -22,7 +22,7 @@ class CartControllerTest extends TestCase
     /** @test */
     public function cart_count()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 2);
 
@@ -34,7 +34,7 @@ class CartControllerTest extends TestCase
     /** @test */
     public function it_clears_the_cart()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 1);
 

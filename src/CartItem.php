@@ -26,16 +26,16 @@ class CartItem
 
     public function __construct($shoppableType, $shoppableId, $quantity, $options, $subItems, $price = null)
     {
-        $this->id              = uniqid(time());
-        $this->shoppableType   = $shoppableType;
-        $this->shoppableId     = $shoppableId;
-        $this->shoppable       = (new $shoppableType)::findOrFail($shoppableId);
-        $this->quantity        = $quantity;
-        $this->options         = $options;
-        $this->subItems        = $this->addSubItems($subItems);
-        $this->price           = ($price) ?? $this->shoppable->getPrice();
+        $this->id = uniqid(time());
+        $this->shoppableType = $shoppableType;
+        $this->shoppableId = $shoppableId;
+        $this->shoppable = (new $shoppableType)::findOrFail($shoppableId);
+        $this->quantity = $quantity;
+        $this->options = $options;
+        $this->subItems = $this->addSubItems($subItems);
+        $this->price = ($price) ?? $this->shoppable->getPrice();
         $this->price_formatted = (new Formatter)->format($this->price);
-        $this->total           = $this->total();
+        $this->total = $this->total();
     }
 
     private function addSubItems($subItems = [])
@@ -47,8 +47,8 @@ class CartItem
         }
 
         foreach ($subItems as $item) {
-            $options = (!empty($item['options'])) ? $item['options'] : [];
-            $price   = (!empty($item['price']) && is_numeric($item['price'])) ? $item['price'] : null;
+            $options = (! empty($item['options'])) ? $item['options'] : [];
+            $price = (! empty($item['price']) && is_numeric($item['price'])) ? $item['price'] : null;
 
             $items->push(new CartSubItem(
                 $item['shoppable_type'],

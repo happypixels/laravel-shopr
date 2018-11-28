@@ -2,9 +2,9 @@
 
 namespace Happypixels\Shopr\Tests;
 
+use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
-use Illuminate\Database\Schema\Blueprint;
 
 class TestCase extends Orchestra
 {
@@ -38,7 +38,7 @@ class TestCase extends Orchestra
 
         TestShoppable::create(['title' => 'Test product', 'price' => 500]);
 
-        include_once __DIR__ . '/../database/migrations/create_order_tables.php.stub';
+        include_once __DIR__.'/../database/migrations/create_order_tables.php.stub';
         (new \CreateOrderTables())->up();
     }
 }

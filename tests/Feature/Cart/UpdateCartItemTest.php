@@ -3,22 +3,22 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class UpdateCartItemTest extends TestCase
 {
     /** @test */
     public function it_updates_the_item_quantity()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
-        $item  = $cart->addItem(get_class($model), 1, 1);
+        $item = $cart->addItem(get_class($model), 1, 1);
 
         $this->assertEquals(1, $cart->items()->first()->quantity);
 
-        $response = $this->json('PATCH', 'api/shopr/cart/items/' . $item->id, ['quantity' => 2])
+        $response = $this->json('PATCH', 'api/shopr/cart/items/'.$item->id, ['quantity' => 2])
             ->assertStatus(200)
             ->assertJsonFragment(['count' => 2]);
 
@@ -29,14 +29,14 @@ class UpdateCartItemTest extends TestCase
     /** @test */
     public function it_updates_the_cart_totals_correctly()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
-        $item  = $cart->addItem(get_class($model), $model->id, 1, [], [
+        $item = $cart->addItem(get_class($model), $model->id, 1, [], [
             ['shoppable_type' => get_class($model), 'shoppable_id' => 1],
             ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'options' => ['color' => 'Green']],
         ]);
 
-        $response = $this->json('PATCH', 'api/shopr/cart/items/' . $item->id, ['quantity' => 2])
+        $response = $this->json('PATCH', 'api/shopr/cart/items/'.$item->id, ['quantity' => 2])
             ->assertStatus(200)
             ->assertJsonFragment(['count' => 2, 'total' => 3000]);
 
@@ -49,23 +49,22 @@ class UpdateCartItemTest extends TestCase
     /** @test */
     public function it_fires_event()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
-        $item  = $cart->addItem(get_class($model), 1, 1);
+        $item = $cart->addItem(get_class($model), 1, 1);
 
         Event::fake();
 
-        $response = $this->json('PATCH', 'api/shopr/cart/items/' . $item->id, ['quantity' => 2])
+        $response = $this->json('PATCH', 'api/shopr/cart/items/'.$item->id, ['quantity' => 2])
             ->assertStatus(200)
             ->assertJsonFragment(['count' => 2]);
 
         $item = $cart->items()->first();
 
         Event::assertDispatched('shopr.cart.items.updated', function ($event, $data) use ($item) {
-            return (
+            return
                 $item->id === $data->id &&
-                serialize($item) === serialize($data)
-            );
+                serialize($item) === serialize($data);
         });
     }
 }

@@ -19,7 +19,7 @@ class RequireOrderToken
     {
         $token = $request->query('token');
 
-        if (!$token || Order::where('token', $token)->where('payment_status', 'paid')->count() === 0) {
+        if (! $token || Order::where('token', $token)->where('payment_status', 'paid')->count() === 0) {
             return redirect('/');
         }
 
