@@ -1,6 +1,10 @@
 # laravel-shopr
-[![Build Status](https://travis-ci.com/happypixels/laravel-shopr.svg?branch=master)](https://travis-ci.com/happypixels/laravel-shopr)
-[![StyleCI](https://styleci.io/repos/148448571/shield)](https://styleci.io/repos/148448571)
+<p>
+<a href="https://github.com/happypixels/laravel-shopr/releases"><img src="https://poser.pugx.org/happypixels/laravel-shopr/v/stable.svg"></a>
+<a href="https://github.com/happypixels/laravel-shopr"><img src="https://travis-ci.com/happypixels/laravel-shopr.svg?branch=master" /></a>
+<a href="https://github.com/happypixels/laravel-shopr"><img src="https://styleci.io/repos/148448571/shield" /></a>
+<a href="https://github.com/happypixels/laravel-shopr"><img src="https://poser.pugx.org/happypixels/laravel-shopr/license.svg"></a>
+</p>
 
 A developer-friendly e-commerce foundation for your Laravel app. 
 All the features you need for your webshop but without sacrificing you as a developer. 
