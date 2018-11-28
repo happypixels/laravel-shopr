@@ -1,0 +1,19 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+
+before_install:
+  - travis_retry composer self-update
+
+install:
+  - travis_retry composer update --prefer-source --prefer-lowest
+
+script:
+  - phpunit
+
+branches:
+  only:
+    - master
