@@ -2,10 +2,10 @@
 
 namespace Happypixels\Shopr\Controllers;
 
-use Happypixels\Shopr\Contracts\Cart;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Happypixels\Shopr\Contracts\Cart;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class CartItemController extends Controller
 {
@@ -22,7 +22,7 @@ class CartItemController extends Controller
     {
         $this->validate($request, [
             'shoppable_type' => 'required',
-            'shoppable_id'   => 'required'
+            'shoppable_id'   => 'required',
         ]);
 
         $item = $this->cart->addItem(

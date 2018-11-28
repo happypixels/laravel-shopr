@@ -2,10 +2,10 @@
 
 namespace Happypixels\Shopr\Money;
 
-use Money\Currency;
 use Money\Money;
-use Money\Formatter\IntlMoneyFormatter;
+use Money\Currency;
 use Money\Currencies\ISOCurrencies;
+use Money\Formatter\IntlMoneyFormatter;
 
 class Formatter
 {
@@ -14,7 +14,7 @@ class Formatter
         $money = new Money(round($amount * 100), new Currency(strtoupper($this->getCurrency())));
 
         $numberFormatter = new \NumberFormatter($this->getLocale(), \NumberFormatter::CURRENCY);
-        $moneyFormatter  = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
+        $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
 
         return $moneyFormatter->format($money);
     }

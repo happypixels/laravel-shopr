@@ -2,10 +2,10 @@
 
 namespace Happypixels\Shopr\Controllers;
 
+use Omnipay\Omnipay;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Happypixels\Shopr\Contracts\Cart;
-use Illuminate\Http\Request;
-use Omnipay\Omnipay;
 use Illuminate\Support\Facades\Event;
 
 class CheckoutController extends Controller
@@ -28,7 +28,7 @@ class CheckoutController extends Controller
             'gateway'    => 'required',
             'email'      => 'required|email',
             'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255'
+            'last_name'  => 'required|string|max:255',
         ]);
 
         if ($this->cart->isEmpty()) {
@@ -37,20 +37,20 @@ class CheckoutController extends Controller
 
         // Create the order.
         $order = $this->cart->convertToOrder($request->gateway, $request->only([
-            'email', 'phone', 'first_name', 'last_name', 'address', 'zipcode', 'city', 'country'
+            'email', 'phone', 'first_name', 'last_name', 'address', 'zipcode', 'city', 'country',
         ]));
 
-        if (!$order) {
+        if (! $order) {
             return response()->json(['message' => 'Unable to process your order.'], 400);
         }
 
         // Make the purchase.
         $gateway = Omnipay::create($request->gateway);
-        $gateway->initialize(config('shopr.gateways.' . str_slug($request->gateway, '_')));
+        $gateway->initialize(config('shopr.gateways.'.str_slug($request->gateway, '_')));
         $response = $gateway->purchase([
             'amount'   => $order->total,
             'currency' => config('shopr.currency'),
-            'token'    => $request->token
+            'token'    => $request->token,
         ])->send();
 
         // Handle the response.
@@ -58,14 +58,14 @@ class CheckoutController extends Controller
             // Redirect to offsite confirmation.
             $response->redirect();
         } elseif ($response->isSuccessful()) {
-            $order->transaction_reference         = $response->getTransactionReference();
-            $order->transaction_id                = $response->getTransactionId();
-            $order->payment_status                = 'paid';
+            $order->transaction_reference = $response->getTransactionReference();
+            $order->transaction_id = $response->getTransactionId();
+            $order->payment_status = 'paid';
             $order->save();
 
             Event::fire('shopr.orders.created', $order);
 
-            return response()->json(['redirect' => route('shopr.order-confirmation') . '?token=' . $order->token], 200);
+            return response()->json(['redirect' => route('shopr.order-confirmation').'?token='.$order->token], 200);
         } else {
             return response()->json(['response' => $response->getMessage()], 400);
         }

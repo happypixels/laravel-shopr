@@ -2,9 +2,9 @@
 
 namespace Happypixels\Shopr\Models;
 
+use Happypixels\Shopr\Money\Formatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Happypixels\Shopr\Money\Formatter;
 
 class Order extends Model
 {
@@ -55,6 +55,6 @@ class Order extends Model
 
     public static function generateToken()
     {
-        return base64_encode(uniqid() . '-' . uniqid() . '-' . uniqid());
+        return base64_encode(uniqid().'-'.uniqid().'-'.uniqid());
     }
 }

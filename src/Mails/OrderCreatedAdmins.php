@@ -4,8 +4,8 @@ namespace Happypixels\Shopr\Mails;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
 use Happypixels\Shopr\Models\Order;
+use Illuminate\Queue\SerializesModels;
 
 class OrderCreatedAdmins extends Mailable
 {

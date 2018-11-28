@@ -2,10 +2,10 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Money;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Tests\TestCase;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class FormatterTest extends TestCase
 {
@@ -14,7 +14,7 @@ class FormatterTest extends TestCase
     {
         config(['shopr.currency' => 'USD']);
 
-        $order        = new Order;
+        $order = new Order;
         $order->total = 100;
 
         $this->assertEquals('$100.00', $order->total_formatted);
@@ -27,7 +27,7 @@ class FormatterTest extends TestCase
     {
         config(['shopr.currency' => 'USD']);
 
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 2);
 
@@ -55,7 +55,7 @@ class FormatterTest extends TestCase
     {
         config(['shopr.currency' => 'USD']);
 
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1);
         $summary = $cart->summary();
@@ -70,7 +70,7 @@ class FormatterTest extends TestCase
     {
         config(['shopr.currency' => 'USD']);
 
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1);
         $items = $cart->items();

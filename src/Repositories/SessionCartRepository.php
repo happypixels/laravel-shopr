@@ -3,13 +3,13 @@
 namespace Happypixels\Shopr\Repositories;
 
 use Happypixels\Shopr\CartItem;
+use Illuminate\Support\Collection;
+use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Cart\BaseCart;
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Helpers\SessionHelper;
-use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Money\Formatter;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Money\Formatter;
+use Happypixels\Shopr\Helpers\SessionHelper;
 
 class SessionCartRepository extends BaseCart
 {
@@ -25,7 +25,7 @@ class SessionCartRepository extends BaseCart
     {
         $subTotal = $this->subTotal();
         $taxTotal = $this->taxTotal();
-        $total    = $this->total();
+        $total = $this->total();
 
         return [
             'items'               => $this->items(),
@@ -35,7 +35,7 @@ class SessionCartRepository extends BaseCart
             'tax_total_formatted' => (new Formatter)->format($taxTotal),
             'total'               => $total,
             'total_formatted'     => (new Formatter)->format($total),
-            'count'               => $this->count()
+            'count'               => $this->count(),
         ];
     }
 
@@ -49,16 +49,15 @@ class SessionCartRepository extends BaseCart
         $quantity = (is_numeric($quantity) && $quantity > 0) ? $quantity : 1;
 
         $items = $this->items();
-        $item  = new CartItem($shoppableType, $shoppableId, $quantity, $options, $subItems, $price);
+        $item = new CartItem($shoppableType, $shoppableId, $quantity, $options, $subItems, $price);
 
         // Find already added items that are identical to current selection.
         $identicals = $items->filter(function ($row) use ($item) {
-            return (
+            return
                 $row->shoppableType === $item->shoppableType &&
                 $row->shoppableId === $item->shoppableId &&
                 serialize($row->options) === serialize($item->options) &&
-                serialize($row->subItems) === serialize($item->subItems)
-            );
+                serialize($row->subItems) === serialize($item->subItems);
         });
 
         // If an identical item already exists in the cart, add to it's quantity.
@@ -84,7 +83,7 @@ class SessionCartRepository extends BaseCart
     public function updateItem($id, $data)
     {
         $items = $this->items();
-        $item  = null;
+        $item = null;
 
         foreach ($items as $index => $item) {
             if ($item->id !== $id || empty($data['quantity'])) {
@@ -93,15 +92,15 @@ class SessionCartRepository extends BaseCart
 
             $items[$index]->quantity = intval($data['quantity']);
 
-            if (!empty($items[$index]->subItems)) {
+            if (! empty($items[$index]->subItems)) {
                 foreach ($items[$index]->subItems as $i => $subItem) {
                     $items[$index]->subItems[$i]->quantity = intval($data['quantity']);
-                    $items[$index]->subItems[$i]->total    = $items[$index]->subItems[$i]->total();
+                    $items[$index]->subItems[$i]->total = $items[$index]->subItems[$i]->total();
                 }
             }
 
             $items[$index]->total = $items[$index]->total();
-            $item                 = $items[$index];
+            $item = $items[$index];
         }
 
         $this->session->put($this->cartKey, $items);
@@ -172,7 +171,7 @@ class SessionCartRepository extends BaseCart
                 'quantity'       => $item->quantity,
                 'title'          => $item->shoppable->title,
                 'price'          => $item->price,
-                'options'        => $item->options
+                'options'        => $item->options,
             ]);
 
             if ($item->subItems->count() > 0) {
@@ -183,7 +182,7 @@ class SessionCartRepository extends BaseCart
                         'shoppable_id'   => $subItem->shoppable->id,
                         'title'          => $subItem->shoppable->title,
                         'price'          => $subItem->price,
-                        'options'        => $subItem->options
+                        'options'        => $subItem->options,
                     ]);
                 }
             }

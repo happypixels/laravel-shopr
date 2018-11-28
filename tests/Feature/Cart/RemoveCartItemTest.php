@@ -3,23 +3,23 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class RemoveCartItemTest extends TestCase
 {
     /** @test */
     public function it_removes_the_item()
     {
-        $cart   = app(Cart::class);
-        $model  = TestShoppable::first();
-        $item   = $cart->addItem(get_class($model), 1, 1, $options = []);
-        $item2  = $cart->addItem(get_class($model), 1, 1, $options = ['color' => 'Green']);
+        $cart = app(Cart::class);
+        $model = TestShoppable::first();
+        $item = $cart->addItem(get_class($model), 1, 1, $options = []);
+        $item2 = $cart->addItem(get_class($model), 1, 1, $options = ['color' => 'Green']);
 
         $this->assertEquals(2, $cart->count());
 
-        $this->json('DELETE', 'api/shopr/cart/items/' . $item2->id)
+        $this->json('DELETE', 'api/shopr/cart/items/'.$item2->id)
             ->assertStatus(200)
             ->assertJsonFragment(['count' => 1]);
 
@@ -30,21 +30,20 @@ class RemoveCartItemTest extends TestCase
     /** @test */
     public function it_fires_event()
     {
-        $cart   = app(Cart::class);
-        $model  = TestShoppable::first();
-        $item   = $cart->addItem(get_class($model), 1, 1, $options = []);
+        $cart = app(Cart::class);
+        $model = TestShoppable::first();
+        $item = $cart->addItem(get_class($model), 1, 1, $options = []);
 
         Event::fake();
 
-        $this->json('DELETE', 'api/shopr/cart/items/' . $item->id)
+        $this->json('DELETE', 'api/shopr/cart/items/'.$item->id)
             ->assertStatus(200)
             ->assertJsonFragment(['count' => 0]);
 
         Event::assertDispatched('shopr.cart.items.deleted', function ($event, $data) use ($item) {
-            return (
+            return
                 $item->id === $data->id &&
-                serialize($item) === serialize($data)
-            );
+                serialize($item) === serialize($data);
         });
     }
 }

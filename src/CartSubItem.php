@@ -22,14 +22,14 @@ class CartSubItem
 
     public function __construct($shoppableType, $shoppableId, $quantity, $options = [], $price = null)
     {
-        $this->shoppableType   = $shoppableType;
-        $this->shoppableId     = $shoppableId;
-        $this->shoppable       = (new $shoppableType)::findOrFail($shoppableId);
-        $this->quantity        = $quantity;
-        $this->options         = $options;
-        $this->price           = (is_numeric($price)) ? $price : $this->shoppable->getPrice();
+        $this->shoppableType = $shoppableType;
+        $this->shoppableId = $shoppableId;
+        $this->shoppable = (new $shoppableType)::findOrFail($shoppableId);
+        $this->quantity = $quantity;
+        $this->options = $options;
+        $this->price = (is_numeric($price)) ? $price : $this->shoppable->getPrice();
         $this->price_formatted = (new Formatter)->format($this->price);
-        $this->total           = $this->total();
+        $this->total = $this->total();
     }
 
     public function total()
