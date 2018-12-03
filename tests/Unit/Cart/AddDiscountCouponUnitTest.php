@@ -3,10 +3,10 @@
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Models\DiscountCoupon;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Models\DiscountCoupon;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class AddDiscountCouponUnitTest extends TestCase
 {
@@ -54,10 +54,9 @@ class AddDiscountCouponUnitTest extends TestCase
 
         // The first time the added event is fired.
         Event::assertDispatched('shopr.cart.discounts.added', function ($event, $data) use ($item) {
-            return (
+            return
                 $data->price === -300 &&
-                serialize($item) === serialize($data)
-            );
+                serialize($item) === serialize($data);
         });
     }
 

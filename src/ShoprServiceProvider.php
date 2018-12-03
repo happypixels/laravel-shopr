@@ -30,9 +30,9 @@ class ShoprServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/Views', 'shopr');
 
-        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'shopr');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'shopr');
         $this->publishes([
-            __DIR__ . '/../resources/lang' => resource_path('lang/vendor/shopr'),
+            __DIR__.'/../resources/lang' => resource_path('lang/vendor/shopr'),
         ], 'translations');
 
         $this->mergeConfigFrom(__DIR__.'/../config/shopr.php', 'shopr');
@@ -59,7 +59,7 @@ class ShoprServiceProvider extends ServiceProvider
      *
      * @param  string $classname
      * @param  string $filename
-     * @return boolean
+     * @return bool
      */
     private function publishMigration($classname, $filename)
     {
@@ -68,7 +68,7 @@ class ShoprServiceProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__ . '/../database/migrations/'.$filename.'.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_'.$filename.'.php'),
+            __DIR__.'/../database/migrations/'.$filename.'.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_'.$filename.'.php'),
         ], 'migrations');
 
         return true;

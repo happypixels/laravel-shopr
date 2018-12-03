@@ -1,4 +1,5 @@
 <?php
+
 namespace Happypixels\Shopr\Rules\Discounts;
 
 use Illuminate\Contracts\Validation\Rule;
@@ -16,7 +17,7 @@ class NotADiscount implements Rule
     {
         return (new $value)->isDiscount() === false;
     }
-    
+
     /**
      * Get the validation error message.
      *

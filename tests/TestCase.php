@@ -3,10 +3,10 @@
 namespace Happypixels\Shopr\Tests;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Repositories\SessionCartRepository;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Happypixels\Shopr\Repositories\SessionCartRepository;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class TestCase extends Orchestra
 {
@@ -41,8 +41,8 @@ class TestCase extends Orchestra
 
         TestShoppable::create(['title' => 'Test product', 'price' => 500]);
 
-        include_once __DIR__ . '/../database/migrations/create_order_tables.php.stub';
-        include_once __DIR__ . '/../database/migrations/create_discount_coupons_table.php.stub';
+        include_once __DIR__.'/../database/migrations/create_order_tables.php.stub';
+        include_once __DIR__.'/../database/migrations/create_discount_coupons_table.php.stub';
         (new \CreateOrderTables())->up();
         (new \CreateDiscountCouponsTable())->up();
     }
@@ -59,7 +59,7 @@ class TestCase extends Orchestra
     {
         $cart = app(Cart::class);
         $model = TestShoppable::first();
-        
+
         return $cart->addItem(get_class($model), 1, 1);
     }
 

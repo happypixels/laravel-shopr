@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\TestCase;
+use Happypixels\Shopr\Models\DiscountCoupon;
 
 class AddCartItemTest extends TestCase
 {
@@ -24,7 +24,7 @@ class AddCartItemTest extends TestCase
         $this->json('POST', 'api/shopr/cart/items', [
             'shoppable_type' => get_class($discount),
             'shoppable_id'   => $discount->id,
-            'quantity'       => 1
+            'quantity'       => 1,
         ])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['shoppable_type'])

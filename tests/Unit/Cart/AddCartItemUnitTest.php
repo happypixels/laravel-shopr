@@ -4,9 +4,9 @@ namespace Happypixels\Shopr\Tests\Unit\Cart;
 
 use Happypixels\Shopr\CartItem;
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
@@ -139,9 +139,9 @@ class AddCartItemUnitTest extends TestCase
     public function it_does_not_remove_discount_coupons()
     {
         $discount = factory(DiscountCoupon::class)->create();
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
-        $item  = $cart->addItem(get_class($model), $model->id, null);
+        $item = $cart->addItem(get_class($model), $model->id, null);
 
         $cart->addDiscount($discount);
 

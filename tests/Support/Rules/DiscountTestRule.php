@@ -1,4 +1,5 @@
 <?php
+
 namespace Happypixels\Shopr\Tests\Support\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
@@ -16,7 +17,7 @@ class DiscountTestRule implements Rule
     {
         return false;
     }
-    
+
     /**
      * Get the validation error message.
      *

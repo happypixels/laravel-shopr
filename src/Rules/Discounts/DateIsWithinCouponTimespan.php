@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Rules\Discounts;
 
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Illuminate\Contracts\Validation\Rule;
+use Happypixels\Shopr\Models\DiscountCoupon;
 
 class DateIsWithinCouponTimespan implements Rule
 {

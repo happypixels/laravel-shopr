@@ -21,6 +21,6 @@ $factory->define(Happypixels\Shopr\Models\Order::class, function (Faker $faker) 
         'address' => null,
         'zipcode' => null,
         'city' => null,
-        'country' => null
+        'country' => null,
     ];
 });
