@@ -49,12 +49,12 @@ return [
          * You may remove or add rules as you'd like, this is simply a common suggestion.
          */
         'validation_rules' => [
-            new Happypixels\Shopr\Rules\Cart\CartNotEmpty,
-            new Happypixels\Shopr\Rules\Discounts\OnlyOneCouponPerOrder,
-            new Happypixels\Shopr\Rules\Discounts\CouponHasNotBeenApplied,
-            new Happypixels\Shopr\Rules\Discounts\CouponExists,
-            new Happypixels\Shopr\Rules\Discounts\DateIsWithinCouponTimespan,
-            new Happypixels\Shopr\Rules\Discounts\CartValueAboveCouponLimit,
+            Happypixels\Shopr\Rules\Cart\CartNotEmpty::class,
+            Happypixels\Shopr\Rules\Discounts\OnlyOneCouponPerOrder::class,
+            Happypixels\Shopr\Rules\Discounts\CouponHasNotBeenApplied::class,
+            Happypixels\Shopr\Rules\Discounts\CouponExists::class,
+            Happypixels\Shopr\Rules\Discounts\DateIsWithinCouponTimespan::class,
+            Happypixels\Shopr\Rules\Discounts\CartValueAboveCouponLimit::class,
         ],
     ],
 

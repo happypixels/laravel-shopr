@@ -27,9 +27,15 @@ class CartDiscountController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the configurated rules.
+        // Default validation rules that are always checked.
         $rules = ['required', 'string'];
-        $rules = array_merge($rules, config('shopr.discount_coupons.validation_rules') ?? []);
+
+        // Configurated rules.
+        if (!empty(config('shopr.discount_coupons.validation_rules'))) {
+            foreach (config('shopr.discount_coupons.validation_rules') as $rule) {
+                $rules[] = new $rule;
+            }
+        }
 
         $this->validate($request, ['code' => $rules]);
 
