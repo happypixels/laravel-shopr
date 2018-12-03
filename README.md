@@ -12,6 +12,7 @@ Full documentation here: https://laravel-shopr.happypixels.se
 
 **Some of the features included:**
 * Shopping cart
+* Discount coupons
 * Any model can be shoppable
 * Checkout process with payment solutions out of the box
 * Cart to Order conversion
@@ -43,6 +44,11 @@ php artisan migrate
 Publish and review the configuration:
 ```bash
 php artisan vendor:publish --provider="Happypixels\Shopr\ShoprServiceProvider" --tag="config"
+```
+
+Optionally you may publish the translation files to make them modifiable:
+```bash
+php artisan vendor:publish --provider="Happypixels\Shopr\ShoprServiceProvider" --tag="translations"
 ```
 
 After this, refer to the [extensive documentation](https://laravel-shopr.happypixels.se) to get started.
