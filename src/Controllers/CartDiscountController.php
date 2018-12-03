@@ -31,7 +31,7 @@ class CartDiscountController extends Controller
         $rules = ['required', 'string'];
 
         // Configurated rules.
-        if (!empty(config('shopr.discount_coupons.validation_rules'))) {
+        if (! empty(config('shopr.discount_coupons.validation_rules'))) {
             foreach (config('shopr.discount_coupons.validation_rules') as $rule) {
                 $rules[] = new $rule;
             }
