@@ -17,7 +17,7 @@ class DiscountCoupon extends Shoppable
         'description',
         'is_fixed',
         'value',
-        'lower_cart_limit'
+        'lower_cart_limit',
     ];
 
     protected $casts = [
@@ -75,13 +75,13 @@ class DiscountCoupon extends Shoppable
 
         $percentage = $this->value / 100;
 
-        return (app(Cart::class)->total() * $percentage);
+        return app(Cart::class)->total() * $percentage;
     }
 
     /**
      * Whether or not the model is a discount coupon.
      *
-     * @return boolean
+     * @return bool
      */
     public function isDiscount() : bool
     {

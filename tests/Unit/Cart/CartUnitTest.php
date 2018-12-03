@@ -3,9 +3,9 @@
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
-use Happypixels\Shopr\Tests\TestCase;
 
 class CartUnitTest extends TestCase
 {
@@ -16,7 +16,7 @@ class CartUnitTest extends TestCase
 
         $this->assertEquals([
             'items', 'discounts', 'sub_total', 'sub_total_formatted', 'tax_total',
-            'tax_total_formatted', 'total', 'total_formatted', 'count'
+            'tax_total_formatted', 'total', 'total_formatted', 'count',
         ], array_keys($cart->summary()));
     }
 
@@ -92,7 +92,7 @@ class CartUnitTest extends TestCase
     /** @test */
     public function the_count_does_not_include_discount_coupons()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 1);
         $cart->addDiscount(factory(DiscountCoupon::class)->create());
@@ -114,7 +114,7 @@ class CartUnitTest extends TestCase
     /** @test */
     public function items_dont_include_discounts()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1);
         $cart->addDiscount(factory(DiscountCoupon::class)->create());

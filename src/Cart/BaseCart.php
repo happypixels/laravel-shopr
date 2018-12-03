@@ -2,12 +2,12 @@
 
 namespace Happypixels\Shopr\Cart;
 
-use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Contracts\Shoppable;
-use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Money\Formatter;
 use Illuminate\Support\Collection;
+use Happypixels\Shopr\Models\Order;
+use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Money\Formatter;
+use Happypixels\Shopr\Contracts\Shoppable;
 
 abstract class BaseCart implements Cart
 {
@@ -63,7 +63,7 @@ abstract class BaseCart implements Cart
             'tax_total_formatted' => $formatter->format($taxTotal),
             'total' => $total,
             'total_formatted' => $formatter->format($total),
-            'count' => $this->count()
+            'count' => $this->count(),
         ];
     }
 
@@ -113,7 +113,7 @@ abstract class BaseCart implements Cart
     /**
      * Returns true if the cart is empty, false if not.
      *
-     * @return boolean
+     * @return bool
      */
     public function isEmpty()
     {
@@ -123,7 +123,7 @@ abstract class BaseCart implements Cart
     /**
      * Returns the total count of the items added to the cart.
      *
-     * @return integer
+     * @return int
      */
     public function count()
     {
@@ -138,7 +138,7 @@ abstract class BaseCart implements Cart
      */
     public function addDiscount(Shoppable $coupon)
     {
-        if (!$coupon->isDiscount()) {
+        if (! $coupon->isDiscount()) {
             return false;
         }
 
@@ -157,12 +157,12 @@ abstract class BaseCart implements Cart
      * discount coupon.
      *
      * @param  string  $code
-     * @return boolean
+     * @return bool
      */
     public function hasDiscount($code = null) : bool
     {
         foreach ($this->discounts() as $item) {
-            if (!$code) {
+            if (! $code) {
                 return true;
             } elseif ($item->shoppable->getTitle() === $code) {
                 return true;
@@ -211,7 +211,7 @@ abstract class BaseCart implements Cart
                 'quantity'       => $item->quantity,
                 'title'          => $item->shoppable->getTitle(),
                 'price'          => $item->price,
-                'options'        => $item->options
+                'options'        => $item->options,
             ]);
 
             if ($item->subItems->count() > 0) {
@@ -222,7 +222,7 @@ abstract class BaseCart implements Cart
                         'shoppable_id'   => $subItem->shoppable->id,
                         'title'          => $subItem->shoppable->getTitle(),
                         'price'          => $subItem->price,
-                        'options'        => $subItem->options
+                        'options'        => $subItem->options,
                     ]);
                 }
             }

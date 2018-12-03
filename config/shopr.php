@@ -43,8 +43,8 @@ return [
     ],
 
     'discount_coupons' => [
-        
-        /**
+
+        /*
          * The validation rules for adding a discount coupon to the cart.
          * You may remove or add rules as you'd like, this is simply a common suggestion.
          */
@@ -54,8 +54,8 @@ return [
             new Happypixels\Shopr\Rules\Discounts\CouponHasNotBeenApplied,
             new Happypixels\Shopr\Rules\Discounts\CouponExists,
             new Happypixels\Shopr\Rules\Discounts\DateIsWithinCouponTimespan,
-            new Happypixels\Shopr\Rules\Discounts\CartValueAboveCouponLimit
-        ]
+            new Happypixels\Shopr\Rules\Discounts\CartValueAboveCouponLimit,
+        ],
     ],
 
     /*

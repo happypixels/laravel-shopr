@@ -3,9 +3,9 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class RemoveCartItemTest extends TestCase
@@ -39,7 +39,7 @@ class RemoveCartItemTest extends TestCase
 
         $cart->addDiscount($discount);
 
-        $this->json('DELETE', 'api/shopr/cart/items/' . $item2->id)
+        $this->json('DELETE', 'api/shopr/cart/items/'.$item2->id)
             ->assertStatus(200)
             ->assertJsonFragment(['count' => 1]);
 

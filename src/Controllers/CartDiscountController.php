@@ -2,11 +2,11 @@
 
 namespace Happypixels\Shopr\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 
 class CartDiscountController extends Controller
 {
@@ -30,7 +30,7 @@ class CartDiscountController extends Controller
         // Validate the configurated rules.
         $rules = ['required', 'string'];
         $rules = array_merge($rules, config('shopr.discount_coupons.validation_rules') ?? []);
-        
+
         $this->validate($request, ['code' => $rules]);
 
         $coupon = DiscountCoupon::where('code', $request->code)->first();
