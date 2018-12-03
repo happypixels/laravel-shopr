@@ -3,11 +3,11 @@
 namespace Happypixels\Shopr\Repositories;
 
 use Happypixels\Shopr\CartItem;
+use Illuminate\Support\Collection;
 use Happypixels\Shopr\Cart\BaseCart;
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Helpers\SessionHelper;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Helpers\SessionHelper;
 
 class SessionCartRepository extends BaseCart
 {
@@ -18,7 +18,7 @@ class SessionCartRepository extends BaseCart
     {
         $this->session = $session;
     }
-    
+
     public function getAllItems() : Collection
     {
         return $this->session->get($this->cartKey) ?: collect();
@@ -33,12 +33,11 @@ class SessionCartRepository extends BaseCart
 
         // Find already added items that are identical to current selection.
         $identicals = $items->filter(function ($row) use ($item) {
-            return (
+            return
                 $row->shoppableType === $item->shoppableType &&
                 $row->shoppableId === $item->shoppableId &&
                 serialize($row->options) === serialize($item->options) &&
-                serialize($row->subItems) === serialize($item->subItems)
-            );
+                serialize($row->subItems) === serialize($item->subItems);
         });
 
         // If an identical item already exists in the cart, add to it's quantity.
@@ -64,7 +63,7 @@ class SessionCartRepository extends BaseCart
     public function updateItem($id, $data)
     {
         $items = $this->getAllItems();
-        $item  = null;
+        $item = null;
 
         foreach ($items as $index => $item) {
             if ($item->id !== $id || empty($data['quantity'])) {
@@ -73,15 +72,15 @@ class SessionCartRepository extends BaseCart
 
             $items[$index]->quantity = intval($data['quantity']);
 
-            if (!empty($items[$index]->subItems)) {
+            if (! empty($items[$index]->subItems)) {
                 foreach ($items[$index]->subItems as $i => $subItem) {
                     $items[$index]->subItems[$i]->quantity = intval($data['quantity']);
-                    $items[$index]->subItems[$i]->total    = $items[$index]->subItems[$i]->total();
+                    $items[$index]->subItems[$i]->total = $items[$index]->subItems[$i]->total();
                 }
             }
 
             $items[$index]->total = $items[$index]->total();
-            $item                 = $items[$index];
+            $item = $items[$index];
         }
 
         $this->session->put($this->cartKey, $items);

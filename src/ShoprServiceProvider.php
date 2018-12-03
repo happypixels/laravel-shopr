@@ -2,12 +2,12 @@
 
 namespace Happypixels\Shopr;
 
-use Illuminate\Support\ServiceProvider;
-use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Repositories\SessionCartRepository;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Observers\OrderObserver;
+use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
+use Happypixels\Shopr\Observers\OrderObserver;
+use Happypixels\Shopr\Repositories\SessionCartRepository;
 
 class ShoprServiceProvider extends ServiceProvider
 {
@@ -19,16 +19,16 @@ class ShoprServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../config/shopr.php' => config_path('shopr.php'),
+            __DIR__.'/../config/shopr.php' => config_path('shopr.php'),
         ], 'config');
 
         $this->publishMigration('CreateOrderTables', 'create_order_tables');
         $this->publishMigration('CreateDiscountCouponsTable', 'create_discount_coupons_table');
 
-        $this->loadRoutesFrom(__DIR__ . '/Routes/api.php');
-        $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/Routes/api.php');
+        $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
 
-        $this->loadViewsFrom(__DIR__ . '/Views', 'shopr');
+        $this->loadViewsFrom(__DIR__.'/Views', 'shopr');
 
         $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'shopr');
         $this->publishes([

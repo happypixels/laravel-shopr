@@ -2,9 +2,9 @@
 
 namespace Happypixels\Shopr\Models;
 
+use Happypixels\Shopr\Money\Formatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Happypixels\Shopr\Money\Formatter;
 
 class OrderItem extends Model
 {
@@ -17,7 +17,7 @@ class OrderItem extends Model
         'quantity',
         'title',
         'price',
-        'options'
+        'options',
     ];
 
     protected $casts = [
@@ -38,7 +38,7 @@ class OrderItem extends Model
 
     public function children()
     {
-        return $this->hasMany(OrderItem::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     public function shoppable()

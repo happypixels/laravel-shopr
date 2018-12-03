@@ -36,7 +36,7 @@ class AddCartItemTest extends TestCase
     {
         $this->json('POST', 'api/shopr/cart/items', [
                 'shoppable_id'   => 2,
-                'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable'
+                'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
             ])
             ->assertStatus(404);
     }
@@ -51,7 +51,7 @@ class AddCartItemTest extends TestCase
         $this->json('POST', 'api/shopr/cart/items', [
             'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
             'shoppable_id'   => 1,
-            'quantity'       => 1
+            'quantity'       => 1,
         ])->assertStatus(200);
 
         $this->assertEquals(1, $cart->count());
@@ -65,7 +65,7 @@ class AddCartItemTest extends TestCase
         $this->json('POST', 'api/shopr/cart/items', [
             'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
             'shoppable_id'   => 1,
-            'quantity'       => 2
+            'quantity'       => 2,
         ])->assertJsonFragment([
             'count'     => $cart->count(),
             'total'     => $cart->total(),
@@ -84,7 +84,7 @@ class AddCartItemTest extends TestCase
         $this->json('POST', 'api/shopr/cart/items', [
             'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
             'shoppable_id'   => 1,
-            'quantity'       => 3
+            'quantity'       => 3,
         ]);
 
         $this->assertEquals(3, $cart->count());

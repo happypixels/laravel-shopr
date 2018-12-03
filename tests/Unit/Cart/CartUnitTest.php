@@ -23,7 +23,7 @@ class CartUnitTest extends TestCase
     /** @test */
     public function total_returns_the_full_total()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 3);
 
@@ -33,18 +33,18 @@ class CartUnitTest extends TestCase
     /** @test */
     public function total_includes_sub_item_prices()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 2, [], [
             [
                 'shoppable_type' => get_class($model),
                 'shoppable_id'   => 1,
-                'price'          => 50
+                'price'          => 50,
             ],
             [
                 'shoppable_type' => get_class($model),
                 'shoppable_id'   => 1,
-            ]
+            ],
         ]);
 
         // Each sub item gets the parent quantity, so 2. We have 6 models in total. 2 of these cost 50 each.
@@ -57,7 +57,7 @@ class CartUnitTest extends TestCase
     {
         config(['shopr.tax' => 25]);
 
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 5);
 
@@ -70,7 +70,7 @@ class CartUnitTest extends TestCase
     {
         config(['shopr.tax' => 25]);
 
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 5);
 
@@ -81,7 +81,7 @@ class CartUnitTest extends TestCase
     /** @test */
     public function the_count_returns_the_full_quantity_of_all_items()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 3);
         $cart->addItem(get_class($model), $model->id, 2, ['color' => 'Green']);
@@ -103,7 +103,7 @@ class CartUnitTest extends TestCase
     /** @test */
     public function items_are_a_collection_of_cart_items()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1);
 
@@ -140,13 +140,13 @@ class CartUnitTest extends TestCase
     /** @test */
     public function sub_items_are_a_collection_of_cart_sub_items()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), $model->id, 1, [], [
             [
                 'shoppable_type' => get_class($model),
                 'shoppable_id'   => 1,
-            ]
+            ],
         ]);
 
         $this->assertEquals('Illuminate\Support\Collection', get_class($cart->items()->first()->subItems));
@@ -156,7 +156,7 @@ class CartUnitTest extends TestCase
     /** @test */
     public function test_is_empty()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
 
         $this->assertTrue($cart->isEmpty());
 

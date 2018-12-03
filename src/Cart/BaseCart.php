@@ -86,7 +86,7 @@ abstract class BaseCart implements Cart
     {
         $tax = config('shopr.tax');
 
-        if (!$tax || $tax <= 0) {
+        if (! $tax || $tax <= 0) {
             return 0;
         }
 

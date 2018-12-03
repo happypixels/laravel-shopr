@@ -2,13 +2,13 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Mails;
 
+use Illuminate\Support\Facades\Mail;
+use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Mails\OrderCreatedAdmins;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
-use Happypixels\Shopr\Contracts\Cart;
-use Illuminate\Support\Facades\Mail;
-use Happypixels\Shopr\Mails\OrderCreatedAdmins;
-use Illuminate\Support\Facades\Event;
 
 class OrderCreatedAdminsMailTest extends TestCase
 {
@@ -26,13 +26,12 @@ class OrderCreatedAdminsMailTest extends TestCase
         Mail::assertQueued(OrderCreatedAdmins::class, function ($message) use ($order) {
             $message->build();
 
-            return (
+            return
                 $message->order->id === $order->id &&
                 $message->subject === 'A new order has been placed!' &&
                 $message->hasTo('test@example.org') &&
                 $message->hasTo('test2@example.org') &&
-                $message->view === 'shopr::mails.defaults.order-created-admins'
-            );
+                $message->view === 'shopr::mails.defaults.order-created-admins';
         });
     }
 
@@ -67,7 +66,7 @@ class OrderCreatedAdminsMailTest extends TestCase
         Mail::assertQueued(OrderCreatedAdmins::class, function ($message) use ($order) {
             $message->build();
 
-            return ($message->view === 'test-view');
+            return $message->view === 'test-view';
         });
     }
 
@@ -84,7 +83,7 @@ class OrderCreatedAdminsMailTest extends TestCase
         Mail::assertQueued(OrderCreatedAdmins::class, function ($message) use ($order) {
             $message->build();
 
-            return ($message->subject === 'Test subject');
+            return $message->subject === 'Test subject';
         });
     }
 
@@ -102,16 +101,15 @@ class OrderCreatedAdminsMailTest extends TestCase
 
             $shoppable = $order->items->first()->shoppable;
 
-            return (
+            return
                 $shoppable !== null &&
-                $shoppable->title === 'Test product'
-            );
+                $shoppable->title === 'Test product';
         });
     }
 
     private function createTestOrder()
     {
-        $cart  = app(Cart::class);
+        $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1);
 
