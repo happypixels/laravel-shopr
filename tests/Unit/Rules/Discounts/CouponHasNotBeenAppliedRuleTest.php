@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
-use Happypixels\Shopr\Rules\Discounts\CouponHasNotBeenApplied;
 use Happypixels\Shopr\Tests\TestCase;
+use Happypixels\Shopr\Rules\Discounts\CouponHasNotBeenApplied;
 
 class CouponHasNotBeenAppliedRuleTest extends TestCase
 {

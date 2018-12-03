@@ -1,4 +1,5 @@
 <?php
+
 namespace Happypixels\Shopr\Rules\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
@@ -15,8 +16,9 @@ class CartNotEmpty implements Rule
      */
     public function passes($attribute, $value)
     {
-        return (!app(Cart::class)->isEmpty());
+        return ! app(Cart::class)->isEmpty();
     }
+
     /**
      * Get the validation error message.
      *

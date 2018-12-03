@@ -2,9 +2,9 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
+use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Rules\Discounts\CouponExists;
-use Happypixels\Shopr\Tests\TestCase;
 
 class CouponExistsRuleTest extends TestCase
 {
@@ -27,7 +27,7 @@ class CouponExistsRuleTest extends TestCase
         factory(DiscountCoupon::class)->create([
             'code' => 'INVALID',
             'valid_from' => now()->addDays(2),
-            'valid_until' => now()->addDays(3)
+            'valid_until' => now()->addDays(3),
         ]);
         $this->assertTrue((new CouponExists)->passes('code', 'INVALID'));
     }

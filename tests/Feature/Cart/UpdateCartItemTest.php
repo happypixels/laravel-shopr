@@ -3,9 +3,9 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class UpdateCartItemTest extends TestCase
@@ -57,7 +57,7 @@ class UpdateCartItemTest extends TestCase
 
         $cart->addDiscount($discount);
 
-        $response = $this->json('PATCH', 'api/shopr/cart/items/' . $item->id, ['quantity' => 2])
+        $response = $this->json('PATCH', 'api/shopr/cart/items/'.$item->id, ['quantity' => 2])
             ->assertStatus(200)
             ->assertJsonFragment(['count' => 2]);
 

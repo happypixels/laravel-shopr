@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Tests\REST\Discounts;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\TestCase;
+use Happypixels\Shopr\Models\DiscountCoupon;
 
 class AddDiscountHttpTest extends TestCase
 {

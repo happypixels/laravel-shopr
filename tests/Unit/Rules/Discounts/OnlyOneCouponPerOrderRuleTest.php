@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
-use Happypixels\Shopr\Rules\Discounts\OnlyOneCouponPerOrder;
 use Happypixels\Shopr\Tests\TestCase;
+use Happypixels\Shopr\Rules\Discounts\OnlyOneCouponPerOrder;
 
 class OnlyOneCouponPerOrderRuleTest extends TestCase
 {

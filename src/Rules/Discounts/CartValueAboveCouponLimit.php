@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Rules\Discounts;
 
 use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Models\DiscountCoupon;
 use Illuminate\Contracts\Validation\Rule;
+use Happypixels\Shopr\Models\DiscountCoupon;
 
 class CartValueAboveCouponLimit implements Rule
 {
@@ -19,7 +19,7 @@ class CartValueAboveCouponLimit implements Rule
     {
         $coupon = DiscountCoupon::where('code', $value)->first();
 
-        if (!$coupon) {
+        if (! $coupon) {
             return false;
         }
 
