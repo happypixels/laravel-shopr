@@ -38,7 +38,7 @@ class OrderItem extends Model
 
     public function children()
     {
-        return $this->hasMany(self::class, 'parent_id');
+        return $this->hasMany(app(self::class), 'parent_id');
     }
 
     public function shoppable()

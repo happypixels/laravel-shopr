@@ -11,6 +11,14 @@ return [
     ],
 
     /*
+     * Create a easier way to apply custom config upon base models.
+     */
+    'models' => [
+        'order' => null,
+        'orderItems' => null,
+    ],
+
+    /*
      * The default currency. This will affect all money formatting.
      */
     'currency' => 'USD',
