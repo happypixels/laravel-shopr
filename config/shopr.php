@@ -5,8 +5,8 @@ return [
      * View templates for the necessary default views.
      */
     'templates' => [
-        'cart'               => '',
-        'checkout'           => '',
+        'cart' => '',
+        'checkout' => '',
         'order-confirmation' => '',
     ],
 
@@ -73,7 +73,7 @@ return [
     'gateways' => [
         'stripe' => [
             'publishable_key' => env('STRIPE_PUBLISHABLE_KEY', ''),
-            'api_key'         => env('STRIPE_SECRET_KEY', ''),
+            'api_key' => env('STRIPE_SECRET_KEY', ''),
         ],
     ],
 ];
