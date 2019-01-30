@@ -11,11 +11,12 @@ return [
     ],
 
     /*
-     * Create a easier way to apply custom config upon base models.
+     * The database models. You may swap these with your own models, just make sure they extend the
+     * corresponding package model rather than the standard Eloquent model.
      */
     'models' => [
-        'order' => null,
-        'orderItems' => null,
+        'Order' => Happypixels\Shopr\Models\Order::class,
+        'OrderItem' => Happypixels\Shopr\Models\OrderItem::class,
     ],
 
     /*

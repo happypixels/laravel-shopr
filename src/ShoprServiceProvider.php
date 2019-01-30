@@ -54,12 +54,12 @@ class ShoprServiceProvider extends ServiceProvider
     {
         $this->app->bind(Cart::class, SessionCartRepository::class);
 
-        if (config('shopr.models.order')) {
-            $this->app->singleton(Order::class, config('shopr.models.order'));
+        if (config('shopr.models.Order')) {
+            $this->app->singleton(Order::class, config('shopr.models.Order'));
         }
 
-        if (config('shopr.models.orderItems')) {
-            $this->app->singleton(OrderItem::class, config('shopr.models.orderItems'));
+        if (config('shopr.models.OrderItem')) {
+            $this->app->singleton(OrderItem::class, config('shopr.models.OrderItem'));
         }
     }
 
