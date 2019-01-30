@@ -11,6 +11,15 @@ return [
     ],
 
     /*
+     * The database models. You may swap these with your own models, just make sure they extend the
+     * corresponding package model rather than the standard Eloquent model.
+     */
+    'models' => [
+        'Order' => Happypixels\Shopr\Models\Order::class,
+        'OrderItem' => Happypixels\Shopr\Models\OrderItem::class,
+    ],
+
+    /*
      * The default currency. This will affect all money formatting.
      */
     'currency' => 'USD',

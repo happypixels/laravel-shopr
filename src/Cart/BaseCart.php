@@ -185,7 +185,7 @@ abstract class BaseCart implements Cart
             return false;
         }
 
-        $order = Order::create([
+        $order = app(Order::class)->create([
             'user_id'          => auth()->id(),
             'payment_gateway'  => $gateway,
             'payment_status'   => 'pending',
