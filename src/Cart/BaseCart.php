@@ -43,6 +43,18 @@ abstract class BaseCart implements Cart
     }
 
     /**
+     * Returns only the relative discount coupons added to the cart.
+     *
+     * @return Collection
+     */
+    public function relativeDiscounts() : Collection
+    {
+        return $this->discounts()->filter(function ($discount) {
+            return ! $discount->shoppable->is_fixed;
+        });
+    }
+
+    /**
      * Returns the full cart summary.
      *
      * @return array
@@ -103,6 +115,23 @@ abstract class BaseCart implements Cart
         $total = 0;
 
         foreach ($this->getAllItems() as $item) {
+            // This includes the sub items.
+            $total += $item->total();
+        }
+
+        return $total;
+    }
+
+    /**
+     * Returns the total amount of the items in the cart, discounts excluded.
+     *
+     * @return float
+     */
+    public function totalWithoutDiscounts()
+    {
+        $total = 0;
+
+        foreach ($this->items() as $item) {
             // This includes the sub items.
             $total += $item->total();
         }

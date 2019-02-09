@@ -76,4 +76,17 @@ class CartItem
 
         return $total;
     }
+
+    public function refreshDiscountValue()
+    {
+        if (!$this->shoppable->isDiscount() || $this->shoppable->is_fixed) {
+            return;
+        }
+
+        $value = $this->shoppable->getPrice();
+
+        $this->price = $value;
+        $this->price_formatted = (new Formatter)->format($value);
+        $this->total = $this->total();
+    }
 }

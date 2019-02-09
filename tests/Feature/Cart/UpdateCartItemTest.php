@@ -66,6 +66,29 @@ class UpdateCartItemTest extends TestCase
     }
 
     /** @test */
+    public function it_updates_percentage_discount_value()
+    {
+        $discount = factory(DiscountCoupon::class)->create(['value' => 50, 'is_fixed' => 0]);
+
+        $cart = app(Cart::class);
+        $model = TestShoppable::first();
+        $item = $cart->addItem(get_class($model), $model->id, null);
+
+        $cart->addDiscount($discount);
+
+        $this->assertEquals(250, $cart->summary()['total']);
+
+        $response = $this->json('PATCH', 'api/shopr/cart/items/'.$item->id, ['quantity' => 2])
+            ->assertStatus(200)
+            ->assertJsonFragment(['count' => 2]);
+
+        $this->assertEquals(500, $cart->summary()['total']);
+        $this->assertEquals(-500, $cart->discounts()->first()->total);
+        $this->assertEquals(-500, $cart->discounts()->first()->price);
+        $this->assertEquals('-$500.00', $cart->discounts()->first()->price_formatted);
+    }
+
+    /** @test */
     public function it_fires_event()
     {
         $cart = app(Cart::class);

@@ -75,7 +75,7 @@ class DiscountCoupon extends Shoppable
 
         $percentage = $this->value / 100;
 
-        return app(Cart::class)->total() * $percentage;
+        return app(Cart::class)->totalWithoutDiscounts() * $percentage;
     }
 
     /**

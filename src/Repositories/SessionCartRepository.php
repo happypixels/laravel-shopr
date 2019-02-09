@@ -85,6 +85,17 @@ class SessionCartRepository extends BaseCart
 
         $this->session->put($this->cartKey, $items);
 
+        // Refresh relative discount values.
+        foreach ($items as $index => $item) {
+            if (! $item->shoppable->isDiscount()) {
+                continue;
+            }
+
+            $items[$index]->refreshDiscountValue();
+        }
+
+        $this->session->put($this->cartKey, $items);
+
         Event::fire('shopr.cart.items.updated', $item);
 
         return $item;
