@@ -79,7 +79,7 @@ class CartItem
 
     public function refreshDiscountValue()
     {
-        if (!$this->shoppable->isDiscount() || $this->shoppable->is_fixed) {
+        if (! $this->shoppable->isDiscount() || $this->shoppable->is_fixed) {
             return;
         }
 
