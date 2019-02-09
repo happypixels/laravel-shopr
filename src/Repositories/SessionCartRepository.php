@@ -105,6 +105,11 @@ class SessionCartRepository extends BaseCart
 
         $this->session->put($this->cartKey, $items);
 
+        // If the cart is cleared of shoppable items, also remove any discounts.
+        if ($this->items()->count() === 0) {
+            $this->clear();
+        }
+
         if ($removedItem) {
             Event::fire('shopr.cart.items.deleted', $removedItem);
         }

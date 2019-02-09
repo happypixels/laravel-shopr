@@ -47,6 +47,26 @@ class RemoveCartItemTest extends TestCase
     }
 
     /** @test */
+    public function removing_the_last_item_also_removes_all_discount_coupons()
+    {
+        $discount = factory(DiscountCoupon::class)->create();
+        $cart = app(Cart::class);
+        $model = TestShoppable::first();
+
+        $item = $cart->addItem(get_class($model), $model->id, 1);
+
+        $cart->addDiscount($discount);
+
+        $this->json('DELETE', 'api/shopr/cart/items/'.$item->id)
+            ->assertStatus(200)
+            ->assertJsonFragment(['count' => 0]);
+
+        $summary = $cart->summary();
+        $this->assertEquals(0, $summary['items']->count());
+        $this->assertEquals(0, $summary['discounts']->count());
+    }
+
+    /** @test */
     public function it_fires_event()
     {
         $cart = app(Cart::class);
