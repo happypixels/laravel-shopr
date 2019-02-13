@@ -24,7 +24,7 @@ return [
      */
     'currency' => 'USD',
 
-    /**
+    /*
      * The money formatter class. You may provide your own class here, just make sure it extends
      * the default Happypixels\Shopr\Money\Formatter class.
      */
