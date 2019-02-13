@@ -4,7 +4,7 @@ namespace Happypixels\Shopr\Money;
 
 use Money\Money;
 use Money\Currency;
-use \NumberFormatter;
+use NumberFormatter;
 use Money\Currencies\ISOCurrencies;
 use Money\Formatter\IntlMoneyFormatter;
 
