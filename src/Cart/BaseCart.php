@@ -64,7 +64,7 @@ abstract class BaseCart implements Cart
         $subTotal = $this->subTotal();
         $taxTotal = $this->taxTotal();
         $total = $this->total();
-        $formatter = new Formatter;
+        $formatter = app(Formatter::class);
 
         return [
             'items' => $this->items(),
