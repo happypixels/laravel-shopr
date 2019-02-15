@@ -41,6 +41,28 @@ class DefaultFormatterTest extends TestCase
     }
 
     /** @test */
+    public function symbol_position_is_customizable()
+    {
+        $formatter = app(config('shopr.money_formatter'));
+
+        $this->assertEquals('25,00 kr', $formatter->format(25));
+
+        // Using the default symbol.
+        $formatter->symbolPosition = 'before';
+        $this->assertEquals('kr25,00', $formatter->format(25));
+
+        $formatter->symbolPosition = 'after';
+        $this->assertEquals('25,00kr', $formatter->format(25));
+
+        // Using a custom symbol.
+        $formatter->symbol = '¢';
+        $this->assertEquals('25,00¢', $formatter->format(25));
+
+        $formatter->symbolPosition = 'before';
+        $this->assertEquals('¢25,00', $formatter->format(25));
+    }
+
+    /** @test */
     public function thousand_separator_is_customizable()
     {
         $formatter = app(config('shopr.money_formatter'));
@@ -64,16 +86,6 @@ class DefaultFormatterTest extends TestCase
     }
 
     /** @test */
-    public function symbol_before_is_customizable()
-    {
-        // Swedish.
-        $formatter = app(config('shopr.money_formatter'));
-        $formatter->symbolBefore = '~ ';
-
-        $this->assertEquals('~ 25,50 kr', $formatter->format(25.5));
-    }
-
-    /** @test */
     public function decimal_symbol_is_customizable()
     {
         // Swedish.
@@ -91,8 +103,8 @@ class DefaultFormatterTest extends TestCase
         $formatter->symbol = 'SYM';
         $formatter->decimalCount = 4;
         $formatter->thousandSeparator = '-';
-        $formatter->symbolBefore = '~ ';
+        $formatter->symbolPosition = 'before';
 
-        $this->assertEquals('~ 25-000-000^5000 SYM', $formatter->format(25000000.5));
+        $this->assertEquals('SYM25-000-000^5000', $formatter->format(25000000.5));
     }
 }

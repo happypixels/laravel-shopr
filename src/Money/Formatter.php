@@ -32,11 +32,12 @@ class Formatter
     public $symbol;
 
     /**
-     * A forced symbol to add before the amount.
+     * The desired position of the symbol. Can be 'before' or 'after'.
+     * If unspecified, the symbol will be automatically positioned.
      *
      * @var string
      */
-    public $symbolBefore;
+    public $symbolPosition;
 
     /**
      * The thousand separator symbol.
@@ -58,6 +59,13 @@ class Formatter
      * @var mixed
      */
     protected $amount;
+
+    /**
+     * The symbol that gets assigned to the format, either by customization or by PHP magic.
+     *
+     * @var string
+     */
+    protected $assignedSymbol;
 
     /**
      * Create the default formatter.
@@ -82,7 +90,7 @@ class Formatter
             ->applyDecimalCount()
             ->formatAmount()
             ->cleanUp()
-            ->applySymbolBefore()
+            ->applySymbolPosition()
             ->getResult();
     }
 
@@ -96,6 +104,8 @@ class Formatter
         if ($this->symbol !== null) {
             $this->formatter->setSymbol(NumberFormatter::CURRENCY_SYMBOL, $this->symbol);
         }
+
+        $this->assignedSymbol = $this->formatter->getSymbol(NumberFormatter::CURRENCY_SYMBOL);
 
         return $this;
     }
@@ -152,7 +162,7 @@ class Formatter
     /**
      * Returns the formatted amount.
      *
-     * @return string
+     * @return self
      */
     protected function getResult()
     {
@@ -162,7 +172,7 @@ class Formatter
     /**
      * Runs the PHP NumberFormatter on the amount.
      *
-     * @return string
+     * @return self
      */
     protected function formatAmount()
     {
@@ -174,13 +184,23 @@ class Formatter
     }
 
     /**
-     * Applies a symbol before, if specified.
+     * Puts the symbol in the desired position.
      *
-     * @return string
+     * @return self
      */
-    protected function applySymbolBefore()
+    protected function applySymbolPosition()
     {
-        $this->amount = $this->symbolBefore.$this->amount;
+        if ($this->symbolPosition && in_array($this->symbolPosition, ['before', 'after'])) {
+            // First, remove the assigned symbol from the formatted amount.
+            $this->amount = trim(str_replace($this->assignedSymbol, '', $this->amount));
+
+            // Then, add the symbol in it's correct position.
+            if ($this->symbolPosition === 'before') {
+                $this->amount = $this->assignedSymbol.$this->amount;
+            } else {
+                $this->amount .= $this->assignedSymbol;
+            }
+        }
 
         return $this;
     }
@@ -188,7 +208,7 @@ class Formatter
     /**
      * Cleans up unexpected characters and spaces returned by NumberFormatter for some reason.
      *
-     * @return string
+     * @return self
      */
     protected function cleanUp()
     {
