@@ -56,6 +56,11 @@ class DefaultFormatterTest extends TestCase
         $formatter->decimalCount = 4;
 
         $this->assertEquals('25,5000 kr', $formatter->format(25.5));
+
+        $formatter = app(config('shopr.money_formatter'));
+        $formatter->decimalCount = 0;
+
+        $this->assertEquals('26 kr', $formatter->format(25.5));
     }
 
     /** @test */

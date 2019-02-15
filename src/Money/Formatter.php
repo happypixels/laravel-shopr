@@ -124,8 +124,9 @@ class Formatter
      */
     public function applyDecimalCount()
     {
-        if ($this->decimalCount) {
+        if ($this->decimalCount !== null) {
             $this->formatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, $this->decimalCount);
+            $this->formatter->setAttribute(NumberFormatter::FRACTION_DIGITS, $this->decimalCount);
         }
 
         return $this;
