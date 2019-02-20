@@ -18,12 +18,6 @@ class DefaultFormatterTest extends TestCase
     }
 
     /** @test */
-    public function verify_icu()
-    {
-        echo defined('INTL_ICU_VERSION') ? 'ICU Version: '.INTL_ICU_VERSION : 'no ICU';
-    }
-
-    /** @test */
     public function it_defaults_to_chosen_currency_standards()
     {
         $this->assertEquals('$25.00', $this->formatter->format('25'));
