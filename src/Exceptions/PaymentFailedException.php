@@ -21,10 +21,9 @@ class PaymentFailedException extends Exception
      */
     public function render($request)
     {
-        $response = trans('shopr::checkout.payment_failed', [
-            'message' => $this->message,
-        ]);
-
-        return response()->json(['message' => $response], 400);
+        return response()->json([
+            'message' => trans('shopr::checkout.payment_failed'),
+            'reason' => $this->message,
+        ], 400);
     }
 }

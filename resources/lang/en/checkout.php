@@ -2,5 +2,5 @@
 
 return [
     'invalid_gateway' => 'Invalid payment gateway.',
-    'payment_failed' => 'Unable to process payment: :message.',
+    'payment_failed' => 'The payment failed.',
 ];

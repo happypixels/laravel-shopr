@@ -70,7 +70,8 @@ class ChargeHttpTest extends TestCase
             'first_name' => 'Testy',
             'last_name' => 'McTestface',
         ])->assertStatus(400)->assertJsonFragment([
-            'message' => 'Unable to process payment: Insufficient funds.',
+            'message' => 'The payment failed.',
+            'reason' => 'Insufficient funds',
         ]);
 
         // The cart is persisted and no order is created.
