@@ -2,11 +2,11 @@
 
 namespace Happypixels\Shopr\Controllers;
 
-use Omnipay\Omnipay;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
 
 class CheckoutController extends Controller
 {
@@ -25,49 +25,31 @@ class CheckoutController extends Controller
     public function charge(Request $request)
     {
         $request->validate([
-            'gateway'    => 'required',
-            'email'      => 'required|email',
+            'gateway' => 'required',
+            'email' => 'required|email',
             'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
         ]);
 
         if ($this->cart->isEmpty()) {
-            return response()->json(['message' => 'Your cart is empty.'], 400);
+            return response()->json(['message' => trans('shopr::cart.cart_is_empty')], 400);
         }
 
-        // Create the order.
-        $order = $this->cart->convertToOrder($request->gateway, $request->only([
+        // Make the payment and merge the response with the request data, if successful.
+        $data = array_merge($request->only([
             'email', 'phone', 'first_name', 'last_name', 'address', 'zipcode', 'city', 'country',
-        ]));
+        ]), PaymentProviderManager::make($request)->payForCart());
 
-        if (! $order) {
-            return response()->json(['message' => 'Unable to process your order.'], 400);
+        $order = $this->cart->convertToOrder($request->gateway, $data);
+
+        Event::fire('shopr.orders.created', $order);
+
+        $response = ['token' => $order->token];
+
+        if (config('shopr.templates.order-confirmation')) {
+            $response['redirect'] = route('shopr.order-confirmation').'?token='.$order->token;
         }
 
-        // Make the purchase.
-        $gateway = Omnipay::create($request->gateway);
-        $gateway->initialize(config('shopr.gateways.'.str_slug($request->gateway, '_')));
-        $response = $gateway->purchase([
-            'amount'   => $order->total,
-            'currency' => config('shopr.currency'),
-            'token'    => $request->token,
-        ])->send();
-
-        // Handle the response.
-        if ($response->isRedirect()) {
-            // Redirect to offsite confirmation.
-            $response->redirect();
-        } elseif ($response->isSuccessful()) {
-            $order->transaction_reference = $response->getTransactionReference();
-            $order->transaction_id = $response->getTransactionId();
-            $order->payment_status = 'paid';
-            $order->save();
-
-            Event::fire('shopr.orders.created', $order);
-
-            return response()->json(['redirect' => route('shopr.order-confirmation').'?token='.$order->token], 200);
-        } else {
-            return response()->json(['response' => $response->getMessage()], 400);
-        }
+        return response()->json($response, 201);
     }
 }

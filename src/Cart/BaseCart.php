@@ -205,32 +205,34 @@ abstract class BaseCart implements Cart
      * Converts the current cart to an order and clears the cart.
      *
      * @param  string $gateway
-     * @param  array  $userData
+     * @param  array  $data
      * @return \Happypixels\Shopr\Models\Order|false
      */
-    public function convertToOrder($gateway, $userData = [])
+    public function convertToOrder($gateway, $data = [])
     {
         if ($this->isEmpty()) {
             return false;
         }
 
         $order = app(Order::class)->create([
-            'user_id'          => auth()->id(),
-            'payment_gateway'  => $gateway,
-            'payment_status'   => 'pending',
-            'delivery_status'  => 'pending',
-            'token'            => Order::generateToken(),
-            'total'            => $this->total(),
-            'sub_total'        => $this->subTotal(),
-            'tax'              => $this->taxTotal(),
-            'email'            => optional($userData)['email'],
-            'phone'            => optional($userData)['phone'],
-            'first_name'       => optional($userData)['first_name'],
-            'last_name'        => optional($userData)['last_name'],
-            'address'          => optional($userData)['address'],
-            'zipcode'          => optional($userData)['zipcode'],
-            'city'             => optional($userData)['city'],
-            'country'          => optional($userData)['country'],
+            'user_id' => auth()->id(),
+            'payment_gateway' => $gateway,
+            'transaction_reference' => $data['transaction_reference'] ?? null,
+            'transaction_id' => $data['transaction_id'] ?? null,
+            'payment_status' => $data['payment_status'] ?? 'pending',
+            'delivery_status' => 'pending',
+            'token' => Order::generateToken(),
+            'total' => $this->total(),
+            'sub_total' => $this->subTotal(),
+            'tax' => $this->taxTotal(),
+            'email' => optional($data)['email'],
+            'phone' => optional($data)['phone'],
+            'first_name' => optional($data)['first_name'],
+            'last_name' => optional($data)['last_name'],
+            'address' => optional($data)['address'],
+            'zipcode' => optional($data)['zipcode'],
+            'city' => optional($data)['city'],
+            'country' => optional($data)['country'],
         ]);
 
         foreach ($this->getAllItems() as $item) {

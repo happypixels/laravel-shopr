@@ -2,6 +2,7 @@
 
 namespace Happypixels\Shopr\Tests;
 
+use Mockery;
 use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -49,7 +50,7 @@ class TestCase extends Orchestra
 
     public function mockCart()
     {
-        $mock = \Mockery::mock(SessionCartRepository::class);
+        $mock = Mockery::mock(SessionCartRepository::class);
         $this->app->instance(Cart::class, $mock);
 
         return $mock;
@@ -61,6 +62,14 @@ class TestCase extends Orchestra
         $model = TestShoppable::first();
 
         return $cart->addItem(get_class($model), 1, 1);
+    }
+
+    public function mock($class)
+    {
+        $mock = Mockery::mock($class);
+        $this->app->instance($class, $mock);
+
+        return $mock;
     }
 
     /**

@@ -32,35 +32,40 @@ class ConvertCartToOrderUnitTest extends TestCase
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1);
 
-        $userData = [
-            'email'      => 'test@example.com',
+        $data = [
+            'transaction_reference' => 'ref',
+            'transaction_id' => 'id',
+            'payment_status' => 'paid',
+            'email' => 'test@example.com',
             'first_name' => 'Testy',
-            'last_name'  => 'McTestface',
-            'phone'      => '111222333',
-            'address'    => 'Street 1',
-            'zipcode'    => '12312',
-            'city'       => 'New York',
-            'country'    => 'US',
+            'last_name' => 'McTestface',
+            'phone' => '111222333',
+            'address' => 'Street 1',
+            'zipcode' => '12312',
+            'city' => 'New York',
+            'country' => 'US',
         ];
 
-        $cart->convertToOrder('stripe', $userData);
+        $cart->convertToOrder('stripe', $data);
 
         $order = Order::first();
         $this->assertEquals('stripe', $order->payment_gateway);
-        $this->assertEquals('pending', $order->payment_status);
+        $this->assertEquals('paid', $order->payment_status);
+        $this->assertEquals('ref', $order->transaction_reference);
+        $this->assertEquals('id', $order->transaction_id);
         $this->assertEquals('pending', $order->delivery_status);
         $this->assertNotNull($order->token);
         $this->assertEquals(500, $order->total);
         $this->assertEquals(400, $order->sub_total);
         $this->assertEquals(100, $order->tax);
-        $this->assertEquals($userData['email'], $order->email);
-        $this->assertEquals($userData['first_name'], $order->first_name);
-        $this->assertEquals($userData['last_name'], $order->last_name);
-        $this->assertEquals($userData['phone'], $order->phone);
-        $this->assertEquals($userData['address'], $order->address);
-        $this->assertEquals($userData['zipcode'], $order->zipcode);
-        $this->assertEquals($userData['city'], $order->city);
-        $this->assertEquals($userData['country'], $order->country);
+        $this->assertEquals($data['email'], $order->email);
+        $this->assertEquals($data['first_name'], $order->first_name);
+        $this->assertEquals($data['last_name'], $order->last_name);
+        $this->assertEquals($data['phone'], $order->phone);
+        $this->assertEquals($data['address'], $order->address);
+        $this->assertEquals($data['zipcode'], $order->zipcode);
+        $this->assertEquals($data['city'], $order->city);
+        $this->assertEquals($data['country'], $order->country);
     }
 
     /** @test */
