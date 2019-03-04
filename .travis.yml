@@ -8,13 +8,30 @@ php:
 before_install:
   - sudo apt-get update
   - travis_retry composer self-update
+  - |
+      ICU_DIR=$HOME/.build/icu-63.1
+      ICU_PHP_VERSION=$(php -r "echo PHP_VERSION;")
+      ICU_PHP_DIR=$HOME/.build/php-$ICU_PHP_VERSION-icu-63.1
+      export ICU_PHP=$ICU_PHP_DIR/bin/php
+      if [ ! -f $ICU_PHP ]; then
+          wget -O icu-src.tgz http://download.icu-project.org/files/icu4c/63.1/icu4c-$(echo 63.1 | tr '.' '_')-src.tgz
+          mkdir icu-src && tar xzf icu-src.tgz -C icu-src --strip-components=1
+          pushd icu-src/source
+              ./configure --prefix=$ICU_DIR
+              make && make install
+          popd
+          wget -O php-src.tgz http://us1.php.net/get/php-$ICU_PHP_VERSION.tar.gz/from/this/mirror
+          mkdir php-src && tar xzf php-src.tgz -C php-src --strip-components=1
+          pushd php-src
+              ./configure --prefix=$ICU_PHP_DIR --enable-intl --with-icu-dir=$ICU_DIR
+              make && make install
+          popd
+      fi
+      $ICU_PHP -r "echo INTL_ICU_VERSION.PHP_EOL;"
+      $ICU_PHP -r "var_dump((new ReflectionClass('Normalizer'))->getConstants());"
 
 install:
   - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
-  - git -C /tmp clone https://gist.github.com/siffash/76676186de0ffc6eb6cbf89abc7a5e2f icu-install
-  - sudo chmod +x /tmp/icu-install/icu-install.sh
-  - sudo /tmp/icu-install/icu-install.sh install 60.2
-  - rm -rf /tmp/icu-install
 
 script:
   - vendor/bin/phpunit
