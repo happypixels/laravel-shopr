@@ -1,13 +1,16 @@
+dist: xenial
 language: php
 
 matrix:
     include:
         - php: 7.1
-          env: ICU_VERSION=56.1
         - php: 7.2
           env: ICU_VERSION=60.2
         - php: 7.3
           env: ICU_VERSION=63.1
+
+services:
+  - mysql
 
 before_install:
   - sudo apt-get update
@@ -43,7 +46,8 @@ install:
   - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
 script:
-  - $ICU_PHP vendor/bin/phpunit
+  - vendor/bin/phpunit
+  - if [[ $ICU_PHP ]]; then $ICU_PHP ./vendor/bin/phpunit; fi
 
 branches:
   only:
