@@ -7,6 +7,9 @@ php:
 
 before_install:
   - sudo apt-get update
+  - git -C /tmp clone https://gist.github.com/siffash/76676186de0ffc6eb6cbf89abc7a5e2f icu-install
+  - /tmp/icu-install/icu-install.sh install 60.2
+  - rm -rf /tmp/icu-install
   - travis_retry composer self-update
 
 install:
