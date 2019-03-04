@@ -89,7 +89,7 @@ class Formatter
             ->applyDecimalSeparator()
             ->applyDecimalCount()
             ->formatAmount()
-            ->cleanUp()
+            ->removeUnwantedWhitespace()
             ->applySymbolPosition()
             ->getResult();
     }
@@ -206,13 +206,21 @@ class Formatter
     }
 
     /**
-     * Cleans up unexpected characters and spaces returned by NumberFormatter for some reason.
+     * Removes unwanted whitespace in the amount.
      *
      * @return self
      */
-    protected function cleanUp()
+    protected function removeUnwantedWhitespace()
     {
+        // Remove unprintable spaces created by NumberFormatter for some reason.
         $this->amount = trim(str_replace(' ', ' ', $this->amount));
+
+        // Remove unwanted whitespace around the symbol.
+        $this->amount = str_replace(
+            [$this->assignedSymbol.' ', ' '.$this->assignedSymbol],
+            $this->assignedSymbol,
+            $this->amount
+        );
 
         return $this;
     }

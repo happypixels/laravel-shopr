@@ -1,13 +1,15 @@
 dist: xenial
 language: php
 
+env:
+  global:
+    - ICU_VERSION=60.2
+
 matrix:
     include:
         - php: 7.1
         - php: 7.2
-          env: ICU_VERSION=60.2
         - php: 7.3
-          env: ICU_VERSION=63.1
 
 services:
   - mysql
@@ -46,7 +48,6 @@ install:
   - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
 script:
-  - vendor/bin/phpunit
   - if [[ $ICU_PHP ]]; then $ICU_PHP ./vendor/bin/phpunit; fi
 
 branches:
