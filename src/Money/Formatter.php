@@ -89,8 +89,8 @@ class Formatter
             ->applyDecimalSeparator()
             ->applyDecimalCount()
             ->formatAmount()
-            ->removeUnwantedWhitespace()
             ->applySymbolPosition()
+            ->removeUnwantedWhitespace()
             ->getResult();
     }
 
