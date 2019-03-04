@@ -64,14 +64,6 @@ class TestCase extends Orchestra
         return $cart->addItem(get_class($model), 1, 1);
     }
 
-    public function mock($class)
-    {
-        $mock = Mockery::mock($class);
-        $this->app->instance($class, $mock);
-
-        return $mock;
-    }
-
     /**
      * Define environment setup.
      *
