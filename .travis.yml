@@ -7,14 +7,14 @@ php:
 
 before_install:
   - sudo apt-get update
-  - git -C /tmp clone https://gist.github.com/siffash/76676186de0ffc6eb6cbf89abc7a5e2f icu-install
-  - sudo chmod +x /tmp/icu-install/icu-install.sh
-  - sudo /tmp/icu-install/icu-install.sh install 60.2
-  - rm -rf /tmp/icu-install
   - travis_retry composer self-update
 
 install:
   - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
+  - git -C /tmp clone https://gist.github.com/siffash/76676186de0ffc6eb6cbf89abc7a5e2f icu-install
+  - sudo chmod +x /tmp/icu-install/icu-install.sh
+  - sudo /tmp/icu-install/icu-install.sh install 60.2
+  - rm -rf /tmp/icu-install
 
 script:
   - vendor/bin/phpunit
