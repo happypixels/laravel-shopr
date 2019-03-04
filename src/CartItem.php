@@ -34,7 +34,7 @@ class CartItem
         $this->options = $options;
         $this->subItems = $this->addSubItems($subItems);
         $this->price = ($price) ?? $this->shoppable->getPrice();
-        $this->price_formatted = (new Formatter)->format($this->price);
+        $this->price_formatted = app(Formatter::class)->format($this->price);
         $this->total = $this->total();
     }
 
@@ -86,7 +86,7 @@ class CartItem
         $value = $this->shoppable->getPrice();
 
         $this->price = $value;
-        $this->price_formatted = (new Formatter)->format($value);
+        $this->price_formatted = app(Formatter::class)->format($value);
         $this->total = $this->total();
     }
 }

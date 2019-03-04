@@ -5,6 +5,7 @@ namespace Happypixels\Shopr;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\Models\OrderItem;
 use Illuminate\Support\ServiceProvider;
 use Happypixels\Shopr\Observers\OrderObserver;
@@ -60,6 +61,10 @@ class ShoprServiceProvider extends ServiceProvider
 
         if (config('shopr.models.OrderItem')) {
             $this->app->singleton(OrderItem::class, config('shopr.models.OrderItem'));
+        }
+
+        if (config('shopr.money_formatter')) {
+            $this->app->singleton(Formatter::class, config('shopr.money_formatter'));
         }
     }
 

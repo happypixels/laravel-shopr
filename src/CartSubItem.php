@@ -28,7 +28,7 @@ class CartSubItem
         $this->quantity = $quantity;
         $this->options = $options;
         $this->price = (is_numeric($price)) ? $price : $this->shoppable->getPrice();
-        $this->price_formatted = (new Formatter)->format($this->price);
+        $this->price_formatted = app(Formatter::class)->format($this->price);
         $this->total = $this->total();
     }
 

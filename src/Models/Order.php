@@ -35,17 +35,17 @@ class Order extends Model
 
     public function getTotalFormattedAttribute()
     {
-        return (new Formatter)->format($this->total);
+        return app(Formatter::class)->format($this->total);
     }
 
     public function getSubTotalFormattedAttribute()
     {
-        return (new Formatter)->format($this->sub_total);
+        return app(Formatter::class)->format($this->sub_total);
     }
 
     public function getTaxFormattedAttribute()
     {
-        return (new Formatter)->format($this->tax);
+        return app(Formatter::class)->format($this->tax);
     }
 
     public function items()

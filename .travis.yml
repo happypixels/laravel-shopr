@@ -1,19 +1,52 @@
+dist: xenial
 language: php
 
-php:
-  - 7.1
-  - 7.2
-  - 7.3
+env:
+  global:
+    - ICU_VERSION=58.2
+
+matrix:
+    include:
+        - php: 7.1
+        - php: 7.2
+        - php: 7.3
+
+services:
+  - mysql
 
 before_install:
   - sudo apt-get update
   - travis_retry composer self-update
+  - |
+      if [[ $ICU_VERSION ]]; then
+        ICU_DIR=$HOME/.build/icu-$ICU_VERSION
+        ICU_PHP_VERSION=$(php -r "echo PHP_VERSION;")
+        ICU_PHP_DIR=$HOME/.build/php-$ICU_PHP_VERSION-icu-$ICU_VERSION
+        export ICU_PHP=$ICU_PHP_DIR/bin/php
+        if [ ! -f $ICU_PHP ]; then
+            wget -O icu-src.tgz http://download.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr '.' '_')-src.tgz
+            mkdir icu-src && tar xzf icu-src.tgz -C icu-src --strip-components=1
+            pushd icu-src/source
+                ./configure --prefix=$ICU_DIR
+                make && make install
+            popd
+            wget -O php-src.tgz http://us1.php.net/get/php-$ICU_PHP_VERSION.tar.gz/from/this/mirror
+            mkdir php-src && tar xzf php-src.tgz -C php-src --strip-components=1
+            pushd php-src
+                ./configure --prefix=$ICU_PHP_DIR --enable-intl --with-icu-dir=$ICU_DIR
+                make && make install
+            popd
+        fi
+        $ICU_PHP -r "echo INTL_ICU_VERSION.PHP_EOL;"
+        $ICU_PHP -r "var_dump((new ReflectionClass('Normalizer'))->getConstants());"
+      fi
+  - $ICU_PHP -i
 
 install:
   - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
 script:
-  - vendor/bin/phpunit
+  - $ICU_PHP ./vendor/bin/phpunit
 
 branches:
   only:
