@@ -7,7 +7,7 @@ use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
-class FormatterTest extends TestCase
+class PriceFormattingTest extends TestCase
 {
     /** @test */
     public function it_formats_order_amounts()

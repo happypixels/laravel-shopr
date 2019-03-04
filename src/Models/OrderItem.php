@@ -28,12 +28,12 @@ class OrderItem extends Model
 
     public function getPriceFormattedAttribute()
     {
-        return (new Formatter)->format($this->price);
+        return app(Formatter::class)->format($this->price);
     }
 
     public function getTotalFormattedAttribute()
     {
-        return (new Formatter)->format($this->price * $this->quantity);
+        return app(Formatter::class)->format($this->price * $this->quantity);
     }
 
     public function children()
