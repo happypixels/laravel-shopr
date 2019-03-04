@@ -40,7 +40,7 @@ before_install:
         $ICU_PHP -r "echo INTL_ICU_VERSION.PHP_EOL;"
         $ICU_PHP -r "var_dump((new ReflectionClass('Normalizer'))->getConstants());"
       fi
-  - php -i
+  - $ICU_PHP -i
 
 install:
   - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
