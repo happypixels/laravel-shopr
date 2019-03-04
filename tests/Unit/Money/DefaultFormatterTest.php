@@ -28,7 +28,7 @@ class DefaultFormatterTest extends TestCase
     {
         $this->formatter->symbol = 'kr';
 
-        $this->assertEquals('kr 25.00', $this->formatter->format(25));
+        $this->assertEquals('kr25.00', $this->formatter->format(25));
     }
 
     /** @test */
