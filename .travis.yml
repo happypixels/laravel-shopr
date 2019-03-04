@@ -3,7 +3,7 @@ language: php
 
 env:
   global:
-    - ICU_VERSION=60.2
+    - ICU_VERSION=58.2
 
 matrix:
     include:
