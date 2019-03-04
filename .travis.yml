@@ -17,8 +17,6 @@ services:
 before_install:
   - sudo apt-get update
   - travis_retry composer self-update
-  - if [[ $TRAVIS_PHP_VERSION = 7.* ]]; then echo yes | pecl install -f apcu_bc-1.0.4; fi
-  - if [[ $TRAVIS_PHP_VERSION = 7.* ]]; then echo yes | pecl install -f apcu-5.1.11; fi
   - |
       if [[ $ICU_VERSION ]]; then
         ICU_DIR=$HOME/.build/icu-$ICU_VERSION
