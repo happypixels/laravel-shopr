@@ -4,8 +4,8 @@ namespace Happypixels\Shopr\PaymentProviders;
 
 use Omnipay\Omnipay;
 use Illuminate\Http\Request;
+use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Exceptions\PaymentFailedException;
 
 abstract class PaymentProvider

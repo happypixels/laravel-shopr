@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Money;
 
+use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 

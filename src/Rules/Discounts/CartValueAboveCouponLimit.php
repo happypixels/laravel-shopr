@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Rules\Discounts;
 
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Contracts\Validation\Rule;
 use Happypixels\Shopr\Models\DiscountCoupon;
 

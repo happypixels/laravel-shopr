@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Models;
 
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DiscountCoupon extends Shoppable

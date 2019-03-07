@@ -4,9 +4,12 @@ namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Rules\Discounts\OnlyOneCouponPerOrder;
+use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
 
 class OnlyOneCouponPerOrderRuleTest extends TestCase
 {
+    use InteractsWithCart;
+
     /** @test */
     public function it_fails_if_any_coupon_has_been_applied()
     {

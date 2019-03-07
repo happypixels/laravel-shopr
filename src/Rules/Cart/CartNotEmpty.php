@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Rules\Cart;
 
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Contracts\Validation\Rule;
 
 class CartNotEmpty implements Rule

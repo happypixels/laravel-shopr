@@ -3,10 +3,13 @@
 namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
 use Happypixels\Shopr\Tests\TestCase;
+use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
 use Happypixels\Shopr\Rules\Discounts\CouponHasNotBeenApplied;
 
 class CouponHasNotBeenAppliedRuleTest extends TestCase
 {
+    use InteractsWithCart;
+
     /** @test */
     public function it_fails_if_coupon_has_been_applied()
     {

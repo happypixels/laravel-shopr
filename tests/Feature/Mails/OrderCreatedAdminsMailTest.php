@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Mails;
 
+use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Support\Facades\Mail;
-use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Mails\OrderCreatedAdmins;

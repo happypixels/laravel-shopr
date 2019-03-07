@@ -3,10 +3,8 @@
 namespace Happypixels\Shopr\Tests;
 
 use Mockery;
-use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Happypixels\Shopr\Repositories\SessionCartRepository;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class TestCase extends Orchestra
@@ -46,22 +44,6 @@ class TestCase extends Orchestra
         include_once __DIR__.'/../database/migrations/create_discount_coupons_table.php.stub';
         (new \CreateOrderTables())->up();
         (new \CreateDiscountCouponsTable())->up();
-    }
-
-    public function mockCart()
-    {
-        $mock = Mockery::mock(SessionCartRepository::class);
-        $this->app->instance(Cart::class, $mock);
-
-        return $mock;
-    }
-
-    public function addCartItem()
-    {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-
-        return $cart->addItem(get_class($model), 1, 1);
     }
 
     public function mock($class)

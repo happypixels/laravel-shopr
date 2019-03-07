@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Controllers;
 
+use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Routing\Controller;
-use Happypixels\Shopr\Contracts\Cart;
 
 class CartController extends Controller
 {

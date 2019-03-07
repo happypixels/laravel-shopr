@@ -2,13 +2,16 @@
 
 namespace Happypixels\Shopr\Tests\REST\Discounts;
 
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Rules\DiscountTestRule;
+use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
 
 class AddDiscountValidationHttpTest extends TestCase
 {
+    use InteractsWithCart;
+
     /** @test */
     public function the_code_is_required()
     {

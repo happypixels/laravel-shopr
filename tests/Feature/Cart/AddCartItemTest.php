@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
 

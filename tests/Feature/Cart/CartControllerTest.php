@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
@@ -14,7 +14,7 @@ class CartControllerTest extends TestCase
     {
         $cart = app(Cart::class);
 
-        $this->json('GET', 'api/shopr/cart')
+        $response = $this->json('GET', 'api/shopr/cart')
             ->assertStatus(200)
             ->assertJsonFragment($cart->summary());
     }

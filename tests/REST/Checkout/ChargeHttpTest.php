@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Tests\REST\Checkout;
 
+use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\PaymentProviders\Stripe;
@@ -27,7 +27,7 @@ class ChargeHttpTest extends TestCase
     /** @test */
     public function it_returns_400_if_cart_is_empty()
     {
-        $response = $this->json('POST', '/api/shopr/checkout/charge', [
+        $this->json('POST', '/api/shopr/checkout/charge', [
             'email'      => 'test@example.com',
             'gateway'    => 'stripe',
             'first_name' => 'Testy',

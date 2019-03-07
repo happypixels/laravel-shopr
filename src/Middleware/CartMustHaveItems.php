@@ -3,7 +3,7 @@
 namespace Happypixels\Shopr\Middleware;
 
 use Closure;
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 
 class CartMustHaveItems
 {

@@ -2,21 +2,38 @@
 
 namespace Happypixels\Shopr\Cart;
 
+use Happypixels\Shopr\CartItem;
 use Illuminate\Support\Collection;
 use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Contracts\Cart;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\Contracts\Shoppable;
 
-abstract class BaseCart implements Cart
+abstract class Cart
 {
     /**
-     * Returns all items in the cart including discount coupons.
+     * Retrieve all cart items from the store.
+     *
+     * @return array|null
+     */
+    abstract public function get();
+
+    /**
+     * Persists the cart items in the store.
+     *
+     * @return void
+     */
+    abstract public function persist($data);
+
+    /**
+     * Returns all items regardless of type.
      *
      * @return Collection
      */
-    abstract public function getAllItems() : Collection;
+    public function getAllItems() : Collection
+    {
+        return collect($this->get());
+    }
 
     /**
      * Returns the regular cart items.
@@ -262,5 +279,145 @@ abstract class BaseCart implements Cart
         $this->clear();
 
         return $order;
+    }
+
+    /**
+     * Adds an item to the cart.
+     *
+     * @param string $shoppableType
+     * @param int $shoppableId
+     * @param int $quantity
+     * @param array $options
+     * @param array $subItems
+     * @param float|null $price
+     * @return Happypixels\Shopr\CartItem
+     */
+    public function addItem($shoppableType, $shoppableId, $quantity = 1, $options = [], $subItems = [], $price = null) : CartItem
+    {
+        $quantity = (is_numeric($quantity) && $quantity > 0) ? $quantity : 1;
+
+        $items = $this->getAllItems();
+        $item = new CartItem($shoppableType, $shoppableId, $quantity, $options, $subItems, $price);
+
+        // Find already added items that are identical to current selection.
+        $identicals = $items->filter(function ($row) use ($item) {
+            return
+                $row->shoppableType === $item->shoppableType &&
+                $row->shoppableId === $item->shoppableId &&
+                serialize($row->options) === serialize($item->options) &&
+                serialize($row->subItems) === serialize($item->subItems);
+        });
+
+        // If an identical item already exists in the cart, add to it's quantity.
+        // Otherwise, push it.
+        if ($identicals->count() > 0) {
+            $items->where('id', $identicals->first()->id)->first()->quantity += $quantity;
+            $item->quantity = $items->where('id', $identicals->first()->id)->first()->quantity;
+
+            $event = 'updated';
+        } else {
+            $items->push($item);
+
+            $event = 'added';
+        }
+
+        $this->persist($items);
+
+        Event::fire('shopr.cart.items.'.$event, $item);
+
+        return $item;
+    }
+
+    /**
+     * Updates a single item in the cart.
+     *
+     * @param  string $id
+     * @param  array $data
+     * @return Happypixels\Shopr\CartItem
+     */
+    public function updateItem($id, $data)
+    {
+        $items = $this->getAllItems();
+        $item = null;
+
+        foreach ($items as $index => $item) {
+            if ($item->id !== $id || empty($data['quantity'])) {
+                continue;
+            }
+
+            $items[$index]->quantity = intval($data['quantity']);
+
+            if (! empty($items[$index]->subItems)) {
+                foreach ($items[$index]->subItems as $i => $subItem) {
+                    $items[$index]->subItems[$i]->quantity = intval($data['quantity']);
+                    $items[$index]->subItems[$i]->total = $items[$index]->subItems[$i]->total();
+                }
+            }
+
+            $items[$index]->total = $items[$index]->total();
+            $item = $items[$index];
+        }
+
+        $this->persist($items);
+
+        // Refresh relative discount values.
+        foreach ($items as $index => $item) {
+            if (! $item->shoppable->isDiscount()) {
+                continue;
+            }
+
+            $items[$index]->refreshDiscountValue();
+        }
+
+        $this->persist($items);
+
+        Event::fire('shopr.cart.items.updated', $item);
+
+        return $item;
+    }
+
+    /**
+     * Removes a single item from the cart.
+     *
+     * @param  string $id
+     * @return Happypixels\Shopr\CartItem
+     */
+    public function removeItem($id)
+    {
+        $items = $this->getAllItems();
+        $removedItem = null;
+
+        foreach ($items as $index => $item) {
+            if ($item->id === $id) {
+                $removedItem = $items[$index];
+
+                unset($items[$index]);
+            }
+        }
+
+        $this->persist($items);
+
+        // If the cart is cleared of shoppable items, also remove any discounts.
+        if ($this->items()->count() === 0) {
+            $this->clear();
+        }
+
+        if ($removedItem) {
+            Event::fire('shopr.cart.items.deleted', $removedItem);
+        }
+
+        return $removedItem;
+    }
+
+    /**
+     * Clears the cart and fires appropriate event.
+     *
+     * @return void
+     */
+    public function clear()
+    {
+        $this->persist(collect([]));
+
+        Event::fire('shopr.cart.cleared');
     }
 }

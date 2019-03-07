@@ -3,7 +3,7 @@
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
 use Happypixels\Shopr\CartItem;
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Models\DiscountCoupon;

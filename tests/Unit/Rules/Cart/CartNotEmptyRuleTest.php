@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Rules\Cart;
 
-use Happypixels\Shopr\Contracts\Cart;
+use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Rules\Cart\CartNotEmpty;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;

@@ -4,10 +4,13 @@ namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
+use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
 use Happypixels\Shopr\Rules\Discounts\CartValueAboveCouponLimit;
 
 class CartValueAboveCouponLimitRuleTest extends TestCase
 {
+    use InteractsWithCart;
+
     /** @test */
     public function it_fails_if_cart_value_is_below_coupon_lower_limit()
     {

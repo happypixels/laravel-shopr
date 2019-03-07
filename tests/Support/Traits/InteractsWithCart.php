@@ -2,9 +2,8 @@
 
 namespace Happypixels\Shopr\Tests\Support\Traits;
 
-use Mockery;
-use Happypixels\Shopr\Contracts\Cart;
-use Happypixels\Shopr\Repositories\SessionCartRepository;
+use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Cart\Drivers\SessionCart;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 trait InteractsWithCart
@@ -21,8 +20,7 @@ trait InteractsWithCart
 
     public function mockCart()
     {
-        $cart = Mockery::mock(SessionCartRepository::class);
-        $this->app->instance(Cart::class, $cart);
+        return $this->mock(Cart::class, SessionCart::class);
 
         return $cart;
     }

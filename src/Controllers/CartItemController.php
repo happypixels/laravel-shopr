@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Controllers;
 
 use Illuminate\Http\Request;
+use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Routing\Controller;
-use Happypixels\Shopr\Contracts\Cart;
 use Happypixels\Shopr\Rules\Discounts\NotADiscount;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 
