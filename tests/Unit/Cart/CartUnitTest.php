@@ -108,7 +108,7 @@ class CartUnitTest extends TestCase
         $cart->addItem(get_class($model), 1);
 
         $this->assertEquals('Illuminate\Support\Collection', get_class($cart->items()));
-        $this->assertEquals('Happypixels\Shopr\CartItem', get_class($cart->items()->first()));
+        $this->assertEquals('Happypixels\Shopr\Cart\CartItem', get_class($cart->items()->first()));
     }
 
     /** @test */
@@ -132,7 +132,7 @@ class CartUnitTest extends TestCase
         $cart->addDiscount($discount);
 
         $this->assertEquals('Illuminate\Support\Collection', get_class($cart->discounts()));
-        $this->assertEquals('Happypixels\Shopr\CartItem', get_class($cart->discounts()->first()));
+        $this->assertEquals('Happypixels\Shopr\Cart\CartItem', get_class($cart->discounts()->first()));
         $this->assertEquals(1, $cart->discounts()->count());
         $this->assertEquals($discount->code, $cart->discounts()->first()->shoppable->getTitle());
     }
@@ -150,7 +150,7 @@ class CartUnitTest extends TestCase
         ]);
 
         $this->assertEquals('Illuminate\Support\Collection', get_class($cart->items()->first()->subItems));
-        $this->assertEquals('Happypixels\Shopr\CartSubItem', get_class($cart->items()->first()->subItems->first()));
+        $this->assertEquals('Happypixels\Shopr\Cart\CartSubItem', get_class($cart->items()->first()->subItems->first()));
     }
 
     /** @test */

@@ -1,6 +1,6 @@
 <?php
 
-namespace Happypixels\Shopr;
+namespace Happypixels\Shopr\Cart;
 
 use Happypixels\Shopr\Money\Formatter;
 

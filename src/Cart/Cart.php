@@ -2,7 +2,6 @@
 
 namespace Happypixels\Shopr\Cart;
 
-use Happypixels\Shopr\CartItem;
 use Illuminate\Support\Collection;
 use Happypixels\Shopr\Models\Order;
 use Illuminate\Support\Facades\Event;
@@ -290,7 +289,7 @@ abstract class Cart
      * @param array $options
      * @param array $subItems
      * @param float|null $price
-     * @return Happypixels\Shopr\CartItem
+     * @return Happypixels\Shopr\Cart\CartItem
      */
     public function addItem($shoppableType, $shoppableId, $quantity = 1, $options = [], $subItems = [], $price = null) : CartItem
     {
@@ -333,7 +332,7 @@ abstract class Cart
      *
      * @param  string $id
      * @param  array $data
-     * @return Happypixels\Shopr\CartItem
+     * @return Happypixels\Shopr\Cart\CartItem
      */
     public function updateItem($id, $data)
     {
@@ -380,7 +379,7 @@ abstract class Cart
      * Removes a single item from the cart.
      *
      * @param  string $id
-     * @return Happypixels\Shopr\CartItem
+     * @return Happypixels\Shopr\Cart\CartItem
      */
     public function removeItem($id)
     {
