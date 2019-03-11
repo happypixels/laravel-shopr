@@ -20,8 +20,6 @@ trait InteractsWithCart
 
     public function mockCart()
     {
-        return $this->mock(Cart::class, SessionCart::class);
-
-        return $cart;
+        return $this->mockWith(Cart::class, SessionCart::class);
     }
 }
