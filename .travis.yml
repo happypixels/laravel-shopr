@@ -26,6 +26,7 @@ before_install:
         ICU_DIR=$HOME/.build/icu-$ICU_VERSION
         ICU_PHP_VERSION=$(php -r "echo PHP_VERSION;")
         ICU_PHP_DIR=$HOME/.build/php-$ICU_PHP_VERSION-icu-$ICU_VERSION
+        echo $ICU_PHP_DIR
         export ICU_PHP=$ICU_PHP_DIR/bin/php
         if [ -d $ICU_PHP_DIR ]; then
           echo "Using cached PHP directory."
