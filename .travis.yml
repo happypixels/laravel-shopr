@@ -16,9 +16,7 @@ services:
 
 cache:
     directories:
-     - /home/travis/.build/php-7.1.26-icu-58.2
-     - /home/travis/.build/php-7.2.16-icu-58.2
-     - /home/travis/.build/php-7.3.2-icu-58.2
+     - /home/travis/.build/php-icu-58.2
 
 before_install:
   - sudo apt-get update
@@ -27,7 +25,7 @@ before_install:
       if [[ $ICU_VERSION ]]; then
         ICU_DIR=$HOME/.build/icu-$ICU_VERSION
         ICU_PHP_VERSION=$(php -r "echo PHP_VERSION;")
-        ICU_PHP_DIR=$HOME/.build/php-$ICU_PHP_VERSION-icu-$ICU_VERSION
+        ICU_PHP_DIR=$HOME/.build/php-icu-$ICU_VERSION
         echo $ICU_PHP_DIR
         export ICU_PHP=$ICU_PHP_DIR/bin/php
         if [ -d $ICU_PHP_DIR ]; then
