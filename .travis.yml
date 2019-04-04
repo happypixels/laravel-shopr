@@ -17,6 +17,7 @@ services:
 cache:
     directories:
      - /home/travis/.build/php-icu-58.2
+     - /home/travis/.build/icu-58.2
 
 before_install:
   - sudo apt-get update
