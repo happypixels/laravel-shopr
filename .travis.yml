@@ -14,6 +14,11 @@ matrix:
 services:
   - mysql
 
+cache:
+    directories:
+     - /home/travis/.build/php-icu-58.2
+     - /home/travis/.build/icu-58.2
+
 before_install:
   - sudo apt-get update
   - travis_retry composer self-update
@@ -21,21 +26,24 @@ before_install:
       if [[ $ICU_VERSION ]]; then
         ICU_DIR=$HOME/.build/icu-$ICU_VERSION
         ICU_PHP_VERSION=$(php -r "echo PHP_VERSION;")
-        ICU_PHP_DIR=$HOME/.build/php-$ICU_PHP_VERSION-icu-$ICU_VERSION
+        ICU_PHP_DIR=$HOME/.build/php-icu-$ICU_VERSION
+        echo $ICU_PHP_DIR
         export ICU_PHP=$ICU_PHP_DIR/bin/php
-        if [ ! -f $ICU_PHP ]; then
-            wget -O icu-src.tgz http://download.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr '.' '_')-src.tgz
-            mkdir icu-src && tar xzf icu-src.tgz -C icu-src --strip-components=1
-            pushd icu-src/source
-                ./configure --prefix=$ICU_DIR
-                make && make install
-            popd
-            wget -O php-src.tgz http://us1.php.net/get/php-$ICU_PHP_VERSION.tar.gz/from/this/mirror
-            mkdir php-src && tar xzf php-src.tgz -C php-src --strip-components=1
-            pushd php-src
-                ./configure --prefix=$ICU_PHP_DIR --enable-intl --with-icu-dir=$ICU_DIR
-                make && make install
-            popd
+        if [ -f $ICU_PHP ]; then
+          echo "Using cached PHP directory."
+        else
+          wget -O icu-src.tgz http://download.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr '.' '_')-src.tgz
+          mkdir icu-src && tar xzf icu-src.tgz -C icu-src --strip-components=1
+          pushd icu-src/source
+              ./configure --prefix=$ICU_DIR
+              make && make install
+          popd
+          wget -O php-src.tgz http://us1.php.net/get/php-$ICU_PHP_VERSION.tar.gz/from/this/mirror
+          mkdir php-src && tar xzf php-src.tgz -C php-src --strip-components=1
+          pushd php-src
+              ./configure --prefix=$ICU_PHP_DIR --enable-intl --with-icu-dir=$ICU_DIR
+              make && make install
+          popd
         fi
         $ICU_PHP -r "echo INTL_ICU_VERSION.PHP_EOL;"
         $ICU_PHP -r "var_dump((new ReflectionClass('Normalizer'))->getConstants());"
@@ -51,3 +59,4 @@ script:
 branches:
   only:
     - master
+    - improve-travis-build
