@@ -56,3 +56,6 @@ After this, refer to the [extensive documentation](https://laravel-shopr.happypi
 ## Contributing
 Found a bug or have a feature request? [Open an issue on Github](https://github.com/happypixels/laravel-shopr/issues).   
 Found a security-related issue? Please email mattias@happypixels.se.
+
+## Support me
+If this package made your life a bit easier, consider buying me lunch once or twice a month [through Patreon](https://www.patreon.com/mattiaspersson). All support helps me spend more time on packages like this and also comes with a few benefits 🎁 Thanks!
