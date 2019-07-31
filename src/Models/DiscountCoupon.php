@@ -87,4 +87,9 @@ class DiscountCoupon extends Shoppable
     {
         return true;
     }
+
+    public function shouldBeIncludedInItemList() : bool
+    {
+        return false;
+    }
 }

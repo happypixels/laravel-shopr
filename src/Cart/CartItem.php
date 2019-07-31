@@ -2,17 +2,19 @@
 
 namespace Happypixels\Shopr\Cart;
 
+use Illuminate\Support\Collection;
 use Happypixels\Shopr\Money\Formatter;
+use Happypixels\Shopr\Contracts\Shoppable;
 
 class CartItem
 {
     public $id;
 
-    public $quantity;
+    public $quantity = 1;
 
-    public $shoppableType;
+    #public $shoppableType;
 
-    public $shoppableId;
+    #public $shoppableId;
 
     public $shoppable;
 
@@ -24,40 +26,53 @@ class CartItem
 
     public $price;
 
-    public function __construct($shoppableType, $shoppableId, $quantity, $options, $subItems, $price = null)
+    public function __construct(Shoppable $shoppable)
     {
         $this->id = uniqid(time());
-        $this->shoppableType = $shoppableType;
-        $this->shoppableId = $shoppableId;
-        $this->shoppable = (new $shoppableType)::findOrFail($shoppableId);
-        $this->quantity = $quantity;
-        $this->options = $options;
-        $this->subItems = $this->addSubItems($subItems);
-        $this->price = ($price) ?? $this->shoppable->getPrice();
-        $this->price_formatted = app(Formatter::class)->format($this->price);
-        $this->total = $this->total();
+        $this->shoppable = $shoppable;
+        $this->subItems = collect();
     }
 
-    private function addSubItems($subItems = [])
-    {
-        $items = collect([]);
+    // public function __construct($shoppableType, $shoppableId, $quantity, $options, $subItems, $price = null)
+    // {
+    //     $this->id = uniqid(time());
+    //     $this->shoppableType = $shoppableType;
+    //     $this->shoppableId = $shoppableId;
+    //     $this->shoppable = (new $shoppableType)::findOrFail($shoppableId);
+    //     $this->quantity = $quantity;
+    //     $this->options = $options;
+    //     $this->subItems = $this->addSubItems($subItems);
+    //     $this->price = ($price) ?? $this->shoppable->getPrice();
+    //     $this->price_formatted = app(Formatter::class)->format($this->price);
+    //     $this->total = $this->total();
+    // }
 
-        if (empty($subItems)) {
+    public function addSubItems(Collection $subItems)
+    {
+        $items = collect();
+
+        if ($subItems->count() === 0) {
             return $items;
         }
 
         foreach ($subItems as $item) {
             $options = (! empty($item['options'])) ? $item['options'] : [];
-            $price = (! empty($item['price']) && is_numeric($item['price'])) ? $item['price'] : null;
+            $price = (! empty($item['price']) && is_numeric($item['price'])) ? $item['price'] : $item['shoppable']->getPrice();
+            $item = new CartItem($item['shoppable']);
 
-            $items->push(new CartSubItem(
-                $item['shoppable_type'],
-                $item['shoppable_id'],
-                $this->quantity,
-                $options,
-                $price
-            ));
+            $item->quantity = $this->quantity;
+            $item->price = $price;
+
+            if ($options) {
+                $item->options = $options;
+            }
+
+            $items->push($item);
         }
+
+        $this->subItems = $items;
+
+        $this->refreshPrice();
 
         return $items;
     }
@@ -88,5 +103,19 @@ class CartItem
         $this->price = $value;
         $this->price_formatted = app(Formatter::class)->format($value);
         $this->total = $this->total();
+    }
+
+    public function refreshPrice()
+    {
+        $this->price = ($this->price !== null) ? $this->price : $this->shoppable->getPrice();
+        $this->price_formatted = app(Formatter::class)->format($this->price);
+        $this->total = $this->total();
+    }
+
+    public function isIdenticalTo(CartItem $item)
+    {
+        return $this->shoppable->is($item->shoppable) &&
+            serialize($this->options) === serialize($item->options) &&
+            serialize($this->subItems) === serialize($item->subItems);
     }
 }

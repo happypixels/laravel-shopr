@@ -4,8 +4,9 @@ namespace Happypixels\Shopr\Cart\Drivers;
 
 use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Support\Facades\Session;
+use Happypixels\Shopr\Contracts\CartDriver;
 
-class SessionCart extends Cart
+class SessionCart implements CartDriver
 {
     /**
      * The key under which the cart is persisted.

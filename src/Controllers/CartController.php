@@ -2,32 +2,40 @@
 
 namespace Happypixels\Shopr\Controllers;
 
-use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Routing\Controller;
+use Happypixels\Shopr\Facades\Cart;
 
 class CartController extends Controller
 {
-    protected $cart;
-
-    public function __construct(Cart $cart)
-    {
-        $this->cart = $cart;
-    }
-
+    /**
+     * Returns the cart summary.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index()
     {
-        return $this->cart->summary();
+        return Cart::get();
     }
 
+    /**
+     * Returns the cart count.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function count()
     {
-        return ['count' => $this->cart->count()];
+        return ['count' => Cart::count()];
     }
 
+    /**
+     * Clears the cart and returns the summary.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy()
     {
-        $this->cart->clear();
+        Cart::clear();
 
-        return $this->cart->summary();
+        return Cart::get();
     }
 }

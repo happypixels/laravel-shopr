@@ -46,4 +46,9 @@ class Shoppable extends Model implements ShoppableContract
     {
         return false;
     }
+
+    public function shouldBeIncludedInItemList() : bool
+    {
+        return true;
+    }
 }

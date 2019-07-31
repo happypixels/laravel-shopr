@@ -7,22 +7,117 @@ use Happypixels\Shopr\Models\Order;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\Contracts\Shoppable;
+use Happypixels\Shopr\Contracts\CartDriver;
+use Happypixels\Shopr\Contracts\Cart as CartContract;
 
-abstract class Cart
+class Cart implements CartContract
 {
+    protected $driver;
+    protected $formatter;
+    protected $pendingItem;
+
+    public function __construct(CartDriver $driver, Formatter $formatter)
+    {
+        $this->driver = $driver;
+        $this->formatter = $formatter;
+    }
     /**
-     * Retrieve all cart items from the store.
+     * Retrieve the cart summary.
      *
      * @return array|null
      */
-    abstract public function get();
+    public function get() : array
+    {
+        $subTotal = $this->subTotal();
+        $taxTotal = $this->taxTotal();
+        $total = $this->total();
 
-    /**
-     * Persists the cart items in the store.
-     *
-     * @return void
-     */
-    abstract public function persist($data);
+        return [
+            'items' => $this->items(),
+            'discounts' => $this->discounts(),
+            'sub_total' => $subTotal,
+            'sub_total_formatted' => $this->formatter->format($subTotal),
+            'tax_total' => $taxTotal,
+            'tax_total_formatted' => $this->formatter->format($taxTotal),
+            'total' => $total,
+            'total_formatted' => $this->formatter->format($total),
+            'count' => $this->count(),
+        ];
+    }
+
+    public function add(Shoppable $shoppable)
+    {
+        $this->pendingItem = new CartItem($shoppable);
+
+        return $this;
+    }
+
+    public function quantity($quantity)
+    {
+        if ($this->pendingItem) {
+            $this->pendingItem->quantity = $quantity;
+        }
+
+        return $this;
+    }
+
+    public function options(array $options)
+    {
+        if ($this->pendingItem) {
+            $this->pendingItem->options = $options;
+        }
+
+        return $this;
+    }
+
+    public function subItems(array $subItems)
+    {
+        if ($this->pendingItem) {
+            // Only add the items that have a valid shoppable.
+            $this->pendingItem->addSubItems(collect($subItems)->filter(function ($subItem) {
+                return $subItem['shoppable'] instanceof Shoppable;
+            }));
+        }
+
+        return $this;
+    }
+
+    public function save()
+    {
+        if (!$this->pendingItem) {
+            return;
+        }
+
+        $items = $this->getAllItems();
+
+        // Find already added items that are identical to current selection.
+        $identicals = $items->filter(function (CartItem $row) {
+            return $row->isIdenticalTo($this->pendingItem);
+        });
+
+        // If an identical item already exists in the cart, add to it's quantity.
+        // Otherwise, push it.
+        if ($identicals->count() > 0) {
+            $items->where('id', $identicals->first()->id)->first()->quantity += $this->pendingItem->quantity;
+
+            $event = 'updated';
+        } else {
+            $items->push($this->pendingItem);
+
+            $event = 'added';
+        }
+
+        $items->where('id', $this->pendingItem->id)->first()->refreshPrice();
+
+        $this->driver->persist($items);
+
+        Event::fire('shopr.cart.items.'.$event, $this->pendingItem);
+
+        $item = $this->pendingItem;
+        $this->pendingItem = null;
+
+        return $item;
+    }
 
     /**
      * Returns all items regardless of type.
@@ -31,7 +126,7 @@ abstract class Cart
      */
     public function getAllItems() : Collection
     {
-        return collect($this->get());
+        return collect($this->driver->get());
     }
 
     /**
@@ -42,7 +137,7 @@ abstract class Cart
     public function items() : Collection
     {
         return $this->getAllItems()->filter(function ($item) {
-            return $item->shoppable->isDiscount() === false;
+            return $item->shoppable->shouldBeIncludedInItemList();
         })->values();
     }
 
@@ -54,7 +149,7 @@ abstract class Cart
     public function discounts() : Collection
     {
         return $this->getAllItems()->filter(function ($item) {
-            return $item->shoppable->isDiscount() === true;
+            return $item->shoppable->isDiscount();
         })->values();
     }
 
@@ -68,31 +163,6 @@ abstract class Cart
         return $this->discounts()->filter(function ($discount) {
             return ! $discount->shoppable->is_fixed;
         });
-    }
-
-    /**
-     * Returns the full cart summary.
-     *
-     * @return array
-     */
-    public function summary()
-    {
-        $subTotal = $this->subTotal();
-        $taxTotal = $this->taxTotal();
-        $total = $this->total();
-        $formatter = app(Formatter::class);
-
-        return [
-            'items' => $this->items(),
-            'discounts' => $this->discounts(),
-            'sub_total' => $subTotal,
-            'sub_total_formatted' => $formatter->format($subTotal),
-            'tax_total' => $taxTotal,
-            'tax_total_formatted' => $formatter->format($taxTotal),
-            'total' => $total,
-            'total_formatted' => $formatter->format($total),
-            'count' => $this->count(),
-        ];
     }
 
     /**
@@ -170,7 +240,7 @@ abstract class Cart
      *
      * @return int
      */
-    public function count()
+    public function count() : int
     {
         return $this->items()->sum('quantity');
     }
@@ -415,7 +485,7 @@ abstract class Cart
      */
     public function clear()
     {
-        $this->persist(collect([]));
+        $this->driver->persist(collect());
 
         Event::fire('shopr.cart.cleared');
     }

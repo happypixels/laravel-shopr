@@ -2,50 +2,39 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Tests\TestCase;
-use Illuminate\Support\Facades\Event;
-use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class CartControllerTest extends TestCase
 {
     /** @test */
     public function cart_summary()
     {
-        $cart = app(Cart::class);
+        Cart::shouldReceive('get')->once()->andReturn(['result']);
 
-        $response = $this->json('GET', 'api/shopr/cart')
+        $this->json('GET', 'api/shopr/cart')
             ->assertStatus(200)
-            ->assertJsonFragment($cart->summary());
+            ->assertJson(['result']);
     }
 
     /** @test */
     public function cart_count()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), $model->id, 2);
+        Cart::shouldReceive('count')->once()->andReturn(123);
 
         $this->json('GET', 'api/shopr/cart/count')
             ->assertStatus(200)
-            ->assertJsonFragment(['count' => 2]);
+            ->assertJsonFragment(['count' => 123]);
     }
 
     /** @test */
-    public function it_clears_the_cart()
+    public function clear_cart()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), $model->id, 1);
-
-        Event::fake();
+        Cart::shouldReceive('clear')->once();
+        Cart::shouldReceive('get')->once()->andReturn(['result']);
 
         $this->json('DELETE', 'api/shopr/cart')
             ->assertStatus(200)
-            ->assertJsonFragment(['count' => 0]);
-
-        $this->assertEquals(0, $cart->items()->count());
-
-        Event::assertDispatched('shopr.cart.cleared');
+            ->assertJsonFragment(['result']);
     }
 }
