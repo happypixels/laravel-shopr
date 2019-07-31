@@ -26,7 +26,7 @@ class CartItemFactory
 
     public function options(array $options = [])
     {
-        if (!empty($options)) {
+        if (! empty($options)) {
             $this->item->options = $options;
         }
 
