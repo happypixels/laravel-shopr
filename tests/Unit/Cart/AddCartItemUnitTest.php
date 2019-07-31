@@ -2,161 +2,131 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Cart\Cart;
+#use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Cart\CartItem;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Models\DiscountCoupon;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 
 class AddCartItemUnitTest extends TestCase
 {
     /** @test */
-    public function it_adds_the_item()
+    public function it_adds_the_item_with_1_as_default_quantity()
     {
-        $cart = app(Cart::class);
         $model = TestShoppable::first();
-        $item = $cart->addItem(get_class($model), $model->id, 1, ['size' => 'Large', 'color' => 'Red']);
 
-        $this->assertEquals(1, $cart->items()->count());
+        Cart::add($model)->save();
 
-        $item = $cart->items()->first();
-        $this->assertEquals(get_class($model), $item->shoppableType);
-        $this->assertEquals($model->id, $item->shoppableId);
-        $this->assertEquals(1, $item->quantity);
-        $this->assertEquals($model, $item->shoppable);
-        $this->assertEquals('Large', $item->options['size']);
-        $this->assertEquals('Red', $item->options['color']);
+        $this->assertEquals(1, Cart::count());
+        $this->assertEquals(get_class($model), get_class(Cart::items()->first()->shoppable));
+        $this->assertEquals($model->id, Cart::items()->first()->shoppable->id);
+        $this->assertEquals(1, Cart::count());
+        $this->assertEquals($model, Cart::items()->first()->shoppable);
     }
 
     /** @test */
     public function it_accepts_sub_items()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $item = $cart->addItem(get_class($model), $model->id, 1, [], [
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1],
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'options' => ['color' => 'Green']],
-        ]);
+        Cart::add(TestShoppable::first())->subItems([
+            ['shoppable' => TestShoppable::first(), 'price' => 123],
+            ['shoppable' => TestShoppable::first(), 'options' => ['color' => 'Green']],
+        ])->save();
 
-        $item = $cart->items()->first();
+        $this->assertEquals(1, Cart::count());
+
+        $item = Cart::items()->first();
         $this->assertEquals(2, $item->subItems->count());
-        $this->assertEquals(1, $item->subItems->first()->shoppable->id);
-        $this->assertEquals(get_class($model), get_class($item->subItems->last()->shoppable));
-        $this->assertEquals('Green', $item->subItems->last()->options['color']);
+        $this->assertEquals(123, $item->subItems->first()->price);
+        $this->assertEquals(['color' => 'Green'], $item->subItems->last()->options);
     }
 
     /** @test */
     public function sub_items_automatically_get_the_parent_quantity()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
+        Cart::add(TestShoppable::first())->quantity(3)->subItems([
+            ['shoppable' => TestShoppable::first()],
+        ])->save();
 
-        $item = $cart->addItem(get_class($model), $model->id, 3, [], [
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1],
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'options' => ['color' => 'Green']],
-        ]);
-
-        $item = $cart->items()->first();
-        $this->assertEquals(3, $item->subItems->first()->quantity);
+        $this->assertEquals(3, Cart::items()->first()->subItems->first()->quantity);
     }
 
     /** @test */
-    public function quantity_defaults_to_1_if_not_specified()
+    public function it_accepts_options()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $item = $cart->addItem(get_class($model), $model->id, null);
+        Cart::add(TestShoppable::first())->options(['size' => 'Large'])->save();
 
-        $this->assertEquals(1, $cart->items()->first()->quantity);
+        $this->assertEquals(['size' => 'Large'], Cart::items()->first()->options);
+    }
+
+    /** @test */
+    public function it_accepts_price_override()
+    {
+        Cart::add(TestShoppable::first())->overridePrice(123123)->save();
+
+        $this->assertEquals(123123, Cart::items()->first()->price);
+        $this->assertEquals('$123,123.00', Cart::items()->first()->price_formatted);
     }
 
     /** @test */
     public function it_finds_identical_items_by_options()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
+        Cart::add(TestShoppable::first())->options(['color' => 'Green', 'size' => 'L'])->save();
+        Cart::add(TestShoppable::first())->quantity(2)->options(['color' => 'Green', 'size' => 'L'])->save();
+        Cart::add(TestShoppable::first())->quantity(3)->options(['color' => 'Green', 'size' => 'S'])->save();
 
-        $item = $cart->addItem(get_class($model), $model->id, 1, ['color' => 'Green', 'size' => 'Large']);
-        $item = $cart->addItem(get_class($model), $model->id, 2, ['color' => 'Green', 'size' => 'Large']);
-        $this->assertEquals(1, $cart->items()->count());
-        $this->assertEquals(3, $cart->items()->first()->quantity);
-
-        $item = $cart->addItem(get_class($model), $model->id, 1, ['color' => 'Red', 'size' => 'Large']);
-        $this->assertEquals(2, $cart->items()->count());
+        $this->assertEquals(6, Cart::count());
+        $this->assertEquals(2, Cart::items()->count());
+        $this->assertEquals(3, Cart::items()->first()->quantity);
+        $this->assertEquals(3, Cart::items()->last()->quantity);
     }
 
     /** @test */
     public function it_finds_identical_items_by_sub_items()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $item = $cart->addItem(get_class($model), $model->id, 1, [], [
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1],
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'options' => ['color' => 'Green']],
-        ]);
-        $item = $cart->addItem(get_class($model), $model->id, 1, [], [
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1],
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'options' => ['color' => 'Green']],
-        ]);
-        $this->assertEquals(1, $cart->items()->count());
-        $this->assertEquals(2, $cart->items()->first()->quantity);
+        Cart::add(TestShoppable::first())->subItems([
+            ['shoppable' => TestShoppable::first()],
+            ['shoppable' => TestShoppable::first(), 'options' => ['color' => 'Green']],
+        ])->save();
+        Cart::add(TestShoppable::first())->subItems([
+            ['shoppable' => TestShoppable::first()],
+            ['shoppable' => TestShoppable::first(), 'options' => ['color' => 'Green']],
+        ])->save();
+        $this->assertEquals(1, Cart::items()->count());
+        $this->assertEquals(2, Cart::count());
 
-        $item = $cart->addItem(get_class($model), $model->id, 1, [], [
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1],
-            ['shoppable_type' => get_class($model), 'shoppable_id' => 1, 'options' => ['color' => 'Green', 'size' => 'Small']],
-        ]);
-        $this->assertEquals(2, $cart->items()->count());
-    }
-
-    /** @test */
-    public function it_returns_404_if_shoppable_is_not_found()
-    {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-
-        try {
-            $item = $cart->addItem(get_class($model), 2, null);
-        } catch (ModelNotFoundException $e) {
-            $this->assertTrue(true);
-        } catch (\Exception $e) {
-            $this->fail('Wrong exception caught:'.$e->getMessage());
-        }
+        Cart::add(TestShoppable::first())->subItems([
+            ['shoppable' => TestShoppable::first()],
+            ['shoppable' => TestShoppable::first(), 'options' => ['color' => 'Green', 'size' => 'L']],
+        ])->save();
+        $this->assertEquals(2, Cart::items()->count());
     }
 
     /** @test */
     public function it_generates_an_id_hash()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $item = $cart->addItem(get_class($model), $model->id, null);
+        Cart::add(TestShoppable::first())->save();
 
-        $this->assertNotNull($cart->items()->first()->id);
+        $this->assertNotNull(Cart::items()->first()->id);
+        $this->assertTrue(is_string(Cart::items()->first()->id));
     }
 
     /** @test */
     public function it_does_not_remove_discount_coupons()
     {
-        $discount = factory(DiscountCoupon::class)->create();
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $item = $cart->addItem(get_class($model), $model->id, null);
+        Cart::add(TestShoppable::first())->save();
+        Cart::addDiscount($discount = factory(DiscountCoupon::class)->create());
+        Cart::add(TestShoppable::first())->quantity(2)->save();
 
-        $cart->addDiscount($discount);
-
-        $cart->addItem(get_class($model), $model->id, 2);
-
-        $this->assertTrue($cart->hasDiscount($discount->code));
-        $this->assertEquals(3, $cart->items()->first()->quantity);
+        $this->assertTrue(Cart::hasDiscount($discount->code));
+        $this->assertEquals(3, Cart::items()->first()->quantity);
     }
 
     /** @test */
     public function it_returns_the_cart_item()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $item = $cart->addItem(get_class($model), $model->id, null);
+        $item = Cart::add(TestShoppable::first())->save();
 
         $this->assertTrue($item instanceof CartItem);
     }
@@ -164,23 +134,27 @@ class AddCartItemUnitTest extends TestCase
     /** @test */
     public function it_fires_the_correct_event()
     {
-        $cart = app(Cart::class);
-
         Event::fake();
 
-        $model = TestShoppable::first();
-        $item = $cart->addItem(get_class($model), $model->id, null);
+        $item = Cart::add(TestShoppable::first())->save();
 
         // The first time the added event is fired.
         Event::assertDispatched('shopr.cart.items.added', function ($event, $data) use ($item) {
             return serialize($item) === serialize($data);
         });
 
-        $item = $cart->addItem(get_class($model), $model->id, null);
+        $item = Cart::add(TestShoppable::first())->save();
 
         // The second time the updated event is fired.
         Event::assertDispatched('shopr.cart.items.updated', function ($event, $data) use ($item) {
             return $item->id === $data->id && $data->quantity === 2;
+        });
+
+        $item = Cart::add(TestShoppable::first())->options(['color' => 'Green'])->save();
+
+        // A unique item triggers the added event again.
+        Event::assertDispatched('shopr.cart.items.added', function ($event, $data) use ($item) {
+            return serialize($item) === serialize($data);
         });
     }
 }

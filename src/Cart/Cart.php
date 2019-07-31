@@ -82,9 +82,18 @@ class Cart implements CartContract
         return $this;
     }
 
+    public function overridePrice($price)
+    {
+        if ($this->pendingItem) {
+            $this->pendingItem->price = $price;
+        }
+
+        return $this;
+    }
+
     public function save()
     {
-        if (!$this->pendingItem) {
+        if (! $this->pendingItem) {
             return;
         }
 
@@ -98,22 +107,22 @@ class Cart implements CartContract
         // If an identical item already exists in the cart, add to it's quantity.
         // Otherwise, push it.
         if ($identicals->count() > 0) {
-            $items->where('id', $identicals->first()->id)->first()->quantity += $this->pendingItem->quantity;
+            $item = $items->where('id', $identicals->first()->id)->first();
+            $item->quantity += $this->pendingItem->quantity;
 
             $event = 'updated';
         } else {
-            $items->push($this->pendingItem);
+            $items->push($item = $this->pendingItem);
 
             $event = 'added';
         }
 
-        $items->where('id', $this->pendingItem->id)->first()->refreshPrice();
+        $item->refreshPrice();
 
         $this->driver->persist($items);
 
-        Event::fire('shopr.cart.items.'.$event, $this->pendingItem);
+        Event::fire('shopr.cart.items.'.$event, $item);
 
-        $item = $this->pendingItem;
         $this->pendingItem = null;
 
         return $item;
@@ -257,7 +266,7 @@ class Cart implements CartContract
             return false;
         }
 
-        $item = $this->addItem(get_class($coupon), $coupon->id, 1, [], [], $coupon->getPrice());
+        $item = Cart::add($coupon)->quantity(1)->overridePrice($coupon->getPrice())->save();
 
         $coupon->increment('uses');
 

@@ -26,6 +26,8 @@ class CartItem
 
     public $price;
 
+    public $isSubItem = false;
+
     public function __construct(Shoppable $shoppable)
     {
         $this->id = uniqid(time());
@@ -47,6 +49,14 @@ class CartItem
     //     $this->total = $this->total();
     // }
 
+    public function asSubItem()
+    {
+        $this->id = null;
+        $this->isSubItem = true;
+
+        return $this;
+    }
+
     public function addSubItems(Collection $subItems)
     {
         $items = collect();
@@ -58,7 +68,7 @@ class CartItem
         foreach ($subItems as $item) {
             $options = (! empty($item['options'])) ? $item['options'] : [];
             $price = (! empty($item['price']) && is_numeric($item['price'])) ? $item['price'] : $item['shoppable']->getPrice();
-            $item = new CartItem($item['shoppable']);
+            $item = (new CartItem($item['shoppable']))->asSubItem();
 
             $item->quantity = $this->quantity;
             $item->price = $price;
