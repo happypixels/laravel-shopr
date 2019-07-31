@@ -12,9 +12,9 @@ class CartItem
 
     public $quantity = 1;
 
-    #public $shoppableType;
+    //public $shoppableType;
 
-    #public $shoppableId;
+    //public $shoppableId;
 
     public $shoppable;
 
@@ -68,7 +68,7 @@ class CartItem
         foreach ($subItems as $item) {
             $options = (! empty($item['options'])) ? $item['options'] : [];
             $price = (! empty($item['price']) && is_numeric($item['price'])) ? $item['price'] : $item['shoppable']->getPrice();
-            $item = (new CartItem($item['shoppable']))->asSubItem();
+            $item = (new self($item['shoppable']))->asSubItem();
 
             $item->quantity = $this->quantity;
             $item->price = $price;
@@ -122,7 +122,7 @@ class CartItem
         $this->total = $this->total();
     }
 
-    public function isIdenticalTo(CartItem $item)
+    public function isIdenticalTo(self $item)
     {
         return $this->shoppable->is($item->shoppable) &&
             serialize($this->options) === serialize($item->options) &&
