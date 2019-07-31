@@ -2,6 +2,8 @@
 
 namespace Happypixels\Shopr\Contracts;
 
+use Happypixels\Shopr\Cart\CartItemFactory;
+
 interface Cart
 {
     public function get() : array;
@@ -12,17 +14,7 @@ interface Cart
 
     // public function find(string $id) : self;
 
-    public function add(Shoppable $shoppable);
-
-    public function quantity($quantity);
-
-    // public function withOptions(array $options) : self;
-
-    // public function withSubItems(array $subItems) : self;
-
-    // public function overridePrice($price) : self;
-
-    public function save();
+    public function add(Shoppable $shoppable) : CartItemFactory;
 
     // public function update(array $data);
 

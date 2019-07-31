@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Models\DiscountCoupon;
@@ -13,44 +13,44 @@ class AddDiscountCouponUnitTest extends TestCase
     /** @test */
     public function it_returns_false_if_model_is_not_a_discount()
     {
-        $shoppable = factory(TestShoppable::class)->create();
-
-        $this->assertFalse(app(Cart::class)->addDiscount($shoppable));
+        $this->assertFalse(Cart::addDiscount(factory(TestShoppable::class)->create()));
+        $this->assertFalse(Cart::hasDiscount());
     }
 
     /** @test */
     public function it_calculates_the_total_value_when_not_fixed()
     {
         $discount = factory(DiscountCoupon::class)->create(['is_fixed' => false, 'value' => 50]);
-        $cart = $this->addCartItem();
+
+        Cart::add(TestShoppable::first())->overridePrice(500)->quantity(3)->save();
+        $item = Cart::addDiscount($discount);
 
         // 1500 / 2 = 750.
-        $item = $cart->addDiscount($discount);
         $this->assertEquals(-750, $item->total());
-        $this->assertEquals(750, $cart->total());
+        $this->assertEquals(750, Cart::total());
     }
 
     /** @test */
     public function it_applies_the_given_value_when_fixed()
     {
         $discount = factory(DiscountCoupon::class)->create(['is_fixed' => true, 'value' => 300]);
-        $cart = $this->addCartItem();
+        Cart::add(TestShoppable::first())->overridePrice(500)->quantity(3)->save();
+        $item = Cart::addDiscount($discount);
 
         // 1500 - 300 = 1200.
-        $item = $cart->addDiscount($discount);
         $this->assertEquals(-300, $item->total());
-        $this->assertEquals(1200, $cart->total());
+        $this->assertEquals(1200, Cart::total());
     }
 
     /** @test */
     public function it_fires_event()
     {
         $discount = factory(DiscountCoupon::class)->create(['is_fixed' => true, 'value' => 300]);
-        $cart = $this->addCartItem();
+        Cart::add(TestShoppable::first())->overridePrice(500)->quantity(3)->save();
 
         Event::fake();
 
-        $item = $cart->addDiscount($discount);
+        $item = Cart::addDiscount($discount);
 
         // The first time the added event is fired.
         Event::assertDispatched('shopr.cart.discounts.added', function ($event, $data) use ($item) {
@@ -64,21 +64,12 @@ class AddDiscountCouponUnitTest extends TestCase
     public function it_increments_the_coupon_uses()
     {
         $discount = factory(DiscountCoupon::class)->create(['is_fixed' => true, 'value' => 300]);
-        $cart = $this->addCartItem();
+        Cart::add(TestShoppable::first())->overridePrice(500)->quantity(3)->save();
 
         $this->assertEquals(0, $discount->uses);
 
-        $cart->addDiscount($discount);
+        Cart::addDiscount($discount);
 
         $this->assertEquals(1, $discount->uses);
-    }
-
-    public function addCartItem()
-    {
-        $cart = app(Cart::class);
-        $model = factory(TestShoppable::class)->create(['price' => 500]);
-        $cart->addItem(get_class($model), $model->id, 3);
-
-        return $cart;
     }
 }

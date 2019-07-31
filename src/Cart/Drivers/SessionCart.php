@@ -2,7 +2,6 @@
 
 namespace Happypixels\Shopr\Cart\Drivers;
 
-use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Support\Facades\Session;
 use Happypixels\Shopr\Contracts\CartDriver;
 

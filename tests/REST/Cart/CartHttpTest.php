@@ -1,11 +1,11 @@
 <?php
 
-namespace Happypixels\Shopr\Tests\Feature\Cart;
+namespace Happypixels\Shopr\Tests\REST\Cart;
 
 use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 
-class CartControllerTest extends TestCase
+class CartHttpTest extends TestCase
 {
     /** @test */
     public function cart_summary()

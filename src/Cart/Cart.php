@@ -12,7 +12,7 @@ use Happypixels\Shopr\Contracts\Cart as CartContract;
 
 class Cart implements CartContract
 {
-    protected $driver;
+    public $driver;
     protected $formatter;
     protected $pendingItem;
 
@@ -45,87 +45,9 @@ class Cart implements CartContract
         ];
     }
 
-    public function add(Shoppable $shoppable)
+    public function add(Shoppable $shoppable) : CartItemFactory
     {
-        $this->pendingItem = new CartItem($shoppable);
-
-        return $this;
-    }
-
-    public function quantity($quantity)
-    {
-        if ($this->pendingItem) {
-            $this->pendingItem->quantity = $quantity;
-        }
-
-        return $this;
-    }
-
-    public function options(array $options)
-    {
-        if ($this->pendingItem) {
-            $this->pendingItem->options = $options;
-        }
-
-        return $this;
-    }
-
-    public function subItems(array $subItems)
-    {
-        if ($this->pendingItem) {
-            // Only add the items that have a valid shoppable.
-            $this->pendingItem->addSubItems(collect($subItems)->filter(function ($subItem) {
-                return $subItem['shoppable'] instanceof Shoppable;
-            }));
-        }
-
-        return $this;
-    }
-
-    public function overridePrice($price)
-    {
-        if ($this->pendingItem) {
-            $this->pendingItem->price = $price;
-        }
-
-        return $this;
-    }
-
-    public function save()
-    {
-        if (! $this->pendingItem) {
-            return;
-        }
-
-        $items = $this->getAllItems();
-
-        // Find already added items that are identical to current selection.
-        $identicals = $items->filter(function (CartItem $row) {
-            return $row->isIdenticalTo($this->pendingItem);
-        });
-
-        // If an identical item already exists in the cart, add to it's quantity.
-        // Otherwise, push it.
-        if ($identicals->count() > 0) {
-            $item = $items->where('id', $identicals->first()->id)->first();
-            $item->quantity += $this->pendingItem->quantity;
-
-            $event = 'updated';
-        } else {
-            $items->push($item = $this->pendingItem);
-
-            $event = 'added';
-        }
-
-        $item->refreshPrice();
-
-        $this->driver->persist($items);
-
-        Event::fire('shopr.cart.items.'.$event, $item);
-
-        $this->pendingItem = null;
-
-        return $item;
+        return new CartItemFactory($shoppable, $this);
     }
 
     /**
@@ -277,8 +199,8 @@ class Cart implements CartContract
 
     /**
      * Iterates all the current items in the cart and returns true if one of them is
-     * a discount coupon matching the given code. If no code is provided, it will return false on any
-     * discount coupon.
+     * a discount coupon matching the given code.
+     * If no code is provided, it will return true on any discount coupon.
      *
      * @param  string  $code
      * @return bool
@@ -286,9 +208,7 @@ class Cart implements CartContract
     public function hasDiscount($code = null) : bool
     {
         foreach ($this->discounts() as $item) {
-            if (! $code) {
-                return true;
-            } elseif ($item->shoppable->getTitle() === $code) {
+            if (! $code || $item->shoppable->getTitle() === $code) {
                 return true;
             }
         }

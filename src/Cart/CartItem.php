@@ -72,6 +72,7 @@ class CartItem
 
             $item->quantity = $this->quantity;
             $item->price = $price;
+            $item->refreshPrice();
 
             if ($options) {
                 $item->options = $options;

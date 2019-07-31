@@ -2,7 +2,6 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-#use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Cart\CartItem;
 use Happypixels\Shopr\Tests\TestCase;
