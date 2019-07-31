@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Controllers;
 
 use Illuminate\Http\Request;
-use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Routing\Controller;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Rules\Discounts\NotADiscount;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 
@@ -12,13 +12,12 @@ class CartItemController extends Controller
 {
     use ValidatesRequests;
 
-    protected $cart;
-
-    public function __construct(Cart $cart)
-    {
-        $this->cart = $cart;
-    }
-
+    /**
+     * Stores an item in the cart.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -26,16 +25,22 @@ class CartItemController extends Controller
             'shoppable_id' => 'required',
         ]);
 
-        $item = $this->cart->addItem(
-            $request->shoppable_type,
-            $request->shoppable_id,
-            $request->get('quantity', 1),
-            $request->get('options', []),
-            $request->get('sub_items', []),
-            $request->get('price', null)
-        );
+        $shoppable = $request->shoppable_type::findOrFail($request->shoppable_id);
 
-        return $this->cart->summary();
+        $subItems = collect($request->get('sub_items', []))->map(function ($subItem) {
+            $subItem['shoppable'] = $subItem['shoppable_type']::findOrFail($subItem['shoppable_id']);
+
+            return $subItem;
+        })->toArray();
+
+        Cart::add($shoppable)
+            ->quantity($request->get('quantity', 1))
+            ->options($request->get('options', []))
+            ->subItems($subItems)
+            ->overridePrice($request->get('price', null))
+            ->save();
+
+        return Cart::get();
     }
 
     public function update(Request $request, $id)

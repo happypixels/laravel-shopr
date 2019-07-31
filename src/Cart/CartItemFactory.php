@@ -24,9 +24,11 @@ class CartItemFactory
         return $this;
     }
 
-    public function options(array $options)
+    public function options(array $options = [])
     {
-        $this->item->options = $options;
+        if (!empty($options)) {
+            $this->item->options = $options;
+        }
 
         return $this;
     }
@@ -41,9 +43,11 @@ class CartItemFactory
         return $this;
     }
 
-    public function overridePrice($price)
+    public function overridePrice($price = null)
     {
-        $this->item->price = $price;
+        if ($price) {
+            $this->item->price = $price;
+        }
 
         return $this;
     }
