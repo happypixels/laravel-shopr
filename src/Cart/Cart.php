@@ -21,6 +21,7 @@ class Cart implements CartContract
         $this->driver = $driver;
         $this->formatter = $formatter;
     }
+
     /**
      * Retrieve the cart summary.
      *
@@ -84,7 +85,7 @@ class Cart implements CartContract
 
     public function save()
     {
-        if (!$this->pendingItem) {
+        if (! $this->pendingItem) {
             return;
         }
 
