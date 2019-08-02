@@ -2,6 +2,7 @@
 
 namespace Happypixels\Shopr\Contracts;
 
+use Happypixels\Shopr\Cart\CartItem;
 use Happypixels\Shopr\Cart\CartItemFactory;
 
 interface Cart
@@ -12,11 +13,11 @@ interface Cart
 
     public function clear();
 
-    // public function find(string $id) : self;
+    // public function find(string $id) : CartItem;
 
     public function add(Shoppable $shoppable) : CartItemFactory;
 
     // public function update(array $data);
 
-    // public function delete(string $id);
+    public function delete(string $id) : bool;
 }

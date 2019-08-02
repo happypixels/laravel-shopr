@@ -378,9 +378,9 @@ class Cart implements CartContract
      * Removes a single item from the cart.
      *
      * @param  string $id
-     * @return Happypixels\Shopr\Cart\CartItem
+     * @return bool
      */
-    public function removeItem($id)
+    public function delete(string $id) : bool
     {
         $items = $this->getAllItems();
         $removedItem = null;
@@ -393,7 +393,7 @@ class Cart implements CartContract
             }
         }
 
-        $this->persist($items);
+        $this->driver->persist($items);
 
         // If the cart is cleared of shoppable items, also remove any discounts.
         if ($this->items()->count() === 0) {
@@ -402,9 +402,11 @@ class Cart implements CartContract
 
         if ($removedItem) {
             Event::fire('shopr.cart.items.deleted', $removedItem);
+
+            return true;
         }
 
-        return $removedItem;
+        return false;
     }
 
     /**

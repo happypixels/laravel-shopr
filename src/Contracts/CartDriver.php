@@ -6,7 +6,7 @@ interface CartDriver
 {
     public function get();
 
-    #public function find(string $id);
+    // public function find(string $id);
 
     public function persist($data);
 }

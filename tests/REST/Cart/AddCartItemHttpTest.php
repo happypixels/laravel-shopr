@@ -1,12 +1,12 @@
 <?php
 
-namespace Happypixels\Shopr\Tests\Feature\Cart;
+namespace Happypixels\Shopr\Tests\REST\Cart;
 
 use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
 
-class AddCartItemTest extends TestCase
+class AddCartItemHttpTest extends TestCase
 {
     /** @test */
     public function it_validates_the_post_data()
@@ -23,8 +23,8 @@ class AddCartItemTest extends TestCase
 
         $this->json('POST', 'api/shopr/cart/items', [
             'shoppable_type' => get_class($discount),
-            'shoppable_id'   => $discount->id,
-            'quantity'       => 1,
+            'shoppable_id' => $discount->id,
+            'quantity' => 1,
         ])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['shoppable_type'])
@@ -35,7 +35,7 @@ class AddCartItemTest extends TestCase
     public function it_throws_404_error_if_shoppable_is_not_found()
     {
         $this->json('POST', 'api/shopr/cart/items', [
-            'shoppable_id'   => 2,
+            'shoppable_id' => 2,
             'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
         ])
         ->assertStatus(404);

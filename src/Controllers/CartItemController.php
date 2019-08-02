@@ -50,10 +50,16 @@ class CartItemController extends Controller
         return $this->cart->summary();
     }
 
+    /**
+     * Removes an item from the cart.
+     *
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($id)
     {
-        $this->cart->removeItem($id);
+        Cart::delete($id);
 
-        return $this->cart->summary();
+        return Cart::get();
     }
 }
