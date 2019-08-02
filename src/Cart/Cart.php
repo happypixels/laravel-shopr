@@ -21,6 +21,7 @@ class Cart implements CartContract
         $this->driver = $driver;
         $this->formatter = $formatter;
     }
+
     /**
      * Retrieve the cart summary.
      *
@@ -188,7 +189,7 @@ class Cart implements CartContract
             return false;
         }
 
-        $item = Cart::add($coupon)->quantity(1)->overridePrice($coupon->getPrice())->save();
+        $item = self::add($coupon)->quantity(1)->overridePrice($coupon->getPrice())->save();
 
         $coupon->increment('uses');
 
