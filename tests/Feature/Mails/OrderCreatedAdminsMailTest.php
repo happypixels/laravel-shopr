@@ -126,7 +126,7 @@ class OrderCreatedAdminsMailTest extends TestCase
 
         $order = $cart->convertToOrder('stripe', $userData);
 
-        Event::fire('shopr.orders.created', $order);
+        event('shopr.orders.created', $order);
 
         return $order;
     }

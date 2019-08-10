@@ -4,7 +4,6 @@ namespace Happypixels\Shopr\Cart;
 
 use Illuminate\Support\Collection;
 use Happypixels\Shopr\Models\Order;
-use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\Contracts\Shoppable;
 
@@ -191,7 +190,7 @@ abstract class Cart
 
         $coupon->increment('uses');
 
-        Event::fire('shopr.cart.discounts.added', $item);
+        event('shopr.cart.discounts.added', $item);
 
         return $item;
     }
@@ -322,7 +321,7 @@ abstract class Cart
 
         $this->persist($items);
 
-        Event::fire('shopr.cart.items.'.$event, $item);
+        event('shopr.cart.items.'.$event, $item);
 
         return $item;
     }
@@ -370,7 +369,7 @@ abstract class Cart
 
         $this->persist($items);
 
-        Event::fire('shopr.cart.items.updated', $item);
+        event('shopr.cart.items.updated', $item);
 
         return $item;
     }
@@ -402,7 +401,7 @@ abstract class Cart
         }
 
         if ($removedItem) {
-            Event::fire('shopr.cart.items.deleted', $removedItem);
+            event('shopr.cart.items.deleted', $removedItem);
         }
 
         return $removedItem;
@@ -417,6 +416,6 @@ abstract class Cart
     {
         $this->persist(collect([]));
 
-        Event::fire('shopr.cart.cleared');
+        event('shopr.cart.cleared');
     }
 }

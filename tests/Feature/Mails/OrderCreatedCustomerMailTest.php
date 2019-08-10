@@ -5,7 +5,6 @@ namespace Happypixels\Shopr\Tests\Feature\Mails;
 use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Support\Facades\Mail;
 use Happypixels\Shopr\Tests\TestCase;
-use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Mails\OrderCreatedCustomer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
@@ -115,7 +114,7 @@ class OrderCreatedCustomerMailTest extends TestCase
 
         $order = $cart->convertToOrder('stripe', $userData);
 
-        Event::fire('shopr.orders.created', $order);
+        event('shopr.orders.created', $order);
 
         return $order;
     }

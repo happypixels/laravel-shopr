@@ -5,7 +5,6 @@ namespace Happypixels\Shopr\Controllers;
 use Illuminate\Http\Request;
 use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
 
 class CheckoutController extends Controller
@@ -42,7 +41,7 @@ class CheckoutController extends Controller
 
         $order = $this->cart->convertToOrder($request->gateway, $data);
 
-        Event::fire('shopr.orders.created', $order);
+        event('shopr.orders.created', $order);
 
         $response = ['token' => $order->token];
 
