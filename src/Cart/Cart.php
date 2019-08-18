@@ -156,6 +156,18 @@ class Cart
     }
 
     /**
+     * Returns the discount coupons added to the cart.
+     *
+     * @return Collection
+     */
+    public function discounts() : Collection
+    {
+        return $this->all()->filter(function ($item) {
+            return $item->shoppable->isDiscount();
+        })->values();
+    }
+
+    /**
      * Returns the total amount of the items in the cart.
      *
      * @return float
@@ -240,6 +252,79 @@ class Cart
         return $this->get()->sum(function ($item) {
             return $item->quantity;
         });
+    }
+
+    /**
+     * Clears the cart and fires appropriate event.
+     *
+     * @return void
+     */
+    public function clear()
+    {
+        $this->driver->store(collect());
+
+        event('shopr.cart.cleared');
+    }
+
+    /**
+     * Removes an item from the cart. Returns true if successful and false otherwise.
+     *
+     * @param CartItem|string $id
+     * @return bool
+     */
+    public function delete($id)
+    {
+        if ($id instanceof CartItem) {
+            $id = $id->id;
+        }
+
+        if (!$this->find($id)) {
+            return false;
+        }
+
+        foreach ($items = $this->all() as $index => $item) {
+            if ($item->id === $id) {
+                $removedItem = $items[$index];
+
+                unset($items[$index]);
+            }
+        }
+
+        $this->driver->store($items);
+
+        // If the cart is cleared of shoppable items, also remove any discounts.
+        if ($this->items()->count() === 0) {
+            $this->clear();
+        } else {
+            $this->refreshRelativeDiscountValues();
+        }
+
+        if ($removedItem) {
+            event('shopr.cart.items.deleted', $removedItem);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Iterates all the current items in the cart and returns true if one of them is
+     * a discount coupon matching the given code.
+     * If no code is provided, it will return true on any discount coupon.
+     *
+     * @param  DiscountCoupon|string  $discount
+     * @return bool
+     */
+    public function hasDiscount($discount = null)
+    {
+        if ($discount instanceof DiscountCoupon) {
+            $discount = $discount->code;
+        }
+
+        return $this->discounts()->filter(function ($item) use ($discount) {
+            return $item->shoppable->getTitle() === $discount;
+        })->count() > 0;
     }
 
     /**
