@@ -46,4 +46,14 @@ class Shoppable extends Model implements ShoppableContract
     {
         return false;
     }
+
+    /**
+     * Whether or not the item should be included in the default list of items.
+     *
+     * @return bool
+     */
+    public function shouldBeIncludedInItemList() : bool
+    {
+        return true;
+    }
 }

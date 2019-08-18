@@ -3,90 +3,162 @@
 namespace Happypixels\Shopr\Cart;
 
 use Happypixels\Shopr\Money\Formatter;
+use Happypixels\Shopr\Contracts\Shoppable;
+use Illuminate\Contracts\Support\Arrayable;
 
-class CartItem
+class CartItem implements Arrayable
 {
-    public $id;
+    /**
+     * The data of the cart item.
+     *
+     * @var array
+     */
+    protected $data = [];
 
-    public $quantity;
-
-    public $shoppableType;
-
-    public $shoppableId;
-
-    public $shoppable;
-
-    public $options;
-
-    public $subItems;
-
-    public $total;
-
-    public $price;
-
-    public function __construct($shoppableType, $shoppableId, $quantity, $options, $subItems, $price = null)
+    /**
+     * Create an instance of the cart item.
+     *
+     * @param Shoppable $shoppable
+     */
+    public function __construct(Shoppable $shoppable)
     {
-        $this->id = uniqid(time());
-        $this->shoppableType = $shoppableType;
-        $this->shoppableId = $shoppableId;
-        $this->shoppable = (new $shoppableType)::findOrFail($shoppableId);
-        $this->quantity = $quantity;
-        $this->options = $options;
-        $this->subItems = $this->addSubItems($subItems);
-        $this->price = ($price) ?? $this->shoppable->getPrice();
-        $this->price_formatted = app(Formatter::class)->format($this->price);
-        $this->total = $this->total();
+        $this->data = [
+            'id' => uniqid(time()),
+            'shoppable' => $shoppable,
+        ];
+
+        $this->setQuantity();
+        $this->setOptions();
+        $this->setSubItems();
+        $this->setPrice();
     }
 
-    private function addSubItems($subItems = [])
+    /**
+     * Returns an attribute on the data property.
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function __get($key)
     {
-        $items = collect([]);
-
-        if (empty($subItems)) {
-            return $items;
-        }
-
-        foreach ($subItems as $item) {
-            $options = (! empty($item['options'])) ? $item['options'] : [];
-            $price = (! empty($item['price']) && is_numeric($item['price'])) ? $item['price'] : null;
-
-            $items->push(new CartSubItem(
-                $item['shoppable_type'],
-                $item['shoppable_id'],
-                $this->quantity,
-                $options,
-                $price
-            ));
-        }
-
-        return $items;
+        return $this->data[$key] ?? null;
     }
 
-    public function total()
+    /**
+     * Get the item's array representation.
+     *
+     * @return array
+     */
+    public function toArray()
     {
-        $total = 0;
-
-        $total += $this->quantity * $this->price;
-
-        if ($this->subItems->count()) {
-            foreach ($this->subItems as $subItem) {
-                $total += $subItem->total();
-            }
-        }
-
-        return $total;
+        return $this->data;
     }
 
-    public function refreshDiscountValue()
+    /**
+     * Sets the quantity of the item. Defaults to 1.
+     *
+     * @param int $quantity
+     * @return self
+     */
+    public function setQuantity($quantity = 1)
     {
-        if (! $this->shoppable->isDiscount() || $this->shoppable->is_fixed) {
-            return;
-        }
+        $this->data['quantity'] = $quantity;
 
-        $value = $this->shoppable->getPrice();
+        return $this;
+    }
 
-        $this->price = $value;
-        $this->price_formatted = app(Formatter::class)->format($value);
-        $this->total = $this->total();
+    /**
+     * Sets the options of the item.
+     *
+     * @param array|null $options
+     * @return self
+     */
+    public function setOptions($options = null)
+    {
+        $this->data['options'] = $options;
+
+        return $this;
+    }
+
+    /**
+     * Sets the price of the cart item. Also calculates total price and formats the values.
+     *
+     * @param float|null $priceOverride
+     * @return self
+     */
+    public function setPrice($priceOverride = null)
+    {
+        $this->data['price'] = $priceOverride ?: $this->shoppable->getPrice();
+        $this->data['price_formatted'] = app(Formatter::class)->format($this->price);
+
+        $this->refreshTotalPrice();
+
+        return $this;
+    }
+
+    /**
+     * Adds sub items to the item.
+     *
+     * @param array|null $subItems
+     * @return self
+     */
+    public function setSubItems($subItems = null)
+    {
+        $this->sub_items = collect();
+
+        collect($subItems)->filter(function ($subItem) {
+            return $subItem['shoppable'] instanceof Shoppable;
+        })->each(function ($subItem) {
+            $this->sub_items->push(
+                (new CartItem($subItem['shoppable']))
+                    ->asSubItem()
+                    ->setQuantity($this->quantity)
+                    ->setOptions($subItem['options'] ?? null)
+                    ->setPrice($subItem['price'] ?? null)
+            );
+        });
+
+        return $this;
+    }
+
+    /**
+     * Checks if the current item is identical to the given item.
+     *
+     * @param CartItem $item
+     * @return bool
+     */
+    public function is(CartItem $item)
+    {
+        return $this->shoppable->is($item->shoppable) &&
+            serialize($this->options) === serialize($item->options) &&
+            serialize($this->sub_items) === serialize($item->sub_items);
+    }
+
+    /**
+     * Marks that this item is a sub item.
+     *
+     * @return self
+     */
+    protected function asSubItem()
+    {
+        $this->data['id'] = null;
+
+        return $this;
+    }
+
+    /**
+     * Calculates the total price of the item and adds it to the data property.
+     *
+     * @return void
+     */
+    protected function refreshTotalPrice()
+    {
+        $this->data['total_price'] = $this->quantity * $this->price;
+
+        $this->sub_items->each(function ($subItem) {
+            $this->data['total_price'] += $subItem->price * $subItem->quantity;
+        });
+
+        $this->data['total_price_formatted'] = app(Formatter::class)->format($this->data['total_price']);
     }
 }

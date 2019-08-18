@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Models;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DiscountCoupon extends Shoppable
@@ -75,7 +75,7 @@ class DiscountCoupon extends Shoppable
 
         $percentage = $this->value / 100;
 
-        return app(Cart::class)->totalWithoutDiscounts() * $percentage;
+        return Cart::totalWithoutDiscounts() * $percentage;
     }
 
     /**
@@ -86,5 +86,15 @@ class DiscountCoupon extends Shoppable
     public function isDiscount() : bool
     {
         return true;
+    }
+
+    /**
+     * Whether or not the item should be included in the default list of items.
+     *
+     * @return bool
+     */
+    public function shouldBeIncludedInItemList() : bool
+    {
+        return false;
     }
 }

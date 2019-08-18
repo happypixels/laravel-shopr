@@ -3,190 +3,118 @@
 namespace Happypixels\Shopr\Cart;
 
 use Illuminate\Support\Collection;
-use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Money\Formatter;
+use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Contracts\Shoppable;
+use Happypixels\Shopr\Contracts\CartDriver;
+use Happypixels\Shopr\Exceptions\CartItemNotFoundException;
 
-abstract class Cart
+class Cart
 {
     /**
-     * Retrieve all cart items from the store.
+     * The driver used for persisting the cart data.
      *
-     * @return array|null
+     * @var CartDriver
      */
-    abstract public function get();
+    public $driver;
 
     /**
-     * Persists the cart items in the store.
+     * Create a cart instance.
      *
-     * @return void
+     * @param CartDriver $driver
      */
-    abstract public function persist($data);
-
-    /**
-     * Returns all items regardless of type.
-     *
-     * @return Collection
-     */
-    public function getAllItems() : Collection
+    public function __construct(CartDriver $driver)
     {
-        return collect($this->get());
+        $this->driver = $driver;
     }
 
     /**
-     * Returns the regular cart items.
+     * Adds an item to the cart. If it already exists the quantity is incremented instead.
+     * Returns the added CartItem.
      *
-     * @return Collection
+     * @param Shoppable $shoppable
+     * @param array $data
+     * @return CartItem
      */
-    public function items() : Collection
+    public function add(Shoppable $shoppable, $data = [])
     {
-        return $this->getAllItems()->filter(function ($item) {
-            return $item->shoppable->isDiscount() === false;
-        })->values();
-    }
+        $event = null;
+        $items = $this->all();
 
-    /**
-     * Returns the discount coupons added to the cart.
-     *
-     * @return Collection
-     */
-    public function discounts() : Collection
-    {
-        return $this->getAllItems()->filter(function ($item) {
-            return $item->shoppable->isDiscount() === true;
-        })->values();
-    }
+        // Initialize the new item.
+        $item = (new CartItem($shoppable))
+            ->setQuantity($data['quantity'] ?? 1)
+            ->setOptions($data['options'] ?? null)
+            ->setSubItems($data['sub_items'] ?? null)
+            ->setPrice($data['price'] ?? null);
 
-    /**
-     * Returns only the relative discount coupons added to the cart.
-     *
-     * @return Collection
-     */
-    public function relativeDiscounts() : Collection
-    {
-        return $this->discounts()->filter(function ($discount) {
-            return ! $discount->shoppable->is_fixed;
-        });
-    }
+        // Update the quantity of any existing identical items instead of adding a new item.
+        foreach ($items as $currentItem) {
+            if ($currentItem->is($item)) {
+                $item = $currentItem
+                    ->setQuantity($currentItem->quantity + $item->quantity)
+                    ->setPrice();
 
-    /**
-     * Returns the full cart summary.
-     *
-     * @return array
-     */
-    public function summary()
-    {
-        $subTotal = $this->subTotal();
-        $taxTotal = $this->taxTotal();
-        $total = $this->total();
-        $formatter = app(Formatter::class);
+                $event = 'updated';
 
-        return [
-            'items' => $this->items(),
-            'discounts' => $this->discounts(),
-            'sub_total' => $subTotal,
-            'sub_total_formatted' => $formatter->format($subTotal),
-            'tax_total' => $taxTotal,
-            'tax_total_formatted' => $formatter->format($taxTotal),
-            'total' => $total,
-            'total_formatted' => $formatter->format($total),
-            'count' => $this->count(),
-        ];
-    }
-
-    /**
-     * Returns the sub total of the cart.
-     *
-     * @return float
-     */
-    public function subTotal()
-    {
-        return $this->total() - $this->taxTotal();
-    }
-
-    /**
-     * Returns the total tax of the items in the cart.
-     *
-     * @return float
-     */
-    public function taxTotal()
-    {
-        $tax = config('shopr.tax');
-
-        if (! $tax || $tax <= 0) {
-            return 0;
+                break;
+            }
         }
 
-        return $this->total() * $tax / (100 + $tax);
-    }
+        // If no identical items are found, push the new one to the list of items.
+        if (!$event) {
+            $items->push($item);
 
-    /**
-     * Returns the total amount of the items in the cart.
-     *
-     * @return float
-     */
-    public function total()
-    {
-        $total = 0;
-
-        foreach ($this->getAllItems() as $item) {
-            // This includes the sub items.
-            $total += $item->total();
+            $event = 'added';
         }
 
-        return $total;
+        $this->driver->store($items);
+
+        $this->refreshRelativeDiscountValues();
+
+        Event::fire('shopr.cart.items.'.$event, $item);
+
+        return $item;
     }
 
     /**
-     * Returns the total amount of the items in the cart, discounts excluded.
+     * Updates an item in the cart. Returns the updated item.
      *
-     * @return float
+     * @param CartItem|string $item
+     * @param array $data
+     * @return CartItem
      */
-    public function totalWithoutDiscounts()
+    public function update($item, $data)
     {
-        $total = 0;
-
-        foreach ($this->items() as $item) {
-            // This includes the sub items.
-            $total += $item->total();
+        if (is_string($item)) {
+            $item = $this->findOrFail($item);
         }
 
-        return $total;
+        foreach ($items = $this->all() as $currentItem) {
+            if ($currentItem->is($item)) {
+                $item = $currentItem
+                    ->setQuantity($data['quantity'])
+                    ->setPrice($currentItem->price);
+
+                break;
+            }
+        }
+
+        $this->driver->store($items);
+
+        $this->refreshRelativeDiscountValues();
+
+        event('shopr.cart.items.updated', $item);
+
+        return $item;
     }
 
-    /**
-     * Returns true if the cart is empty, false if not.
-     *
-     * @return bool
-     */
-    public function isEmpty()
-    {
-        return $this->count() === 0;
-    }
-
-    /**
-     * Returns the total count of the items added to the cart.
-     *
-     * @return int
-     */
-    public function count()
-    {
-        return $this->items()->sum('quantity');
-    }
-
-    /**
-     * Calculates the total value of the coupon and adds it to the cart.
-     *
-     * @param  Shoppable $coupon
-     * @return CartItem|false
-     */
     public function addDiscount(Shoppable $coupon)
     {
         if (! $coupon->isDiscount()) {
             return false;
         }
 
-        $item = $this->addItem(get_class($coupon), $coupon->id, 1, [], [], $coupon->getPrice());
+        $item = $this->add($coupon);
 
         $coupon->increment('uses');
 
@@ -196,226 +124,141 @@ abstract class Cart
     }
 
     /**
-     * Iterates all the current items in the cart and returns true if one of them is
-     * a discount coupon matching the given code. If no code is provided, it will return false on any
-     * discount coupon.
+     * Returns all items regardless of type.
      *
-     * @param  string  $code
-     * @return bool
+     * @return Collection
      */
-    public function hasDiscount($code = null) : bool
+    public function all() : Collection
     {
-        foreach ($this->discounts() as $item) {
-            if (! $code) {
-                return true;
-            } elseif ($item->shoppable->getTitle() === $code) {
-                return true;
-            }
-        }
-
-        return false;
+        return collect($this->driver->get());
     }
 
     /**
-     * Converts the current cart to an order and clears the cart.
+     * Returns the regular cart items.
      *
-     * @param  string $gateway
-     * @param  array  $data
-     * @return \Happypixels\Shopr\Models\Order|false
+     * @return Collection
      */
-    public function convertToOrder($gateway, $data = [])
+    public function get() : Collection
     {
-        if ($this->isEmpty()) {
-            return false;
-        }
-
-        $order = app(Order::class)->create([
-            'user_id' => auth()->id(),
-            'payment_gateway' => $gateway,
-            'transaction_reference' => $data['transaction_reference'] ?? null,
-            'transaction_id' => $data['transaction_id'] ?? null,
-            'payment_status' => $data['payment_status'] ?? 'pending',
-            'delivery_status' => 'pending',
-            'token' => Order::generateToken(),
-            'total' => $this->total(),
-            'sub_total' => $this->subTotal(),
-            'tax' => $this->taxTotal(),
-            'email' => optional($data)['email'],
-            'phone' => optional($data)['phone'],
-            'first_name' => optional($data)['first_name'],
-            'last_name' => optional($data)['last_name'],
-            'address' => optional($data)['address'],
-            'zipcode' => optional($data)['zipcode'],
-            'city' => optional($data)['city'],
-            'country' => optional($data)['country'],
-        ]);
-
-        foreach ($this->getAllItems() as $item) {
-            $parent = $order->items()->create([
-                'shoppable_type' => get_class($item->shoppable),
-                'shoppable_id'   => $item->shoppable->id,
-                'quantity'       => $item->quantity,
-                'title'          => $item->shoppable->getTitle(),
-                'price'          => $item->price,
-                'options'        => $item->options,
-            ]);
-
-            if ($item->subItems->count() > 0) {
-                foreach ($item->subItems as $subItem) {
-                    $parent->children()->create([
-                        'order_id'       => $order->id,
-                        'shoppable_type' => get_class($subItem->shoppable),
-                        'shoppable_id'   => $subItem->shoppable->id,
-                        'title'          => $subItem->shoppable->getTitle(),
-                        'price'          => $subItem->price,
-                        'options'        => $subItem->options,
-                    ]);
-                }
-            }
-        }
-
-        $this->clear();
-
-        return $order;
+        return $this->all()->filter(function ($item) {
+            return $item->shoppable->shouldBeIncludedInItemList();
+        })->values();
     }
 
     /**
-     * Adds an item to the cart.
+     * Alias for the "get" method.
      *
-     * @param string $shoppableType
-     * @param int $shoppableId
-     * @param int $quantity
-     * @param array $options
-     * @param array $subItems
-     * @param float|null $price
-     * @return Happypixels\Shopr\Cart\CartItem
+     * @return Collection
      */
-    public function addItem($shoppableType, $shoppableId, $quantity = 1, $options = [], $subItems = [], $price = null) : CartItem
+    public function items()
     {
-        $quantity = (is_numeric($quantity) && $quantity > 0) ? $quantity : 1;
+        return $this->get();
+    }
 
-        $items = $this->getAllItems();
-        $item = new CartItem($shoppableType, $shoppableId, $quantity, $options, $subItems, $price);
-
-        // Find already added items that are identical to current selection.
-        $identicals = $items->filter(function ($row) use ($item) {
-            return
-                $row->shoppableType === $item->shoppableType &&
-                $row->shoppableId === $item->shoppableId &&
-                serialize($row->options) === serialize($item->options) &&
-                serialize($row->subItems) === serialize($item->subItems);
+    /**
+     * Returns the total amount of the items in the cart.
+     *
+     * @return float
+     */
+    public function total()
+    {
+        return $this->all()->sum(function ($item) {
+            return $item->total_price;
         });
+    }
 
-        // If an identical item already exists in the cart, add to it's quantity.
-        // Otherwise, push it.
-        if ($identicals->count() > 0) {
-            $items->where('id', $identicals->first()->id)->first()->quantity += $quantity;
-            $item->quantity = $items->where('id', $identicals->first()->id)->first()->quantity;
+    /**
+     * Returns the total amount of the items in the cart, discounts excluded.
+     *
+     * @return float
+     */
+    public function totalWithoutDiscounts()
+    {
+        return $this->items()->sum(function ($item) {
+            return $item->total_price;
+        });
+    }
 
-            $event = 'updated';
-        } else {
-            $items->push($item);
+    /**
+     * Finds a single item in the cart.
+     *
+     * @param string $id
+     * @return CartItem|null
+     */
+    public function find($id)
+    {
+        return $this->all()->filter(function ($item) use ($id) {
+            return $item->id === $id;
+        })->first();
+    }
 
-            $event = 'added';
+    /**
+     * Returns the cart item with the given ID. Throws exception if not found.
+     *
+     * @param string $id
+     * @return CartItem|null
+     * @throws CartItemNotFoundException
+     */
+    public function findOrFail($id)
+    {
+        $item = $this->find($id);
+
+        if (!$item) {
+            throw new CartItemNotFoundException;
         }
-
-        $this->persist($items);
-
-        event('shopr.cart.items.'.$event, $item);
 
         return $item;
     }
 
     /**
-     * Updates a single item in the cart.
+     * Returns the first "real" item from the cart.
      *
-     * @param  string $id
-     * @param  array $data
-     * @return Happypixels\Shopr\Cart\CartItem
+     * @return CartItem|null
      */
-    public function updateItem($id, $data)
+    public function first()
     {
-        $items = $this->getAllItems();
-        $item = null;
-
-        foreach ($items as $index => $item) {
-            if ($item->id !== $id || empty($data['quantity'])) {
-                continue;
-            }
-
-            $items[$index]->quantity = intval($data['quantity']);
-
-            if (! empty($items[$index]->subItems)) {
-                foreach ($items[$index]->subItems as $i => $subItem) {
-                    $items[$index]->subItems[$i]->quantity = intval($data['quantity']);
-                    $items[$index]->subItems[$i]->total = $items[$index]->subItems[$i]->total();
-                }
-            }
-
-            $items[$index]->total = $items[$index]->total();
-            $item = $items[$index];
-        }
-
-        $this->persist($items);
-
-        // Refresh relative discount values.
-        foreach ($items as $index => $item) {
-            if (! $item->shoppable->isDiscount()) {
-                continue;
-            }
-
-            $items[$index]->refreshDiscountValue();
-        }
-
-        $this->persist($items);
-
-        event('shopr.cart.items.updated', $item);
-
-        return $item;
+        return $this->get()->first();
     }
 
     /**
-     * Removes a single item from the cart.
+     * Returns the last "real" item from the cart.
      *
-     * @param  string $id
-     * @return Happypixels\Shopr\Cart\CartItem
+     * @return CartItem|null
      */
-    public function removeItem($id)
+    public function last()
     {
-        $items = $this->getAllItems();
-        $removedItem = null;
-
-        foreach ($items as $index => $item) {
-            if ($item->id === $id) {
-                $removedItem = $items[$index];
-
-                unset($items[$index]);
-            }
-        }
-
-        $this->persist($items);
-
-        // If the cart is cleared of shoppable items, also remove any discounts.
-        if ($this->items()->count() === 0) {
-            $this->clear();
-        }
-
-        if ($removedItem) {
-            event('shopr.cart.items.deleted', $removedItem);
-        }
-
-        return $removedItem;
+        return $this->get()->last();
     }
 
     /**
-     * Clears the cart and fires appropriate event.
+     * Returns the total count of the items added to the cart.
+     *
+     * @return int
+     */
+    public function count() : int
+    {
+        return $this->get()->sum(function ($item) {
+            return $item->quantity;
+        });
+    }
+
+    /**
+     * Refreshes the discount values that aren't fixed. Called when adding
+     * or removing items from the cart.
      *
      * @return void
      */
-    public function clear()
+    protected function refreshRelativeDiscountValues()
     {
-        $this->persist(collect([]));
+        // Refresh relative discount values.
+        foreach ($items = $this->all() as $index => $currentItem) {
+            if (! $currentItem->shoppable->isDiscount()) {
+                continue;
+            }
 
-        event('shopr.cart.cleared');
+            $items[$index]->setPrice();
+        }
+
+        $this->driver->store($items);
     }
 }
