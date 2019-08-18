@@ -61,7 +61,7 @@ class Cart
         }
 
         // If no identical items are found, push the new one to the list of items.
-        if (!$event) {
+        if (! $event) {
             $items->push($item);
 
             $event = 'added';
@@ -215,7 +215,7 @@ class Cart
     {
         $item = $this->find($id);
 
-        if (!$item) {
+        if (! $item) {
             throw new CartItemNotFoundException;
         }
 
@@ -278,7 +278,7 @@ class Cart
             $id = $id->id;
         }
 
-        if (!$this->find($id)) {
+        if (! $this->find($id)) {
             return false;
         }
 
