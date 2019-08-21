@@ -18,7 +18,7 @@ class AddCartItemUnitTest extends TestCase
 
         Cart::add($model);
 
-        $item = Cart::get()->first();
+        $item = Cart::items()->first();
         $this->assertEquals(1, Cart::count());
         $this->assertTrue($item->shoppable->is($model));
         $this->assertEquals($model->getPrice(), $item->price);
@@ -35,8 +35,8 @@ class AddCartItemUnitTest extends TestCase
         Cart::add($model, ['quantity' => 3]);
 
         $this->assertEquals(3, Cart::count());
-        $this->assertEquals(1, Cart::get()->count());
-        $this->assertTrue(Cart::get()->first()->shoppable->is($model));
+        $this->assertEquals(1, Cart::items()->count());
+        $this->assertTrue(Cart::items()->first()->shoppable->is($model));
     }
 
     /** @test */
@@ -44,7 +44,7 @@ class AddCartItemUnitTest extends TestCase
     {
         Cart::add(TestShoppable::first(), ['options' => ['size' => 'Large']]);
 
-        $this->assertEquals(['size' => 'Large'], Cart::get()->first()->options);
+        $this->assertEquals(['size' => 'Large'], Cart::items()->first()->options);
     }
 
     /** @test */
@@ -52,8 +52,8 @@ class AddCartItemUnitTest extends TestCase
     {
         Cart::add(TestShoppable::first(), ['price' => 123123]);
 
-        $this->assertEquals(123123, Cart::get()->first()->price);
-        $this->assertEquals('$123,123.00', Cart::get()->first()->price_formatted);
+        $this->assertEquals(123123, Cart::items()->first()->price);
+        $this->assertEquals('$123,123.00', Cart::items()->first()->price_formatted);
     }
 
     /** @test */
@@ -61,7 +61,7 @@ class AddCartItemUnitTest extends TestCase
     {
         Cart::add($model = TestShoppable::first());
 
-        $this->assertEquals($model->getPrice(), Cart::get()->first()->price);
+        $this->assertEquals($model->getPrice(), Cart::items()->first()->price);
     }
 
     /** @test */
@@ -76,7 +76,7 @@ class AddCartItemUnitTest extends TestCase
 
         $this->assertEquals(1, Cart::count());
 
-        $subItems = Cart::get()->first()->sub_items;
+        $subItems = Cart::items()->first()->sub_items;
         $this->assertEquals(2, $subItems->count());
         $this->assertEquals(123, $subItems->first()->price);
         $this->assertEquals(['color' => 'Green'], $subItems->last()->options);
@@ -94,7 +94,7 @@ class AddCartItemUnitTest extends TestCase
             ],
         ]);
 
-        $this->assertEquals(3, Cart::get()->first()->sub_items->first()->quantity);
+        $this->assertEquals(3, Cart::items()->first()->sub_items->first()->quantity);
     }
 
     /** @test */
@@ -105,7 +105,7 @@ class AddCartItemUnitTest extends TestCase
         Cart::add(TestShoppable::first(), ['options' => ['color' => 'Green', 'size' => 'S']]);
 
         $this->assertEquals(4, Cart::count());
-        $this->assertEquals(2, Cart::get()->count());
+        $this->assertEquals(2, Cart::items()->count());
         $this->assertEquals(3, Cart::first()->quantity);
         $this->assertEquals(1, Cart::last()->quantity);
     }
@@ -125,7 +125,7 @@ class AddCartItemUnitTest extends TestCase
                 ['shoppable' => TestShoppable::first(), 'options' => ['color' => 'Green']],
             ],
         ]);
-        $this->assertEquals(1, Cart::get()->count());
+        $this->assertEquals(1, Cart::items()->count());
         $this->assertEquals(2, Cart::count());
 
         Cart::add(TestShoppable::first(), [
@@ -134,7 +134,7 @@ class AddCartItemUnitTest extends TestCase
                 ['shoppable' => TestShoppable::first(), 'options' => ['color' => 'Green', 'size' => 'L']],
             ],
         ]);
-        $this->assertEquals(2, Cart::get()->count());
+        $this->assertEquals(2, Cart::items()->count());
         $this->assertEquals(3, Cart::count());
     }
 
@@ -150,8 +150,8 @@ class AddCartItemUnitTest extends TestCase
         ]);
 
         // The price attribute is per unit.
-        $this->assertEquals(500, $item->price);
-        $this->assertEquals('$500.00', $item->price_formatted);
+        $this->assertEquals(1050, $item->price);
+        $this->assertEquals('$1,050.00', $item->price_formatted);
 
         // (500 + 50 + 500) * 2.
         $this->assertEquals(2100, $item->total_price);

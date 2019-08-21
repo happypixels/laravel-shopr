@@ -4,11 +4,14 @@ namespace Happypixels\Shopr\Cart;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
+use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\Contracts\Shoppable;
 use Happypixels\Shopr\Contracts\CartDriver;
+use Illuminate\Contracts\Support\Arrayable;
+use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Exceptions\CartItemNotFoundException;
 
-class Cart
+class Cart implements Arrayable
 {
     /**
      * The driver used for persisting the cart data.
@@ -18,13 +21,55 @@ class Cart
     public $driver;
 
     /**
+     * The money formatter.
+     *
+     * @var Formatter
+     */
+    protected $moneyFormatter;
+
+    /**
      * Create a cart instance.
      *
      * @param CartDriver $driver
      */
-    public function __construct(CartDriver $driver)
+    public function __construct(CartDriver $driver, Formatter $moneyFormatter)
     {
         $this->driver = $driver;
+        $this->moneyFormatter = $moneyFormatter;
+    }
+
+    /**
+     * Returns the array representation of the cart.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->get();
+    }
+
+    /**
+     * Returns the regular cart items.
+     *
+     * @return array
+     */
+    public function get()
+    {
+        $subTotal = $this->subTotal();
+        $taxTotal = $this->taxTotal();
+        $total = $this->total();
+
+        return [
+            'items' => $this->items(),
+            'discounts' => $this->discounts(),
+            'sub_total' => $subTotal,
+            'sub_total_formatted' => $this->moneyFormatter->format($subTotal),
+            'tax_total' => $taxTotal,
+            'tax_total_formatted' => $this->moneyFormatter->format($taxTotal),
+            'total' => $total,
+            'total_formatted' => $this->moneyFormatter->format($total),
+            'count' => $this->count(),
+        ];
     }
 
     /**
@@ -108,8 +153,29 @@ class Cart
         return $item;
     }
 
-    public function addDiscount(Shoppable $coupon)
+    /**
+     * Validates the configurated rules and adds the discount coupon if they all pass.
+     *
+     * @param string|DiscountCoupon $coupon
+     * @return false|CartItem
+     */
+    public function addDiscount($coupon)
     {
+        if (is_string($coupon)) {
+            $coupon = DiscountCoupon::where('code', $coupon)->firstOrFail();
+        }
+
+        // Validate the configurated rules.
+        collect(config('shopr.discount_coupons.validation_rules'))->each(function ($rule) use ($coupon) {
+            $rule = new $rule;
+
+            throw_if(!$rule->passes('code', $coupon->code), new \Exception($rule->message(), 422));
+        });
+
+        if (is_string($coupon)) {
+            $coupon = DiscountCoupon::where('code', $coupon)->firstOrFail();
+        }
+
         if (! $coupon->isDiscount()) {
             return false;
         }
@@ -138,21 +204,11 @@ class Cart
      *
      * @return Collection
      */
-    public function get() : Collection
+    public function items() : Collection
     {
         return $this->all()->filter(function ($item) {
             return $item->shoppable->shouldBeIncludedInItemList();
         })->values();
-    }
-
-    /**
-     * Alias for the "get" method.
-     *
-     * @return Collection
-     */
-    public function items()
-    {
-        return $this->get();
     }
 
     /**
@@ -177,6 +233,32 @@ class Cart
         return $this->all()->sum(function ($item) {
             return $item->total_price;
         });
+    }
+
+    /**
+     * Returns the sub total of the cart.
+     *
+     * @return float
+     */
+    public function subTotal()
+    {
+        return $this->total() - $this->taxTotal();
+    }
+
+    /**
+     * Returns the total tax of the items in the cart.
+     *
+     * @return float
+     */
+    public function taxTotal()
+    {
+        $tax = config('shopr.tax');
+
+        if (! $tax || $tax <= 0) {
+            return 0;
+        }
+
+        return $this->total() * $tax / (100 + $tax);
     }
 
     /**
@@ -213,11 +295,7 @@ class Cart
      */
     public function findOrFail($id)
     {
-        $item = $this->find($id);
-
-        if (!$item) {
-            throw new CartItemNotFoundException;
-        }
+        throw_unless($item = $this->find($id), new CartItemNotFoundException);
 
         return $item;
     }
@@ -229,7 +307,7 @@ class Cart
      */
     public function first()
     {
-        return $this->get()->first();
+        return $this->items()->first();
     }
 
     /**
@@ -239,7 +317,7 @@ class Cart
      */
     public function last()
     {
-        return $this->get()->last();
+        return $this->items()->last();
     }
 
     /**
@@ -249,9 +327,19 @@ class Cart
      */
     public function count() : int
     {
-        return $this->get()->sum(function ($item) {
+        return $this->items()->sum(function ($item) {
             return $item->quantity;
         });
+    }
+
+    /**
+     * Returns true if the cart is empty.
+     *
+     * @return bool
+     */
+    public function isEmpty() : bool
+    {
+        return $this->count() === 0;
     }
 
     /**
@@ -323,7 +411,7 @@ class Cart
         }
 
         return $this->discounts()->filter(function ($item) use ($discount) {
-            return $item->shoppable->getTitle() === $discount;
+            return ! $discount || $item->shoppable->getTitle() === $discount;
         })->count() > 0;
     }
 

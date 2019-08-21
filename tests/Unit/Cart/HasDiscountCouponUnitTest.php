@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
@@ -12,53 +12,59 @@ class HasDiscountCouponUnitTest extends TestCase
     /** @test */
     public function it_returns_false_if_discount_is_not_applied()
     {
-        $cart = $this->addCartItem();
+        Cart::add(TestShoppable::first());
 
-        $this->assertFalse($cart->hasDiscount('CODE'));
+        $this->assertFalse(Cart::hasDiscount('CODE'));
     }
 
     /** @test */
     public function it_returns_true_if_match_is_found()
     {
         $discount = factory(DiscountCoupon::class)->create(['code' => 'Code']);
-        $cart = $this->addCartItem();
-        $cart->addDiscount($discount);
 
-        $this->assertTrue($cart->hasDiscount('Code'));
+        Cart::add(TestShoppable::first());
+        Cart::addDiscount($discount);
+
+        $this->assertTrue(Cart::hasDiscount('Code'));
     }
 
     /** @test */
     public function it_is_case_sensitive()
     {
         $discount = factory(DiscountCoupon::class)->create(['code' => 'Code']);
-        $cart = $this->addCartItem();
-        $cart->addDiscount($discount);
 
-        $this->assertFalse($cart->hasDiscount('CODE'));
-        $this->assertFalse($cart->hasDiscount('CodE'));
-        $this->assertFalse($cart->hasDiscount('CoDe'));
-        $this->assertTrue($cart->hasDiscount('Code'));
+        Cart::add(TestShoppable::first());
+        Cart::addDiscount($discount);
+
+        $this->assertFalse(Cart::hasDiscount('CODE'));
+        $this->assertFalse(Cart::hasDiscount('CodE'));
+        $this->assertFalse(Cart::hasDiscount('CoDe'));
+        $this->assertTrue(Cart::hasDiscount('Code'));
     }
 
     /** @test */
-    public function it_looks_for_any_discount_if_code_is_empty()
+    public function it_looks_for_any_discount_if_input_is_empty()
     {
         $discount = factory(DiscountCoupon::class)->create(['code' => 'Code']);
-        $cart = $this->addCartItem();
 
-        $this->assertFalse($cart->hasDiscount());
+        Cart::add(TestShoppable::first());
 
-        $cart->addDiscount($discount);
+        $this->assertFalse(Cart::hasDiscount());
 
-        $this->assertTrue($cart->hasDiscount());
+        Cart::addDiscount($discount);
+
+        $this->assertTrue(Cart::hasDiscount());
     }
 
-    public function addCartItem()
+    /** @test */
+    public function it_accepts_code_or_full_discount_object()
     {
-        $cart = app(Cart::class);
-        $model = factory(TestShoppable::class)->create(['price' => 500]);
-        $cart->addItem(get_class($model), $model->id, 3);
+        $discount = factory(DiscountCoupon::class)->create(['code' => 'Code']);
 
-        return $cart;
+        Cart::add(TestShoppable::first());
+        Cart::addDiscount($discount);
+
+        $this->assertTrue(Cart::hasDiscount($discount));
+        $this->assertTrue(Cart::hasDiscount($discount->code));
     }
 }

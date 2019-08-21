@@ -64,6 +64,8 @@ class CartItem implements Arrayable
     {
         $this->data['quantity'] = $quantity;
 
+        $this->setPrice();
+
         return $this;
     }
 
@@ -89,6 +91,12 @@ class CartItem implements Arrayable
     public function setPrice($priceOverride = null)
     {
         $this->data['price'] = $priceOverride ?: $this->shoppable->getPrice();
+
+        // Include sub items in the unit price.
+        $this->data['price'] += optional($this->sub_items)->sum(function ($subItem) {
+            return $subItem->price;
+        });
+
         $this->data['price_formatted'] = app(Formatter::class)->format($this->price);
 
         $this->refreshTotalPrice();
@@ -117,6 +125,8 @@ class CartItem implements Arrayable
                     ->setPrice($subItem['price'] ?? null)
             );
         });
+
+        $this->setPrice();
 
         return $this;
     }
@@ -154,11 +164,6 @@ class CartItem implements Arrayable
     protected function refreshTotalPrice()
     {
         $this->data['total_price'] = $this->quantity * $this->price;
-
-        $this->sub_items->each(function ($subItem) {
-            $this->data['total_price'] += $subItem->price * $subItem->quantity;
-        });
-
         $this->data['total_price_formatted'] = app(Formatter::class)->format($this->data['total_price']);
     }
 }
