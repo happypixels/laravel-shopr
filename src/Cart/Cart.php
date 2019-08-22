@@ -106,7 +106,7 @@ class Cart implements Arrayable
         }
 
         // If no identical items are found, push the new one to the list of items.
-        if (!$event) {
+        if (! $event) {
             $items->push($item);
 
             $event = 'added';
@@ -169,7 +169,7 @@ class Cart implements Arrayable
         collect(config('shopr.discount_coupons.validation_rules'))->each(function ($rule) use ($coupon) {
             $rule = new $rule;
 
-            throw_if(!$rule->passes('code', $coupon->code), new \Exception($rule->message(), 422));
+            throw_if(! $rule->passes('code', $coupon->code), new \Exception($rule->message(), 422));
         });
 
         if (is_string($coupon)) {
@@ -366,7 +366,7 @@ class Cart implements Arrayable
             $id = $id->id;
         }
 
-        if (!$this->find($id)) {
+        if (! $this->find($id)) {
             return false;
         }
 
