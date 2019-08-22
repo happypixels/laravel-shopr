@@ -3,6 +3,7 @@
 namespace Happypixels\Shopr\Cart;
 
 use Illuminate\Support\Collection;
+use Happypixels\Shopr\Models\Order;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\Contracts\Shoppable;
@@ -10,6 +11,7 @@ use Happypixels\Shopr\Contracts\CartDriver;
 use Illuminate\Contracts\Support\Arrayable;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Exceptions\CartItemNotFoundException;
+use Happypixels\Shopr\Exceptions\DiscountValidationException;
 
 class Cart implements Arrayable
 {
@@ -169,7 +171,10 @@ class Cart implements Arrayable
         collect(config('shopr.discount_coupons.validation_rules'))->each(function ($rule) use ($coupon) {
             $rule = new $rule;
 
-            throw_if(!$rule->passes('code', $coupon->code), new \Exception($rule->message(), 422));
+            throw_if(
+                !$rule->passes('code', $coupon->code),
+                new DiscountValidationException($rule->message())
+            );
         });
 
         if (is_string($coupon)) {

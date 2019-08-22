@@ -3,21 +3,13 @@
 namespace Happypixels\Shopr\Controllers;
 
 use Illuminate\Http\Request;
-use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Routing\Controller;
-use Happypixels\Shopr\Models\DiscountCoupon;
+use Happypixels\Shopr\Facades\Cart;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class CartDiscountController extends Controller
 {
     use ValidatesRequests;
-
-    protected $cart;
-
-    public function __construct(Cart $cart)
-    {
-        $this->cart = $cart;
-    }
 
     /**
      * Applies a discount coupon to the cart.
@@ -27,22 +19,10 @@ class CartDiscountController extends Controller
      */
     public function store(Request $request)
     {
-        // Default validation rules that are always checked.
-        $rules = ['required', 'string'];
+        $this->validate($request, ['code' => ['required', 'string']]);
 
-        // Configurated rules.
-        if (! empty(config('shopr.discount_coupons.validation_rules'))) {
-            foreach (config('shopr.discount_coupons.validation_rules') as $rule) {
-                $rules[] = new $rule;
-            }
-        }
+        Cart::addDiscount($request->code);
 
-        $this->validate($request, ['code' => $rules]);
-
-        $coupon = DiscountCoupon::where('code', $request->code)->first();
-
-        $this->cart->addDiscount($coupon);
-
-        return $this->cart->summary();
+        return Cart::get();
     }
 }
