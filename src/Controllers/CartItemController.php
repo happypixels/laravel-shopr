@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Controllers;
 
 use Illuminate\Http\Request;
-use Happypixels\Shopr\Cart\Cart;
 use Illuminate\Routing\Controller;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Rules\Discounts\NotADiscount;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 
@@ -12,13 +12,12 @@ class CartItemController extends Controller
 {
     use ValidatesRequests;
 
-    protected $cart;
-
-    public function __construct(Cart $cart)
-    {
-        $this->cart = $cart;
-    }
-
+    /**
+     * Adds an item to the cart. Returns the full cart summary.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -26,29 +25,48 @@ class CartItemController extends Controller
             'shoppable_id' => 'required',
         ]);
 
-        $item = $this->cart->addItem(
-            $request->shoppable_type,
-            $request->shoppable_id,
-            $request->get('quantity', 1),
-            $request->get('options', []),
-            $request->get('sub_items', []),
-            $request->get('price', null)
-        );
+        $shoppable = $request->shoppable_type::findOrFail($request->shoppable_id);
 
-        return $this->cart->summary();
+        $subItems = collect($request->get('sub_items', []))->map(function ($subItem) {
+            $subItem['shoppable'] = $subItem['shoppable_type']::findOrFail($subItem['shoppable_id']);
+
+            return $subItem;
+        })->toArray();
+
+        Cart::add($shoppable, [
+            'quantity' => $request->get('quantity', 1),
+            'options' => $request->get('options', null),
+            'sub_items' => $subItems,
+            'price' => $request->get('price', null),
+        ]);
+
+        return Cart::get();
     }
 
+    /**
+     * Updates a cart item. Returns the full cart summary.
+     *
+     * @param Request $request
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, $id)
     {
-        $this->cart->updateItem($id, $request->all());
+        Cart::update($id, $request->all());
 
-        return $this->cart->summary();
+        return Cart::get();
     }
 
+    /**
+     * Removes an item from the cart and returns the full cart summary.
+     *
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($id)
     {
-        $this->cart->removeItem($id);
+        Cart::delete($id);
 
-        return $this->cart->summary();
+        return Cart::get();
     }
 }
