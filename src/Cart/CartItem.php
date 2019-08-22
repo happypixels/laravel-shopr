@@ -118,7 +118,7 @@ class CartItem implements Arrayable
             return $subItem['shoppable'] instanceof Shoppable;
         })->each(function ($subItem) {
             $this->sub_items->push(
-                (new CartItem($subItem['shoppable']))
+                (new self($subItem['shoppable']))
                     ->asSubItem()
                     ->setQuantity($this->quantity)
                     ->setOptions($subItem['options'] ?? null)
@@ -137,7 +137,7 @@ class CartItem implements Arrayable
      * @param CartItem $item
      * @return bool
      */
-    public function is(CartItem $item)
+    public function is(self $item)
     {
         return $this->shoppable->is($item->shoppable) &&
             serialize($this->options) === serialize($item->options) &&

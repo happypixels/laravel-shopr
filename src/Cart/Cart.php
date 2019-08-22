@@ -3,7 +3,6 @@
 namespace Happypixels\Shopr\Cart;
 
 use Illuminate\Support\Collection;
-use Happypixels\Shopr\Models\Order;
 use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\Contracts\Shoppable;
@@ -108,7 +107,7 @@ class Cart implements Arrayable
         }
 
         // If no identical items are found, push the new one to the list of items.
-        if (!$event) {
+        if (! $event) {
             $items->push($item);
 
             $event = 'added';
@@ -172,7 +171,7 @@ class Cart implements Arrayable
             $rule = new $rule;
 
             throw_if(
-                !$rule->passes('code', $coupon->code),
+                ! $rule->passes('code', $coupon->code),
                 new DiscountValidationException($rule->message())
             );
         });
@@ -371,7 +370,7 @@ class Cart implements Arrayable
             $id = $id->id;
         }
 
-        if (!$this->find($id)) {
+        if (! $this->find($id)) {
             return false;
         }
 
