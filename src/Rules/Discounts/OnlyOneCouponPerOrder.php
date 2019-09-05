@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Rules\Discounts;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Illuminate\Contracts\Validation\Rule;
 
 class OnlyOneCouponPerOrder implements Rule
@@ -16,7 +16,7 @@ class OnlyOneCouponPerOrder implements Rule
      */
     public function passes($attribute, $value)
     {
-        return app(Cart::class)->hasDiscount() === false;
+        return Cart::hasDiscount() === false;
     }
 
     /**

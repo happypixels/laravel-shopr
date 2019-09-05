@@ -13,7 +13,7 @@ use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Exceptions\CartItemNotFoundException;
 use Happypixels\Shopr\Exceptions\DiscountValidationException;
 
-class Cart implements Arrayable
+class ShoppingCart implements Arrayable
 {
     /**
      * The driver used for persisting the cart data.
@@ -418,6 +418,71 @@ class Cart implements Arrayable
         return $this->discounts()->filter(function ($item) use ($discount) {
             return ! $discount || $item->shoppable->getTitle() === $discount;
         })->count() > 0;
+    }
+
+    /**
+     * Converts the current cart to an order and clears the cart.
+     *
+     * @param  string $gateway
+     * @param  array  $data
+     * @return \Happypixels\Shopr\Models\Order|false
+     */
+    public function checkoutUsing($gateway, $data = [])
+    {
+        if ($this->isEmpty()) {
+            return false;
+        }
+
+        // Move all of the payment logics to here.
+
+        $order = app(Order::class)->create([
+            'user_id' => auth()->id(),
+            'payment_gateway' => $gateway,
+            'transaction_reference' => $data['transaction_reference'] ?? null,
+            'transaction_id' => $data['transaction_id'] ?? null,
+            'payment_status' => $data['payment_status'] ?? 'pending',
+            'delivery_status' => 'pending',
+            'token' => Order::generateToken(),
+            'total' => $this->total(),
+            'sub_total' => $this->subTotal(),
+            'tax' => $this->taxTotal(),
+            'email' => optional($data)['email'],
+            'phone' => optional($data)['phone'],
+            'first_name' => optional($data)['first_name'],
+            'last_name' => optional($data)['last_name'],
+            'address' => optional($data)['address'],
+            'zipcode' => optional($data)['zipcode'],
+            'city' => optional($data)['city'],
+            'country' => optional($data)['country'],
+        ]);
+
+        foreach ($this->getAllItems() as $item) {
+            $parent = $order->items()->create([
+                'shoppable_type' => get_class($item->shoppable),
+                'shoppable_id'   => $item->shoppable->id,
+                'quantity'       => $item->quantity,
+                'title'          => $item->shoppable->getTitle(),
+                'price'          => $item->price,
+                'options'        => $item->options,
+            ]);
+
+            if ($item->subItems->count() > 0) {
+                foreach ($item->subItems as $subItem) {
+                    $parent->children()->create([
+                        'order_id'       => $order->id,
+                        'shoppable_type' => get_class($subItem->shoppable),
+                        'shoppable_id'   => $subItem->shoppable->id,
+                        'title'          => $subItem->shoppable->getTitle(),
+                        'price'          => $subItem->price,
+                        'options'        => $subItem->options,
+                    ]);
+                }
+            }
+        }
+
+        $this->clear();
+
+        return $order;
     }
 
     /**

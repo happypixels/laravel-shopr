@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Money;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
@@ -27,9 +27,7 @@ class PriceFormattingTest extends TestCase
     {
         config(['shopr.currency' => 'USD']);
 
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), 1, 2);
+        Cart::add(TestShoppable::first(), ['quantity' => 2]);
 
         $userData = [
             'email'      => 'test@example.com',

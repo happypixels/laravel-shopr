@@ -11,7 +11,7 @@ class DateIsWithinCouponTimespanRuleTest extends TestCase
     /** @test */
     public function it_fails_if_code_is_invalid()
     {
-        $coupon = factory(DiscountCoupon::class)->create();
+        factory(DiscountCoupon::class)->create();
 
         $this->assertFalse((new DateIsWithinCouponTimespan)->passes('code', 'Something else'));
     }

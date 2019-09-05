@@ -5,12 +5,9 @@ namespace Happypixels\Shopr\Tests\Http\Discounts;
 use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
-use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
 
 class AddDiscountHttpTest extends TestCase
 {
-    use InteractsWithCart;
-
     /** @test */
     public function it_adds_the_coupon()
     {

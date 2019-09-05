@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Rules\Discounts;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Illuminate\Contracts\Validation\Rule;
 use Happypixels\Shopr\Models\DiscountCoupon;
 
@@ -23,15 +23,13 @@ class CartValueAboveCouponLimit implements Rule
             return false;
         }
 
-        $cart = app(Cart::class);
-
         if ($coupon->lower_cart_limit === null) {
             $limit = $coupon->getCalculatedPositiveValue();
         } else {
             $limit = $coupon->lower_cart_limit;
         }
 
-        return app(Cart::class)->total() >= $limit;
+        return Cart::total() >= $limit;
     }
 
     /**

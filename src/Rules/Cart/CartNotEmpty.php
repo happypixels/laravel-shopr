@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Rules\Cart;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Illuminate\Contracts\Validation\Rule;
 
 class CartNotEmpty implements Rule
@@ -16,7 +16,7 @@ class CartNotEmpty implements Rule
      */
     public function passes($attribute, $value)
     {
-        return ! app(Cart::class)->isEmpty();
+        return ! Cart::isEmpty();
     }
 
     /**

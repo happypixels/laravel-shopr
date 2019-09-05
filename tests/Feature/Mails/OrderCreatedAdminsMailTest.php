@@ -2,10 +2,9 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Mails;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Illuminate\Support\Facades\Mail;
 use Happypixels\Shopr\Tests\TestCase;
-use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Mails\OrderCreatedAdmins;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
@@ -107,11 +106,9 @@ class OrderCreatedAdminsMailTest extends TestCase
         });
     }
 
-    private function createTestOrder()
+    protected function createTestOrder()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), 1, 1);
+        Cart::add(TestShoppable::first());
 
         $userData = [
             'email'      => 'test@example.com',

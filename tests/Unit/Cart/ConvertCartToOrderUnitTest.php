@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\OrderItem;
@@ -17,9 +17,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     /** @test */
     public function it_aborts_if_the_cart_is_empty()
     {
-        $cart = app(Cart::class);
-
-        $this->assertFalse($cart->convertToOrder('stripe'));
+        $this->assertFalse(Cart::checkoutUsing('stripe'));
         $this->assertEquals(0, Order::count());
     }
 
@@ -28,6 +26,11 @@ class ConvertCartToOrderUnitTest extends TestCase
     {
         config(['shopr.tax' => 25]);
 
+        // Mock the payment provider.
+
+        // Add a cart item.
+
+        // Run checkoutUsing with the data.
         $cart = app(Cart::class);
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1);
