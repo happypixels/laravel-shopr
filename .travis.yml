@@ -55,8 +55,3 @@ install:
 
 script:
   - $ICU_PHP ./vendor/bin/phpunit
-
-branches:
-  only:
-    - master
-    - improve-travis-build
