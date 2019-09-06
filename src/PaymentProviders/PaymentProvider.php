@@ -3,6 +3,7 @@
 namespace Happypixels\Shopr\PaymentProviders;
 
 use Omnipay\Omnipay;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Models\Order;
@@ -103,7 +104,7 @@ abstract class PaymentProvider
      */
     public function getConfigKey()
     {
-        return snake_case($this->getProviderName());
+        return Str::snake($this->getProviderName());
     }
 
     /**
