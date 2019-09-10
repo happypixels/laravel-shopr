@@ -6,8 +6,18 @@ use Exception;
 
 class PaymentFailedException extends Exception
 {
+    /**
+     * The message, typically the reason why the payment has failed.
+     *
+     * @var string
+     */
     protected $message;
 
+    /**
+     * Create an instance of the exception.
+     *
+     * @param string $message
+     */
     public function __construct($message)
     {
         $this->message = $message;
