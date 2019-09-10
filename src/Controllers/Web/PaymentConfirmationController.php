@@ -24,7 +24,6 @@ class PaymentConfirmationController extends Controller
 
         $order = Order::where('transaction_reference', $request->payment_intent)->firstOrFail();
 
-
         $order->update([
             'payment_status' => 'paid',
             'transaction_reference' => $response['transaction_reference'],

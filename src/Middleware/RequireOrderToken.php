@@ -34,6 +34,6 @@ class RequireOrderToken
     {
         $token = $request->query('token');
 
-        return ($token && Order::where('token', $token)->where('payment_status', 'paid')->count() > 0);
+        return $token && Order::where('token', $token)->where('payment_status', 'paid')->count() > 0;
     }
 }

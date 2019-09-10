@@ -45,7 +45,7 @@ class CheckoutController extends Controller
 
         event('shopr.orders.created', $order);
 
-        if (!$response['success']) {
+        if (! $response['success']) {
             return response()->json($response);
         }
 
