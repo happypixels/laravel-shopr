@@ -3,7 +3,6 @@
 namespace Happypixels\Shopr\PaymentProviders;
 
 use Omnipay\Omnipay;
-use Happypixels\Shopr\Exceptions\PaymentFailedException;
 
 class Stripe extends PaymentProvider
 {
@@ -24,27 +23,16 @@ class Stripe extends PaymentProvider
     }
 
     /**
-     * Confirms a payment if needed.
+     * The data used for confirming a payment, used for example when confirming a payment using SCA.
+     * The payment reference should be found in the $this->input-array.
      *
-     * @param string $reference
      * @return array
      */
-    public function confirm($reference)
+    public function getPaymentConfirmationData() : array
     {
-        $response = $this->gateway->confirm([
-            'paymentIntentReference' => $reference,
-            'returnUrl' => route('shopr.order-confirmation').'?gateway=Stripe',
-        ])->send();
-
-        if (! $response->isSuccessful()) {
-            throw new PaymentFailedException($response->getMessage());
-        }
-
         return [
-            'success' => true,
-            'transaction_reference' => $response->getTransactionReference(),
-            'transaction_id' => $response->getTransactionId(),
-            'payment_status' => 'paid',
+            'paymentIntentReference' => $this->input['payment_intent'],
+            'returnUrl' => route('shopr.order-confirmation', ['gateway' => 'Stripe']),
         ];
     }
 

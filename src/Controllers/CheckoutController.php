@@ -52,7 +52,7 @@ class CheckoutController extends Controller
         $response = ['token' => $order->token];
 
         if (config('shopr.templates.order-confirmation')) {
-            $response['redirect'] = route('shopr.order-confirmation').'?token='.$order->token;
+            $response['redirect'] = route('shopr.order-confirmation', ['token' => $order->token]);
         }
 
         return response()->json($response, 201);

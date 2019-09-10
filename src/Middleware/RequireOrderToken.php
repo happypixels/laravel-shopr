@@ -17,7 +17,7 @@ class RequireOrderToken
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if ($this->hasValidOrderToken($request)) {
+        if (!$this->hasValidOrderToken($request)) {
             return redirect('/');
         }
 
