@@ -47,14 +47,12 @@ abstract class PaymentProvider
         $response = $this->purchase();
 
         if ($response->isRedirect()) {
-            $data = [
+            return [
                 'success' => false,
                 'transaction_reference' => $response->getPaymentIntentReference(),
                 'redirect' => $response->getRedirectUrl(),
                 'payment_status' => 'pending',
             ];
-
-            return $data;
         }
 
         if (! $response->isSuccessful()) {
