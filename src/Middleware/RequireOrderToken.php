@@ -17,7 +17,7 @@ class RequireOrderToken
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if (!$this->hasValidOrderToken($request)) {
+        if (! $this->hasValidOrderToken($request)) {
             return redirect('/');
         }
 
@@ -34,6 +34,6 @@ class RequireOrderToken
     {
         $token = $request->query('token');
 
-        return ($token && Order::where('token', $token)->where('payment_status', 'paid')->count() > 0);
+        return $token && Order::where('token', $token)->where('payment_status', 'paid')->count() > 0;
     }
 }
