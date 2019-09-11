@@ -31,6 +31,9 @@ class ShoprServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
 
         $this->loadViewsFrom(__DIR__.'/Views', 'shopr');
+        $this->publishes([
+            __DIR__.'/Views' => $this->app->resourcePath('views/vendor/shopr'),
+        ], 'views');
 
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'shopr');
         $this->publishes([
