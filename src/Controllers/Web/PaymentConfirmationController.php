@@ -29,6 +29,12 @@ class PaymentConfirmationController extends Controller
 
         $order = Order::where('transaction_reference', $request->payment_intent)->firstOrFail();
 
+        // If the previous status of the order is not 'paid', fire the event to indicate
+        // the order has now been confirmed.
+        if ($order->status !== 'paid') {
+            event('shopr.orders.confirmed', $order);
+        }
+
         $order->update([
             'payment_status' => 'paid',
             'transaction_reference' => $response['transaction_reference'],

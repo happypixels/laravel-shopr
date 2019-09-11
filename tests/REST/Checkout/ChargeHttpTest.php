@@ -2,7 +2,6 @@
 
 namespace Happypixels\Shopr\Tests\REST\Checkout;
 
-use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Support\Facades\Event;
@@ -96,12 +95,7 @@ class ChargeHttpTest extends TestCase
             'payment_status' => 'paid',
         ];
 
-        // The cart receives the expected methods.
-        $this->mockCart()
-            ->shouldReceive('isEmpty')->once()->andReturn(false)
-            ->shouldReceive('convertToOrder')->once()->with('stripe', $orderData)->andReturn(
-                $order = factory(Order::class)->create()
-            );
+        $this->addCartItem();
 
         $this->mockPaymentProvider(Stripe::class)->shouldReceive('payForCart')->once()->andReturn([
             'success' => true,
@@ -111,16 +105,16 @@ class ChargeHttpTest extends TestCase
         ]);
 
         // The response is a 201 and it holds the token of the order.
-        $response = $this->json('POST', '/api/shopr/checkout/charge', [
+        $this->json('POST', '/api/shopr/checkout/charge', [
             'email' => $orderData['email'],
             'gateway' => 'stripe',
             'first_name' => $orderData['first_name'],
             'last_name' => $orderData['last_name'],
-        ])->assertStatus(201)->assertJsonFragment(['token' => $order->token]);
+        ])->assertStatus(201)->assertJsonFragment(['token' => Order::first()->token]);
 
         // The order created event is fired.
-        Event::assertDispatched('shopr.orders.created', function ($event, $data) use ($order) {
-            return serialize($order) === serialize($data);
+        Event::assertDispatched('shopr.orders.created', function ($event, $data) {
+            return $data instanceof Order && $data->id === Order::first()->id;
         });
     }
 }

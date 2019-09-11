@@ -113,7 +113,8 @@ class OrderCreatedAdminsMailTest extends TestCase
         $model = TestShoppable::first();
         $cart->addItem(get_class($model), 1, 1);
 
-        $userData = [
+        $data = [
+            'payment_status' => 'paid',
             'email'      => 'test@example.com',
             'first_name' => 'Testy',
             'last_name'  => 'McTestface',
@@ -124,7 +125,7 @@ class OrderCreatedAdminsMailTest extends TestCase
             'country'    => 'US',
         ];
 
-        $order = $cart->convertToOrder('stripe', $userData);
+        $order = $cart->convertToOrder('stripe', $data);
 
         event('shopr.orders.created', $order);
 
