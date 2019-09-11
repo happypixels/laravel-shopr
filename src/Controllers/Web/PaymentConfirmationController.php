@@ -24,21 +24,27 @@ class PaymentConfirmationController extends Controller
         try {
             $response = PaymentProviderManager::make($request)->confirmPayment();
         } catch (PaymentFailedException $e) {
+            optional(
+                Order::where('transaction_reference', $request->payment_intent)->first()
+            )->update(['payment_status' => 'failed']);
+
             return view('shopr::payments.error')->with('message', $e->getMessage());
         }
 
         $order = Order::where('transaction_reference', $request->payment_intent)->firstOrFail();
 
-        // If the previous status of the order is not 'paid', fire the event to indicate
-        // the order has now been confirmed.
-        if ($order->status !== 'paid') {
-            event('shopr.orders.confirmed', $order);
-        }
+        $previousStatus = $order->payment_status;
 
         $order->update([
             'payment_status' => 'paid',
             'transaction_reference' => $response['transaction_reference'],
         ]);
+
+        // If the previous status of the order is not 'paid', fire the event to indicate
+        // the order has now been confirmed.
+        if ($previousStatus !== 'paid') {
+            event('shopr.orders.confirmed', $order);
+        }
 
         return redirect()->route('shopr.order-confirmation', ['token' => $order->token]);
     }
