@@ -134,7 +134,7 @@ class ConvertCartToOrderUnitTest extends TestCase
     }
 
     /** @test */
-    public function it_clears_the_cart()
+    public function it_clears_the_cart_if_order_is_paid()
     {
         $cart = app(Cart::class);
         $model = TestShoppable::first();
@@ -143,9 +143,21 @@ class ConvertCartToOrderUnitTest extends TestCase
 
         $this->assertFalse($cart->isEmpty());
 
-        $order = $cart->convertToOrder('stripe', []);
+        $cart->convertToOrder('stripe', ['payment_status' => 'paid']);
 
         $this->assertTrue($cart->isEmpty());
+    }
+
+    /** @test */
+    public function it_does_not_clear_the_cart_if_order_is_not_paid_successfully()
+    {
+        $cart = app(Cart::class);
+        $model = TestShoppable::first();
+        $cart->addItem(get_class($model), 1, 1, ['color' => 'Green']);
+
+        $cart->convertToOrder('stripe', []);
+
+        $this->assertFalse($cart->isEmpty());
     }
 
     /** @test */

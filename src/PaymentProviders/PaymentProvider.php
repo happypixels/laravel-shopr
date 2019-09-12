@@ -30,6 +30,14 @@ abstract class PaymentProvider
     abstract public function purchase();
 
     /**
+     * The data used for confirming a payment, used for example when confirming a payment using SCA.
+     * The payment reference should be found in the $this->input-array.
+     *
+     * @return array
+     */
+    abstract public function getPaymentConfirmationData() : array;
+
+    /**
      * Makes the purchase and returns the results if successful. Throws exception if unsuccessful.
      *
      * @return array
@@ -37,6 +45,36 @@ abstract class PaymentProvider
     public function payForCart()
     {
         $response = $this->purchase();
+
+        if ($response->isRedirect()) {
+            return [
+                'success' => false,
+                'transaction_reference' => $response->getPaymentIntentReference(),
+                'redirect' => $response->getRedirectUrl(),
+                'payment_status' => 'pending',
+            ];
+        }
+
+        if (! $response->isSuccessful()) {
+            throw new PaymentFailedException($response->getMessage());
+        }
+
+        return [
+            'success' => true,
+            'transaction_reference' => $response->getTransactionReference(),
+            'transaction_id' => $response->getTransactionId(),
+            'payment_status' => 'paid',
+        ];
+    }
+
+    /**
+     * Confirms a payment if needed.
+     *
+     * @return array
+     */
+    public function confirmPayment()
+    {
+        $response = $this->gateway->confirm($this->getPaymentConfirmationData())->send();
 
         if (! $response->isSuccessful()) {
             throw new PaymentFailedException($response->getMessage());

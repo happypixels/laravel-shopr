@@ -11,7 +11,7 @@
     "minimum-stability": "dev",
     "require": {
         "league/omnipay": "^3",
-        "omnipay/stripe": "^3.0",
+        "omnipay/stripe": "3.1.x-dev#37df2a791e8feab45543125f4c5f22d5d305096d",
         "moneyphp/money": "^3.1",
         "illuminate/support": "~5.5.0|~5.6.0|~5.7.0|~5.8.0|^6.0"
     },

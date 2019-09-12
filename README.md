@@ -14,7 +14,7 @@ Full documentation here: https://laravel-shopr.happypixels.se
 * Shopping cart
 * Discount coupons
 * Any model can be shoppable
-* Checkout process with payment solutions out of the box
+* SCA-ready checkout process with payment solutions out of the box
 * Cart to Order conversion
 * Automated order emails to the customer and administrators
 * A simple REST API for managing the cart and checkout
@@ -46,12 +46,17 @@ Publish and review the configuration:
 php artisan vendor:publish --provider="Happypixels\Shopr\ShoprServiceProvider" --tag="config"
 ```
 
+Optionally you may publish the views to make them modifiable:
+```bash
+php artisan vendor:publish --provider="Happypixels\Shopr\ShoprServiceProvider" --tag="views"
+```
+
 Optionally you may publish the translation files to make them modifiable:
 ```bash
 php artisan vendor:publish --provider="Happypixels\Shopr\ShoprServiceProvider" --tag="translations"
 ```
 
-After this, refer to the [extensive documentation](https://laravel-shopr.happypixels.se) to get started.
+After this, refer to the [documentation](https://laravel-shopr.happypixels.se) to get started.
 
 ## Contributing
 Found a bug or have a feature request? [Open an issue on Github](https://github.com/happypixels/laravel-shopr/issues).   

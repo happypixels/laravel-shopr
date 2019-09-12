@@ -25,4 +25,6 @@ Route::group(['middleware' => $middleware, 'namespace' => 'Happypixels\Shopr\Con
             ->name('shopr.order-confirmation')
             ->middleware(Happypixels\Shopr\Middleware\RequireOrderToken::class);
     }
+
+    Route::get('payments/confirm', 'PaymentConfirmationController')->name('shopr.payments.confirm');
 });

@@ -274,7 +274,7 @@ abstract class Cart
             }
         }
 
-        $this->clear();
+        event('shopr.orders.created', $order);
 
         return $order;
     }

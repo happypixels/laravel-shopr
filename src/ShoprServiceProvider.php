@@ -31,6 +31,9 @@ class ShoprServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
 
         $this->loadViewsFrom(__DIR__.'/Views', 'shopr');
+        $this->publishes([
+            __DIR__.'/Views' => $this->app->resourcePath('views/vendor/shopr'),
+        ], 'views');
 
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'shopr');
         $this->publishes([
@@ -42,7 +45,13 @@ class ShoprServiceProvider extends ServiceProvider
         // We manually register the events here rather than automatically registering the observer
         // because we want to be in control of when the events are fired.
         Event::listen('shopr.orders.created', function (Order $order) {
-            (new OrderObserver)->created($order);
+            if ($order->payment_status === 'paid') {
+                event('shopr.orders.confirmed', $order);
+            }
+        });
+
+        Event::listen('shopr.orders.confirmed', function (Order $order) {
+            (new OrderObserver)->confirmed($order);
         });
     }
 
