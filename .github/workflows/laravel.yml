@@ -1,4 +1,4 @@
-name: Shopr Workflow
+name: Test
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  laravel-tests:
+  test:
 
     runs-on: ubuntu-latest
     
