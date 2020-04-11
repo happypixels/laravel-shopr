@@ -3,10 +3,10 @@
 namespace Happypixels\Shopr\Observers;
 
 use Happypixels\Shopr\Cart\Cart;
-use Happypixels\Shopr\Models\Order;
-use Illuminate\Support\Facades\Mail;
 use Happypixels\Shopr\Mails\OrderCreatedAdmins;
 use Happypixels\Shopr\Mails\OrderCreatedCustomer;
+use Happypixels\Shopr\Models\Order;
+use Illuminate\Support\Facades\Mail;
 
 class OrderObserver
 {

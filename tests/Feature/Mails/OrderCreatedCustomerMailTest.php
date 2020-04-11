@@ -3,11 +3,11 @@
 namespace Happypixels\Shopr\Tests\Feature\Mails;
 
 use Happypixels\Shopr\Cart\Cart;
-use Illuminate\Support\Facades\Mail;
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Mails\OrderCreatedCustomer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 
 class OrderCreatedCustomerMailTest extends TestCase
 {

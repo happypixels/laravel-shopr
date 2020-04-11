@@ -3,10 +3,10 @@
 namespace Happypixels\Shopr\Tests\REST\Discounts;
 
 use Happypixels\Shopr\Cart\Cart;
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Rules\DiscountTestRule;
 use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
+use Happypixels\Shopr\Tests\TestCase;
 
 class AddDiscountValidationHttpTest extends TestCase
 {

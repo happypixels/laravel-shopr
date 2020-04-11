@@ -4,11 +4,11 @@ namespace Happypixels\Shopr\Tests\Unit\Cart;
 
 use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Cart\CartItem;
-use Happypixels\Shopr\Tests\TestCase;
-use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Models\DiscountCoupon;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Event;
 
 class AddCartItemUnitTest extends TestCase
 {

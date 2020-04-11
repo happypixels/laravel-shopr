@@ -10,5 +10,5 @@ interface Shoppable
 
     public function getPrice();
 
-    public function isDiscount() : bool;
+    public function isDiscount(): bool;
 }

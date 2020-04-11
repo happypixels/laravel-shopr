@@ -2,10 +2,10 @@
 
 namespace Happypixels\Shopr\Cart;
 
-use Illuminate\Support\Collection;
+use Happypixels\Shopr\Contracts\Shoppable;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Money\Formatter;
-use Happypixels\Shopr\Contracts\Shoppable;
+use Illuminate\Support\Collection;
 
 abstract class Cart
 {
@@ -28,7 +28,7 @@ abstract class Cart
      *
      * @return Collection
      */
-    public function getAllItems() : Collection
+    public function getAllItems(): Collection
     {
         return collect($this->get());
     }
@@ -38,7 +38,7 @@ abstract class Cart
      *
      * @return Collection
      */
-    public function items() : Collection
+    public function items(): Collection
     {
         return $this->getAllItems()->filter(function ($item) {
             return $item->shoppable->isDiscount() === false;
@@ -50,7 +50,7 @@ abstract class Cart
      *
      * @return Collection
      */
-    public function discounts() : Collection
+    public function discounts(): Collection
     {
         return $this->getAllItems()->filter(function ($item) {
             return $item->shoppable->isDiscount() === true;
@@ -62,7 +62,7 @@ abstract class Cart
      *
      * @return Collection
      */
-    public function relativeDiscounts() : Collection
+    public function relativeDiscounts(): Collection
     {
         return $this->discounts()->filter(function ($discount) {
             return ! $discount->shoppable->is_fixed;
@@ -203,7 +203,7 @@ abstract class Cart
      * @param  string  $code
      * @return bool
      */
-    public function hasDiscount($code = null) : bool
+    public function hasDiscount($code = null): bool
     {
         foreach ($this->discounts() as $item) {
             if (! $code) {
@@ -290,7 +290,7 @@ abstract class Cart
      * @param float|null $price
      * @return Happypixels\Shopr\Cart\CartItem
      */
-    public function addItem($shoppableType, $shoppableId, $quantity = 1, $options = [], $subItems = [], $price = null) : CartItem
+    public function addItem($shoppableType, $shoppableId, $quantity = 1, $options = [], $subItems = [], $price = null): CartItem
     {
         $quantity = (is_numeric($quantity) && $quantity > 0) ? $quantity : 1;
 

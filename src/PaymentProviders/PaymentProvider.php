@@ -2,12 +2,12 @@
 
 namespace Happypixels\Shopr\PaymentProviders;
 
-use Omnipay\Omnipay;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use Happypixels\Shopr\Cart\Cart;
-use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Exceptions\PaymentFailedException;
+use Happypixels\Shopr\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Omnipay\Omnipay;
 
 abstract class PaymentProvider
 {
@@ -35,7 +35,7 @@ abstract class PaymentProvider
      *
      * @return array
      */
-    abstract public function getPaymentConfirmationData() : array;
+    abstract public function getPaymentConfirmationData(): array;
 
     /**
      * Makes the purchase and returns the results if successful. Throws exception if unsuccessful.

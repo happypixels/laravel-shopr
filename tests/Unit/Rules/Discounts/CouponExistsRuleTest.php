@@ -2,9 +2,9 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Rules\Discounts\CouponExists;
+use Happypixels\Shopr\Tests\TestCase;
 
 class CouponExistsRuleTest extends TestCase
 {

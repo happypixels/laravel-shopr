@@ -2,10 +2,10 @@
 
 namespace Happypixels\Shopr\Tests;
 
-use Mockery;
-use Illuminate\Database\Schema\Blueprint;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Illuminate\Database\Schema\Blueprint;
+use Mockery;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {

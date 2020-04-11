@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Controllers\Web;
 
-use Illuminate\Routing\Controller;
 use Happypixels\Shopr\Models\Order;
+use Illuminate\Routing\Controller;
 
 class OrderController extends Controller
 {

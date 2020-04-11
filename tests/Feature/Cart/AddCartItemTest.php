@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Cart\Cart;
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Models\DiscountCoupon;
+use Happypixels\Shopr\Tests\TestCase;
 
 class AddCartItemTest extends TestCase
 {
@@ -35,9 +35,9 @@ class AddCartItemTest extends TestCase
     public function it_throws_404_error_if_shoppable_is_not_found()
     {
         $this->json('POST', 'api/shopr/cart/items', [
-                'shoppable_id'   => 2,
-                'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
-            ])
+            'shoppable_id'   => 2,
+            'shoppable_type' => 'Happypixels\Shopr\Tests\Support\Models\TestShoppable',
+        ])
             ->assertStatus(404);
     }
 
