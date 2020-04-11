@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
 use Happypixels\Shopr\Cart\Cart;
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
 
 class CartSubItemUnitTest extends TestCase
 {

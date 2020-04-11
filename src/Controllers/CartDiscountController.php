@@ -2,11 +2,11 @@
 
 namespace Happypixels\Shopr\Controllers;
 
-use Illuminate\Http\Request;
 use Happypixels\Shopr\Cart\Cart;
-use Illuminate\Routing\Controller;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class CartDiscountController extends Controller
 {

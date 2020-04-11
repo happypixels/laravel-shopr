@@ -2,10 +2,10 @@
 
 namespace Happypixels\Shopr\Controllers;
 
-use Illuminate\Http\Request;
 use Happypixels\Shopr\Cart\Cart;
-use Illuminate\Routing\Controller;
 use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class CheckoutController extends Controller
 {

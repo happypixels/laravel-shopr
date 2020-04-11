@@ -3,12 +3,12 @@
 namespace Happypixels\Shopr\Tests\Feature\Mails;
 
 use Happypixels\Shopr\Cart\Cart;
-use Illuminate\Support\Facades\Mail;
-use Happypixels\Shopr\Tests\TestCase;
-use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Mails\OrderCreatedAdmins;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Mail;
 
 class OrderCreatedAdminsMailTest extends TestCase
 {

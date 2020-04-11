@@ -2,9 +2,9 @@
 
 namespace Happypixels\Shopr\Mails;
 
+use Happypixels\Shopr\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Happypixels\Shopr\Models\Order;
 use Illuminate\Queue\SerializesModels;
 
 class OrderCreatedCustomer extends Mailable

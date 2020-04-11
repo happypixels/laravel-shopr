@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Money;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Money\Formatter;
+use Happypixels\Shopr\Tests\TestCase;
 
 class FormatterUnitTest extends TestCase
 {

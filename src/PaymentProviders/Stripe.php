@@ -28,7 +28,7 @@ class Stripe extends PaymentProvider
      *
      * @return array
      */
-    public function getPaymentConfirmationData() : array
+    public function getPaymentConfirmationData(): array
     {
         return [
             'paymentIntentReference' => $this->input['payment_intent'],

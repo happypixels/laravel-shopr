@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Happypixels\Shopr\Contracts\Shoppable as ShoppableContract;
+use Illuminate\Database\Eloquent\Model;
 
 class Shoppable extends Model implements ShoppableContract
 {
@@ -42,7 +42,7 @@ class Shoppable extends Model implements ShoppableContract
      *
      * @return bool
      */
-    public function isDiscount() : bool
+    public function isDiscount(): bool
     {
         return false;
     }
