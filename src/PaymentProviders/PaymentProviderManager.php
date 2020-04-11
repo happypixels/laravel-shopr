@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\PaymentProviders;
 
-use Illuminate\Http\Request;
 use Happypixels\Shopr\Exceptions\InvalidGatewayException;
+use Illuminate\Http\Request;
 
 class PaymentProviderManager
 {

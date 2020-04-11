@@ -2,9 +2,9 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
-use Happypixels\Shopr\Tests\TestCase;
 use Happypixels\Shopr\Rules\Discounts\OnlyOneCouponPerOrder;
 use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
+use Happypixels\Shopr\Tests\TestCase;
 
 class OnlyOneCouponPerOrderRuleTest extends TestCase
 {

@@ -2,14 +2,14 @@
 
 namespace Happypixels\Shopr\Tests\REST\Checkout;
 
-use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Tests\TestCase;
-use Illuminate\Support\Facades\Event;
-use Happypixels\Shopr\PaymentProviders\Stripe;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Happypixels\Shopr\Exceptions\PaymentFailedException;
+use Happypixels\Shopr\Models\Order;
+use Happypixels\Shopr\PaymentProviders\Stripe;
 use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
 use Happypixels\Shopr\Tests\Support\Traits\InteractsWithPaymentProviders;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 
 class ChargeHttpTest extends TestCase
 {

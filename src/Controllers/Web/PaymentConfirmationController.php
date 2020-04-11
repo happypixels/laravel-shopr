@@ -2,11 +2,11 @@
 
 namespace Happypixels\Shopr\Controllers\Web;
 
+use Happypixels\Shopr\Exceptions\PaymentFailedException;
+use Happypixels\Shopr\Models\Order;
+use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Exceptions\PaymentFailedException;
-use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
 
 class PaymentConfirmationController extends Controller
 {

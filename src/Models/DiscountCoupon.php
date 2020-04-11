@@ -83,7 +83,7 @@ class DiscountCoupon extends Shoppable
      *
      * @return bool
      */
-    public function isDiscount() : bool
+    public function isDiscount(): bool
     {
         return true;
     }

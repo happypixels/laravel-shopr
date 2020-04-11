@@ -3,12 +3,12 @@
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
 use Happypixels\Shopr\Cart\Cart;
-use Happypixels\Shopr\Models\Order;
-use Happypixels\Shopr\Tests\TestCase;
-use Happypixels\Shopr\Models\OrderItem;
 use Happypixels\Shopr\Models\DiscountCoupon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Happypixels\Shopr\Models\Order;
+use Happypixels\Shopr\Models\OrderItem;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ConvertCartToOrderUnitTest extends TestCase
 {

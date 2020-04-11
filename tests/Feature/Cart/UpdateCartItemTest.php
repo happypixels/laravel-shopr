@@ -3,10 +3,10 @@
 namespace Happypixels\Shopr\Tests\Feature\Cart;
 
 use Happypixels\Shopr\Cart\Cart;
-use Happypixels\Shopr\Tests\TestCase;
-use Illuminate\Support\Facades\Event;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
+use Happypixels\Shopr\Tests\TestCase;
+use Illuminate\Support\Facades\Event;
 
 class UpdateCartItemTest extends TestCase
 {

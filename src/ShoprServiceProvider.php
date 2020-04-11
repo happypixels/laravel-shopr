@@ -3,13 +3,13 @@
 namespace Happypixels\Shopr;
 
 use Happypixels\Shopr\Cart\Cart;
-use Happypixels\Shopr\Models\Order;
-use Illuminate\Support\Facades\Event;
-use Happypixels\Shopr\Money\Formatter;
-use Happypixels\Shopr\Models\OrderItem;
-use Illuminate\Support\ServiceProvider;
-use Happypixels\Shopr\Observers\OrderObserver;
 use Happypixels\Shopr\Cart\Drivers\SessionCart;
+use Happypixels\Shopr\Models\Order;
+use Happypixels\Shopr\Models\OrderItem;
+use Happypixels\Shopr\Money\Formatter;
+use Happypixels\Shopr\Observers\OrderObserver;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
 
 class ShoprServiceProvider extends ServiceProvider
 {

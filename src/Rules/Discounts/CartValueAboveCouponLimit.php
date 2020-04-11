@@ -3,8 +3,8 @@
 namespace Happypixels\Shopr\Rules\Discounts;
 
 use Happypixels\Shopr\Cart\Cart;
-use Illuminate\Contracts\Validation\Rule;
 use Happypixels\Shopr\Models\DiscountCoupon;
+use Illuminate\Contracts\Validation\Rule;
 
 class CartValueAboveCouponLimit implements Rule
 {
