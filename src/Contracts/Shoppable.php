@@ -12,5 +12,5 @@ interface Shoppable
 
     public function isDiscount(): bool;
 
-    public function shouldBeIncludedInItemList() : bool;
+    public function shouldBeIncludedInItemList(): bool;
 }

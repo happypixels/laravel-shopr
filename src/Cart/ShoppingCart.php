@@ -199,7 +199,7 @@ class ShoppingCart implements Arrayable
      *
      * @return Collection
      */
-    public function all() : Collection
+    public function all(): Collection
     {
         return collect($this->driver->get());
     }
@@ -209,7 +209,7 @@ class ShoppingCart implements Arrayable
      *
      * @return Collection
      */
-    public function items() : Collection
+    public function items(): Collection
     {
         return $this->all()->filter(function ($item) {
             return $item->shoppable->shouldBeIncludedInItemList();
@@ -221,7 +221,7 @@ class ShoppingCart implements Arrayable
      *
      * @return Collection
      */
-    public function discounts() : Collection
+    public function discounts(): Collection
     {
         return $this->all()->filter(function ($item) {
             return $item->shoppable->isDiscount();
@@ -330,7 +330,7 @@ class ShoppingCart implements Arrayable
      *
      * @return int
      */
-    public function count() : int
+    public function count(): int
     {
         return $this->items()->sum(function ($item) {
             return $item->quantity;
@@ -342,7 +342,7 @@ class ShoppingCart implements Arrayable
      *
      * @return bool
      */
-    public function isEmpty() : bool
+    public function isEmpty(): bool
     {
         return $this->count() === 0;
     }
