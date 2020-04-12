@@ -8,7 +8,7 @@ class DefaultFormatterTest extends TestCase
 {
     protected $formatter;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -1,13 +1,14 @@
 <?php
 
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
 $factory->define(Happypixels\Shopr\Models\Order::class, function (Faker $faker) {
     return [
         'user_id' => null,
         'payment_status' => 'pending',
         'delivery_status' => 'pending',
-        'token' => str_random(10),
+        'token' => Str::random(10),
         'payment_gateway' => 'Stripe',
         'transaction_id' => null,
         'transaction_reference' => null,

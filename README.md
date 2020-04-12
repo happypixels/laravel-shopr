@@ -1,7 +1,7 @@
 # laravel-shopr
 <p>
 <a href="https://github.com/happypixels/laravel-shopr/releases"><img src="https://poser.pugx.org/happypixels/laravel-shopr/v/stable.svg"></a>
-<a href="https://github.com/happypixels/laravel-shopr"><img src="https://travis-ci.com/happypixels/laravel-shopr.svg?branch=master" /></a>
+<a href="https://github.com/happypixels/laravel-shopr"><img src="https://github.com/happypixels/laravel-shopr/workflows/Tests/badge.svg"></a>
 <a href="https://github.com/happypixels/laravel-shopr"><img src="https://styleci.io/repos/148448571/shield" /></a>
 <a href="https://github.com/happypixels/laravel-shopr"><img src="https://poser.pugx.org/happypixels/laravel-shopr/license.svg"></a>
 </p>

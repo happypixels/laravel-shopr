@@ -4,7 +4,6 @@ namespace Happypixels\Shopr\Tests;
 
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Illuminate\Database\Schema\Blueprint;
-use Mockery;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -14,7 +13,7 @@ class TestCase extends Orchestra
         return ['Happypixels\Shopr\ShoprServiceProvider'];
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -30,6 +29,10 @@ class TestCase extends Orchestra
      */
     protected function setUpDatabase($app)
     {
+        $app['db']->connection()->getSchemaBuilder()->create('users', function (Blueprint $table) {
+            $table->increments('id');
+        });
+
         $app['db']->connection()->getSchemaBuilder()->create('test_shoppables', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
@@ -48,7 +51,7 @@ class TestCase extends Orchestra
 
     public function mockWith($abstract, $class)
     {
-        $mock = Mockery::mock($class);
+        $mock = $this->mock($class);
         $this->app->instance($abstract, $mock);
 
         return $mock;
