@@ -28,7 +28,10 @@ class ShoprServiceProvider extends ServiceProvider
         $this->publishMigration('CreateOrderTables', 'create_order_tables');
         $this->publishMigration('CreateDiscountCouponsTable', 'create_discount_coupons_table');
 
-        $this->loadRoutesFrom(__DIR__.'/Routes/api.php');
+        if (config('shopr.rest_api.enabled')) {
+            $this->loadRoutesFrom(__DIR__.'/Routes/api.php');
+        }
+
         $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
 
         $this->loadViewsFrom(__DIR__.'/Views', 'shopr');

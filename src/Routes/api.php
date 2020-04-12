@@ -1,12 +1,12 @@
 <?php
 
-$middleware = [
-    Happypixels\Shopr\Middleware\EncryptCookies::class,
-    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-    \Illuminate\Session\Middleware\StartSession::class,
-];
+use Happypixels\Shopr\Shopr;
 
-Route::group(['prefix' => 'api/shopr', 'namespace' => 'Happypixels\Shopr\Controllers', 'middleware' => $middleware], function () {
+Route::group([
+    'prefix' => config('shopr.rest_api.prefix'),
+    'namespace' => 'Happypixels\Shopr\Controllers',
+    'middleware' => Shopr::getApiMiddleware(),
+], function () {
     Route::get('cart', 'CartController@index');
     Route::get('cart/count', 'CartController@count');
     Route::delete('cart', 'CartController@destroy');

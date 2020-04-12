@@ -1,5 +1,6 @@
 <?php
 
+
 return [
     /*
      * View templates for the necessary default views.
@@ -80,6 +81,17 @@ return [
         'stripe' => [
             'publishable_key' => env('STRIPE_PUBLISHABLE_KEY', ''),
             'api_key' => env('STRIPE_SECRET_KEY', ''),
+        ],
+    ],
+
+    /**
+     * Configuration options for the optional REST API.
+     */
+    'rest_api' => [
+        'enabled' => true,
+        'prefix' => 'api/shopr',
+        'middleware' => [
+            // YourCustomMiddleware::class
         ],
     ],
 ];
