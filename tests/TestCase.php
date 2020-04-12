@@ -4,7 +4,6 @@ namespace Happypixels\Shopr\Tests;
 
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Illuminate\Database\Schema\Blueprint;
-use Mockery;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -52,7 +51,7 @@ class TestCase extends Orchestra
 
     public function mockWith($abstract, $class)
     {
-        $mock = Mockery::mock($class);
+        $mock = $this->mock($class);
         $this->app->instance($abstract, $mock);
 
         return $mock;

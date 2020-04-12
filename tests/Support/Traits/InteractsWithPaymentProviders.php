@@ -2,13 +2,11 @@
 
 namespace Happypixels\Shopr\Tests\Support\Traits;
 
-use Mockery;
-
 trait InteractsWithPaymentProviders
 {
     public function mockPaymentProvider($class)
     {
-        $mock = Mockery::mock($class);
+        $mock = $this->mock($class);
         $this->app->instance($class, $mock);
 
         // Default expectations.
