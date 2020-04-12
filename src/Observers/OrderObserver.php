@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Observers;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Mails\OrderCreatedAdmins;
 use Happypixels\Shopr\Mails\OrderCreatedCustomer;
 use Happypixels\Shopr\Models\Order;
@@ -18,7 +18,7 @@ class OrderObserver
      */
     public function confirmed(Order $order)
     {
-        app(Cart::class)->clear();
+        Cart::clear();
 
         if (config('shopr.mail.customer.order_placed.enabled') !== false && $order->email) {
             Mail::to($order->email)->queue(new OrderCreatedCustomer($order));

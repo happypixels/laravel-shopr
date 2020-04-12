@@ -48,6 +48,11 @@ class Order extends Model
         return app(Formatter::class)->format($this->tax);
     }
 
+    public function parentItems()
+    {
+        return $this->hasMany(app(OrderItem::class))->whereNull('parent_id');
+    }
+
     public function items()
     {
         return $this->hasMany(app(OrderItem::class));

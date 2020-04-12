@@ -2,10 +2,8 @@
 
 namespace Happypixels\Shopr\PaymentProviders;
 
-use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Exceptions\PaymentFailedException;
 use Happypixels\Shopr\Models\Order;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Omnipay\Omnipay;
 
@@ -13,13 +11,11 @@ abstract class PaymentProvider
 {
     protected $gateway;
     protected $config;
-    protected $cart;
     protected $input;
 
     public function __construct()
     {
         $this->config = config('shopr.gateways.'.$this->getConfigKey());
-        $this->cart = app(Cart::class);
     }
 
     /**
@@ -104,12 +100,12 @@ abstract class PaymentProvider
     /**
      * Makes the input data available throughout the checkout flow.
      *
-     * @param  Request $request
+     * @param  array $data
      * @return Happypixels\Shopr\PaymentProviders\PaymentProvider
      */
-    public function handleRequest(Request $request)
+    public function handleRequest($data)
     {
-        $this->input = $request->all();
+        $this->input = $data;
 
         return $this;
     }

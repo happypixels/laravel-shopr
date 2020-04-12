@@ -2,6 +2,7 @@
 
 namespace Happypixels\Shopr\PaymentProviders;
 
+use Happypixels\Shopr\Facades\Cart;
 use Omnipay\Omnipay;
 
 class Stripe extends PaymentProvider
@@ -14,7 +15,7 @@ class Stripe extends PaymentProvider
     public function purchase()
     {
         return $this->gateway->purchase([
-            'amount' => $this->cart->total(),
+            'amount' => Cart::total(),
             'currency' => config('shopr.currency'),
             'paymentMethod' => $this->input['payment_method_id'],
             'returnUrl' => route('shopr.payments.confirm', ['gateway' => 'Stripe']),

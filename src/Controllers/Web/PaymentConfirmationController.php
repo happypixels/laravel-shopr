@@ -11,7 +11,7 @@ use Illuminate\Routing\Controller;
 class PaymentConfirmationController extends Controller
 {
     /**
-     * Attempts to confirm a payment. Returns an error view if unsuccessful and reidrects to
+     * Attempts to confirm a payment. Returns an error view if unsuccessful and redirects to
      * the order confirmation view otherwise.
      *
      * @param Request $request
@@ -22,7 +22,7 @@ class PaymentConfirmationController extends Controller
         $request->validate(['gateway' => 'required']);
 
         try {
-            $response = PaymentProviderManager::make($request)->confirmPayment();
+            $response = PaymentProviderManager::make($request->gateway, $request->all())->confirmPayment();
         } catch (PaymentFailedException $e) {
             optional(
                 Order::where('transaction_reference', $request->payment_intent)->first()

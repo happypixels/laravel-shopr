@@ -4,14 +4,18 @@ namespace Happypixels\Shopr\Cart;
 
 use Happypixels\Shopr\Contracts\CartDriver;
 use Happypixels\Shopr\Contracts\Shoppable;
+use Happypixels\Shopr\Exceptions\CartEmptyException;
 use Happypixels\Shopr\Exceptions\CartItemNotFoundException;
 use Happypixels\Shopr\Exceptions\DiscountValidationException;
+use Happypixels\Shopr\Exceptions\InvalidCheckoutDataException;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Money\Formatter;
+use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Validator;
 
 class ShoppingCart implements Arrayable
 {
@@ -427,13 +431,25 @@ class ShoppingCart implements Arrayable
      * @param  array  $data
      * @return \Happypixels\Shopr\Models\Order|false
      */
-    public function checkoutUsing($gateway, $data = [])
+    public function checkout($gateway, $data = [])
     {
         if ($this->isEmpty()) {
-            return false;
+            throw new CartEmptyException;
         }
 
-        // Move all of the payment logics to here.
+        $validator = Validator::make($data, [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            throw new InvalidCheckoutDataException;
+        }
+
+        $response = PaymentProviderManager::make($gateway, $data)->payForCart();
+
+        $data = array_merge($data, $response);
 
         $order = app(Order::class)->create([
             'user_id' => auth()->id(),
@@ -466,8 +482,8 @@ class ShoppingCart implements Arrayable
                 'options' => $item->options,
             ]);
 
-            if ($item->subItems->count() > 0) {
-                foreach ($item->subItems as $subItem) {
+            if ($item->sub_items->count() > 0) {
+                foreach ($item->sub_items as $subItem) {
                     $parent->children()->create([
                         'order_id' => $order->id,
                         'shoppable_type' => get_class($subItem->shoppable),
@@ -481,6 +497,13 @@ class ShoppingCart implements Arrayable
         }
 
         $this->clear();
+
+        event('shopr.orders.created', $order);
+
+        // If the payment response is a redirect, return it rather than the order.
+        if (! $response['success']) {
+            return $response;
+        }
 
         return $order;
     }

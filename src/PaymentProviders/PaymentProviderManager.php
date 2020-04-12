@@ -3,24 +3,24 @@
 namespace Happypixels\Shopr\PaymentProviders;
 
 use Happypixels\Shopr\Exceptions\InvalidGatewayException;
-use Illuminate\Http\Request;
 
 class PaymentProviderManager
 {
     /**
      * Initializes and returns the expected payment provider class.
      *
-     * @param  Request $request
+     * @param  string $provider
+     * @param  array $data
      * @return PaymentProvider
      */
-    public static function make(Request $request)
+    public static function make($provider, $data)
     {
-        $provider = 'Happypixels\\Shopr\\PaymentProviders\\'.ucfirst($request->gateway);
+        $provider = 'Happypixels\\Shopr\\PaymentProviders\\'.ucfirst($provider);
 
         if (! class_exists($provider)) {
             throw new InvalidGatewayException;
         }
 
-        return app($provider)->initialize()->handleRequest($request);
+        return app($provider)->initialize()->handleRequest($data);
     }
 }
