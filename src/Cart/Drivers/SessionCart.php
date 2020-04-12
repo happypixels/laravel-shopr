@@ -2,10 +2,10 @@
 
 namespace Happypixels\Shopr\Cart\Drivers;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Contracts\CartDriver;
 use Illuminate\Support\Facades\Session;
 
-class SessionCart extends Cart
+class SessionCart implements CartDriver
 {
     /**
      * The key under which the cart is persisted.
@@ -29,7 +29,7 @@ class SessionCart extends Cart
      *
      * @return void
      */
-    public function persist($data)
+    public function store($data)
     {
         Session::put($this->cartKey, serialize($data));
     }

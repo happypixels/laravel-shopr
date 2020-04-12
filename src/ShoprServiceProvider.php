@@ -2,8 +2,9 @@
 
 namespace Happypixels\Shopr;
 
-use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Cart\Drivers\SessionCart;
+use Happypixels\Shopr\Cart\ShoppingCart;
+use Happypixels\Shopr\Contracts\CartDriver;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Models\OrderItem;
 use Happypixels\Shopr\Money\Formatter;
@@ -62,7 +63,8 @@ class ShoprServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(Cart::class, SessionCart::class);
+        $this->app->singleton(CartDriver::class, SessionCart::class);
+        $this->app->singleton('shopr.cart', ShoppingCart::class);
 
         if (config('shopr.models.Order')) {
             $this->app->singleton(Order::class, config('shopr.models.Order'));
