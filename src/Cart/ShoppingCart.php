@@ -108,7 +108,7 @@ class ShoppingCart implements Arrayable
         }
 
         // If no identical items are found, push the new one to the list of items.
-        if (!$event) {
+        if (! $event) {
             $items->push($item);
 
             $event = 'added';
@@ -371,7 +371,7 @@ class ShoppingCart implements Arrayable
             $id = $id->id;
         }
 
-        if (!$this->find($id)) {
+        if (! $this->find($id)) {
             return false;
         }
 
