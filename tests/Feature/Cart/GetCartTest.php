@@ -17,6 +17,7 @@ class GetCartTest extends TestCase
 
         $this->item = Cart::add(TestShoppable::first());
     }
+
     /** @test */
     public function it_returns_the_expected_structure()
     {
