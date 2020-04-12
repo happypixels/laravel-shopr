@@ -2,42 +2,37 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Cart;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Cart\CartItem;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
 
 class CartItemUnitTest extends TestCase
 {
     /** @test */
-    public function it_holds_the_total_amount()
+    public function it_holds_the_price_and_total()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), $model->id, 3);
+        $item = new CartItem(TestShoppable::first());
+        $item->setQuantity(2);
 
-        $item = $cart->items()->first();
-        $this->assertEquals($model->price * 3, $item->total);
+        $this->assertEquals(1000, $item->total_price);
+        $this->assertEquals('$1,000.00', $item->total_price_formatted);
+        $this->assertEquals(500, $item->price);
+        $this->assertEquals('$500.00', $item->price_formatted);
     }
 
     /** @test */
-    public function the_total_amount_includes_sub_items()
+    public function the_price_and_total_amount_includes_sub_items()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), $model->id, 2, [], [
-            [
-                'shoppable_type' => get_class($model),
-                'shoppable_id'   => 1,
-                'price'          => 50,
-            ],
-            [
-                'shoppable_type' => get_class($model),
-                'shoppable_id'   => 1,
-            ],
+        $item = new CartItem(TestShoppable::first());
+        $item->setQuantity(2);
+        $item->setSubItems([
+            ['shoppable' => TestShoppable::first()],
+            ['shoppable' => TestShoppable::first(), 'price' => 50],
         ]);
 
-        // Each sub item gets the parent quantity, so 2. Which means we have 6 models.
-        // 2 of these cost 50, the rest cost 500. So 2000 + 100 = 2100.
-        $this->assertEquals(2100, $cart->items()->first()->total);
+        $this->assertEquals(1050, $item->price);
+        $this->assertEquals('$1,050.00', $item->price_formatted);
+        $this->assertEquals(2100, $item->total_price);
+        $this->assertEquals('$2,100.00', $item->total_price_formatted);
     }
 }

@@ -459,22 +459,22 @@ class ShoppingCart implements Arrayable
         foreach ($this->all() as $item) {
             $parent = $order->items()->create([
                 'shoppable_type' => get_class($item->shoppable),
-                'shoppable_id'   => $item->shoppable->id,
-                'quantity'       => $item->quantity,
-                'title'          => $item->shoppable->getTitle(),
-                'price'          => $item->price,
-                'options'        => $item->options,
+                'shoppable_id' => $item->shoppable->id,
+                'quantity' => $item->quantity,
+                'title' => $item->shoppable->getTitle(),
+                'price' => $item->price,
+                'options' => $item->options,
             ]);
 
             if ($item->subItems->count() > 0) {
                 foreach ($item->subItems as $subItem) {
                     $parent->children()->create([
-                        'order_id'       => $order->id,
+                        'order_id' => $order->id,
                         'shoppable_type' => get_class($subItem->shoppable),
-                        'shoppable_id'   => $subItem->shoppable->id,
-                        'title'          => $subItem->shoppable->getTitle(),
-                        'price'          => $subItem->price,
-                        'options'        => $subItem->options,
+                        'shoppable_id' => $subItem->shoppable->id,
+                        'title' => $subItem->shoppable->getTitle(),
+                        'price' => $subItem->price,
+                        'options' => $subItem->options,
                     ]);
                 }
             }
