@@ -79,6 +79,7 @@ class AddCartItemTest extends TestCase
 
         $subItems = Cart::items()->first()->sub_items;
         $this->assertEquals(2, $subItems->count());
+        $this->assertTrue($subItems->first() instanceof CartItem);
         $this->assertEquals(123, $subItems->first()->price);
         $this->assertEquals(['color' => 'Green'], $subItems->last()->options);
         $this->assertEquals(500, $subItems->last()->price);
