@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     /*
      * View templates for the necessary default views.
