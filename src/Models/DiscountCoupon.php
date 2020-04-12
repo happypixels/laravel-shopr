@@ -93,7 +93,7 @@ class DiscountCoupon extends Shoppable
      *
      * @return bool
      */
-    public function shouldBeIncludedInItemList() : bool
+    public function shouldBeIncludedInItemList(): bool
     {
         return false;
     }

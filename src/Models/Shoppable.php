@@ -52,7 +52,7 @@ class Shoppable extends Model implements ShoppableContract
      *
      * @return bool
      */
-    public function shouldBeIncludedInItemList() : bool
+    public function shouldBeIncludedInItemList(): bool
     {
         return true;
     }
