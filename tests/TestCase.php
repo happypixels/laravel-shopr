@@ -14,7 +14,7 @@ class TestCase extends Orchestra
         return ['Happypixels\Shopr\ShoprServiceProvider'];
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
