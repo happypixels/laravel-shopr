@@ -122,7 +122,7 @@ class CheckoutTest extends TestCase
         $this->assertEquals('Stripe', $order->payment_gateway);
         $this->assertEquals('the-reference', $order->transaction_reference);
         $this->assertEquals('the-id', $order->transaction_id);
-        $this->assertEquals('paid', $order->payment_status);
+        $this->assertEquals('pending_confirmation', $order->payment_status);
         $this->assertEquals($cartSummary['total'], $order->total);
         $this->assertEquals($cartSummary['sub_total'], $order->sub_total);
         $this->assertEquals($cartSummary['tax_total'], $order->tax);

@@ -11,7 +11,7 @@ trait InteractsWithPaymentProviders
         'success' => true,
         'transaction_reference' => 'the-reference',
         'transaction_id' => 'the-id',
-        'payment_status' => 'paid',
+        'payment_status' => 'pending_confirmation',
     ];
 
     protected $redirectPaymentResponse = [

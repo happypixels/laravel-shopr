@@ -3,7 +3,7 @@
 namespace Happypixels\Shopr\Middleware;
 
 use Closure;
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 
 class CartMustHaveItems
 {
@@ -17,9 +17,7 @@ class CartMustHaveItems
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        $cart = app(Cart::class);
-
-        if ($cart->isEmpty()) {
+        if (Cart::isEmpty()) {
             return redirect('/');
         }
 

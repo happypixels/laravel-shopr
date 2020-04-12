@@ -2,8 +2,8 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Mails;
 
-use Happypixels\Shopr\Cart\Cart;
 use Happypixels\Shopr\Mails\OrderCreatedCustomer;
+use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,20 +13,32 @@ class OrderCreatedCustomerMailTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->order = factory(Order::class)->create(['email' => 'test@example.org']);
+        $this->order->items()->create([
+            'shoppable_type' => TestShoppable::class,
+            'shoppable_id' => TestShoppable::first()->id,
+            'title' => 'Test product',
+        ]);
+    }
+
     /** @test */
     public function it_sends_email_to_customer_when_order_is_confirmed()
     {
         Mail::fake();
 
-        $order = $this->createTestOrder();
+        event('shopr.orders.confirmed', $this->order);
 
-        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) use ($order) {
+        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) {
             $message->build();
 
             return
-                $message->order->id === $order->id &&
+                $message->order->id === $this->order->id &&
                 $message->subject === 'Thank you for your order!' &&
-                $message->hasTo($order->email) &&
+                $message->hasTo($this->order->email) &&
                 $message->view === 'shopr::mails.defaults.order-created-customer';
         });
     }
@@ -38,7 +50,7 @@ class OrderCreatedCustomerMailTest extends TestCase
 
         Mail::fake();
 
-        $order = $this->createTestOrder();
+        event('shopr.orders.confirmed', $this->order);
 
         Mail::assertNotQueued(OrderCreatedCustomer::class);
     }
@@ -50,9 +62,9 @@ class OrderCreatedCustomerMailTest extends TestCase
 
         Mail::fake();
 
-        $order = $this->createTestOrder();
+        event('shopr.orders.confirmed', $this->order);
 
-        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) use ($order) {
+        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) {
             $message->build();
 
             return $message->view === 'test-view';
@@ -66,9 +78,9 @@ class OrderCreatedCustomerMailTest extends TestCase
 
         Mail::fake();
 
-        $order = $this->createTestOrder();
+        event('shopr.orders.confirmed', $this->order);
 
-        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) use ($order) {
+        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) {
             $message->build();
 
             return $message->subject === 'Test subject';
@@ -82,41 +94,16 @@ class OrderCreatedCustomerMailTest extends TestCase
 
         Mail::fake();
 
-        $order = $this->createTestOrder();
+        event('shopr.orders.confirmed', $this->order);
 
-        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) use ($order) {
+        Mail::assertQueued(OrderCreatedCustomer::class, function ($message) {
             $message->build();
 
-            $shoppable = $order->items->first()->shoppable;
+            $shoppable = $this->order->items->first()->shoppable;
 
             return
                 $shoppable !== null &&
                 $shoppable->title === 'Test product';
         });
-    }
-
-    private function createTestOrder()
-    {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), 1, 1);
-
-        $data = [
-            'payment_status' => 'paid',
-            'email'      => 'test@example.com',
-            'first_name' => 'Testy',
-            'last_name'  => 'McTestface',
-            'phone'      => '111222333',
-            'address'    => 'Street 1',
-            'zipcode'    => '12312',
-            'city'       => 'New York',
-            'country'    => 'US',
-        ];
-
-        $order = $cart->convertToOrder('stripe', $data);
-
-        event('shopr.orders.created', $order);
-
-        return $order;
     }
 }

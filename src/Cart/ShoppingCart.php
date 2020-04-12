@@ -14,7 +14,6 @@ use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Validator;
 
 class ShoppingCart implements Arrayable

@@ -59,7 +59,7 @@ abstract class PaymentProvider
             'success' => true,
             'transaction_reference' => $response->getTransactionReference(),
             'transaction_id' => $response->getTransactionId(),
-            'payment_status' => 'paid',
+            'payment_status' => 'pending_confirmation',
         ];
     }
 

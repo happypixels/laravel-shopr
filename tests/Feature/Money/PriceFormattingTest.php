@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Feature\Money;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
@@ -27,24 +27,14 @@ class PriceFormattingTest extends TestCase
     {
         config(['shopr.currency' => 'USD']);
 
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), 1, 2);
-
-        $userData = [
-            'email'      => 'test@example.com',
-            'first_name' => 'Testy',
-            'last_name'  => 'McTestface',
-            'phone'      => '111222333',
-            'address'    => 'Street 1',
-            'zipcode'    => '12312',
-            'city'       => 'New York',
-            'country'    => 'US',
-        ];
-
-        $cart->convertToOrder('stripe', $userData);
-
-        $order = Order::with('items')->first();
+        $order = factory(Order::class)->create();
+        $order->items()->create([
+            'shoppable_type' => TestShoppable::class,
+            'shoppable_id' => TestShoppable::first()->id,
+            'title' => 'Test product',
+            'price' => 500,
+            'quantity' => 2,
+        ]);
 
         $this->assertEquals('$500.00', $order->items->first()->price_formatted);
         $this->assertEquals('$1,000.00', $order->items->first()->total_formatted);
@@ -55,10 +45,9 @@ class PriceFormattingTest extends TestCase
     {
         config(['shopr.currency' => 'USD']);
 
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), 1, 1);
-        $summary = $cart->summary();
+        Cart::add(TestShoppable::first());
+
+        $summary = Cart::get();
 
         $this->assertEquals('$500.00', $summary['sub_total_formatted']);
         $this->assertEquals('$0.00', $summary['tax_total_formatted']);
@@ -70,10 +59,9 @@ class PriceFormattingTest extends TestCase
     {
         config(['shopr.currency' => 'USD']);
 
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), 1, 1);
-        $items = $cart->items();
+        Cart::add(TestShoppable::first());
+
+        $items = Cart::items();
 
         $this->assertEquals('$500.00', $items->first()->price_formatted);
     }

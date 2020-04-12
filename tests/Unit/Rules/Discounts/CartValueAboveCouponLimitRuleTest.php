@@ -2,22 +2,21 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Rules\Discounts;
 
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Rules\Discounts\CartValueAboveCouponLimit;
-use Happypixels\Shopr\Tests\Support\Traits\InteractsWithCart;
+use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
 
 class CartValueAboveCouponLimitRuleTest extends TestCase
 {
-    use InteractsWithCart;
-
     /** @test */
     public function it_fails_if_cart_value_is_below_coupon_lower_limit()
     {
         factory(DiscountCoupon::class)->create(['code' => 'TEST', 'lower_cart_limit' => 501]);
 
         // Worth 500.
-        $this->addCartItem();
+        Cart::add(TestShoppable::first());
 
         $this->assertFalse((new CartValueAboveCouponLimit)->passes('code', 'TEST'));
     }
@@ -28,7 +27,7 @@ class CartValueAboveCouponLimitRuleTest extends TestCase
         factory(DiscountCoupon::class)->create(['code' => 'TEST', 'lower_cart_limit' => 500]);
 
         // Worth 500.
-        $this->addCartItem();
+        Cart::add(TestShoppable::first());
 
         $this->assertTrue((new CartValueAboveCouponLimit)->passes('code', 'TEST'));
     }
@@ -41,7 +40,7 @@ class CartValueAboveCouponLimitRuleTest extends TestCase
         $this->assertFalse((new CartValueAboveCouponLimit)->passes('code', 'TEST'));
 
         // Worth 500.
-        $this->addCartItem();
+        Cart::add(TestShoppable::first());
 
         $this->assertTrue((new CartValueAboveCouponLimit)->passes('code', 'TEST'));
     }

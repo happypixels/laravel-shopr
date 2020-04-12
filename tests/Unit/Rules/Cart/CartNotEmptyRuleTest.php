@@ -2,7 +2,7 @@
 
 namespace Happypixels\Shopr\Tests\Unit\Rules\Cart;
 
-use Happypixels\Shopr\Cart\Cart;
+use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Rules\Cart\CartNotEmpty;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\TestCase;
@@ -18,9 +18,7 @@ class CartNotEmptyRuleTest extends TestCase
     /** @test */
     public function it_passes_if_the_cart_has_items()
     {
-        $cart = app(Cart::class);
-        $model = TestShoppable::first();
-        $cart->addItem(get_class($model), $model->id, 1);
+        Cart::add(TestShoppable::first());
 
         $this->assertTrue((new CartNotEmpty)->passes('', ''));
     }
