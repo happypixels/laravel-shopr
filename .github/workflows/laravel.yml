@@ -1,4 +1,4 @@
-name: Laravel Shopr Workflow
+name: Tests
 
 on:
   push:
