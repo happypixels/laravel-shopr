@@ -114,6 +114,10 @@ class CartItem implements Arrayable
     {
         $this->sub_items = collect();
 
+        if (! $subItems) {
+            return $this;
+        }
+
         collect($subItems)->filter(function ($subItem) {
             return $subItem['shoppable'] instanceof Shoppable;
         })->each(function ($subItem) {

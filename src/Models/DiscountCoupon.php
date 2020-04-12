@@ -87,4 +87,14 @@ class DiscountCoupon extends Shoppable
     {
         return true;
     }
+
+    /**
+     * Whether or not the item should be included in the default list of items.
+     *
+     * @return bool
+     */
+    public function shouldBeIncludedInItemList() : bool
+    {
+        return false;
+    }
 }
