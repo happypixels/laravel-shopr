@@ -30,6 +30,10 @@ class TestCase extends Orchestra
      */
     protected function setUpDatabase($app)
     {
+        $app['db']->connection()->getSchemaBuilder()->create('users', function (Blueprint $table) {
+            $table->increments('id');
+        });
+
         $app['db']->connection()->getSchemaBuilder()->create('test_shoppables', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
