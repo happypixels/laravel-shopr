@@ -21,42 +21,17 @@ class ShoprServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([
-            __DIR__.'/../config/shopr.php' => config_path('shopr.php'),
-        ], 'config');
+        $this->registerPublishables();
+        $this->registerRoutes();
 
         $this->publishMigration('CreateOrderTables', 'create_order_tables');
         $this->publishMigration('CreateDiscountCouponsTable', 'create_discount_coupons_table');
 
-        if (config('shopr.rest_api.enabled')) {
-            $this->loadRoutesFrom(__DIR__.'/Routes/api.php');
-        }
-
-        $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
-
         $this->loadViewsFrom(__DIR__.'/Views', 'shopr');
-        $this->publishes([
-            __DIR__.'/Views' => $this->app->resourcePath('views/vendor/shopr'),
-        ], 'views');
-
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'shopr');
-        $this->publishes([
-            __DIR__.'/../resources/lang' => resource_path('lang/vendor/shopr'),
-        ], 'translations');
-
         $this->mergeConfigFrom(__DIR__.'/../config/shopr.php', 'shopr');
 
-        // We manually register the events here rather than automatically registering the observer
-        // because we want to be in control of when the events are fired.
-        Event::listen('shopr.orders.created', function (Order $order) {
-            if ($order->payment_status === 'paid') {
-                event('shopr.orders.confirmed', $order);
-            }
-        });
-
-        Event::listen('shopr.orders.confirmed', function (Order $order) {
-            (new OrderObserver)->confirmed($order);
-        });
+        $this->registerEventListeners();
     }
 
     /**
@@ -83,13 +58,33 @@ class ShoprServiceProvider extends ServiceProvider
     }
 
     /**
+     * Registers the event listeners used by the package.
+     * We manually register the events here rather than automatically registering the observer
+     * because we want to be in control of when the events are fired.
+     *
+     * @return void
+     */
+    protected function registerEventListeners()
+    {
+        Event::listen('shopr.orders.created', function (Order $order) {
+            if ($order->payment_status === 'paid') {
+                event('shopr.orders.confirmed', $order);
+            }
+        });
+
+        Event::listen('shopr.orders.confirmed', function (Order $order) {
+            (new OrderObserver)->confirmed($order);
+        });
+    }
+
+    /**
      * Attempts to publish a migration file.
      *
      * @param  string $classname
      * @param  string $filename
      * @return bool
      */
-    private function publishMigration($classname, $filename)
+    protected function publishMigration($classname, $filename)
     {
         if (class_exists($classname)) {
             return false;
@@ -100,5 +95,31 @@ class ShoprServiceProvider extends ServiceProvider
         ], 'migrations');
 
         return true;
+    }
+
+    /**
+     * Registers the routes.
+     *
+     * @return void
+     */
+    protected function registerRoutes()
+    {
+        if (Shopr::restApiEnabled()) {
+            $this->loadRoutesFrom(__DIR__.'/Routes/api.php');
+        }
+
+        $this->loadRoutesFrom(__DIR__.'/Routes/web.php');
+    }
+
+    /**
+     * Registers the publishable assets.
+     *
+     * @return void
+     */
+    protected function registerPublishables()
+    {
+        $this->publishes([__DIR__.'/../config/shopr.php' => config_path('shopr.php')], 'config');
+        $this->publishes([__DIR__.'/Views' => $this->app->resourcePath('views/vendor/shopr')], 'views');
+        $this->publishes([__DIR__.'/../resources/lang' => resource_path('lang/vendor/shopr')], 'translations');
     }
 }

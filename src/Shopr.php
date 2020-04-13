@@ -39,4 +39,14 @@ class Shopr
     {
         return config('shopr.tax_mode') ?: 'gross';
     }
+
+    /**
+     * Returns true if the REST API hasn't been disabled.
+     *
+     * @return bool
+     */
+    public static function restApiEnabled()
+    {
+        return config('shopr.rest_api.enabled') !== false;
+    }
 }
