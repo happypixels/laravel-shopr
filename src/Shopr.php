@@ -31,6 +31,16 @@ class Shopr
     }
 
     /**
+     * Returns the prefix of the REST API.
+     *
+     * @return string
+     */
+    public static function getApiPrefix()
+    {
+        return config('shopr.rest_api.prefix') ?: 'api/shopr';
+    }
+
+    /**
      * Returns the configured tax mode.
      *
      * @return string

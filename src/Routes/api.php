@@ -3,7 +3,7 @@
 use Happypixels\Shopr\Shopr;
 
 Route::group([
-    'prefix' => config('shopr.rest_api.prefix'),
+    'prefix' => Shopr::getApiPrefix(),
     'namespace' => 'Happypixels\Shopr\Controllers',
     'middleware' => Shopr::getApiMiddleware(),
 ], function () {

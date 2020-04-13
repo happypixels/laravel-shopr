@@ -78,26 +78,6 @@ class ShoprServiceProvider extends ServiceProvider
     }
 
     /**
-     * Attempts to publish a migration file.
-     *
-     * @param  string $classname
-     * @param  string $filename
-     * @return bool
-     */
-    protected function publishMigration($classname, $filename)
-    {
-        if (class_exists($classname)) {
-            return false;
-        }
-
-        $this->publishes([
-            __DIR__.'/../database/migrations/'.$filename.'.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_'.$filename.'.php'),
-        ], 'migrations');
-
-        return true;
-    }
-
-    /**
      * Registers the routes.
      *
      * @return void
@@ -121,5 +101,25 @@ class ShoprServiceProvider extends ServiceProvider
         $this->publishes([__DIR__.'/../config/shopr.php' => config_path('shopr.php')], 'config');
         $this->publishes([__DIR__.'/Views' => $this->app->resourcePath('views/vendor/shopr')], 'views');
         $this->publishes([__DIR__.'/../resources/lang' => resource_path('lang/vendor/shopr')], 'translations');
+    }
+
+    /**
+     * Attempts to publish a migration file.
+     *
+     * @param  string $classname
+     * @param  string $filename
+     * @return bool
+     */
+    protected function publishMigration($classname, $filename)
+    {
+        if (class_exists($classname)) {
+            return false;
+        }
+
+        $this->publishes([
+            __DIR__.'/../database/migrations/'.$filename.'.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_'.$filename.'.php'),
+        ], 'migrations');
+
+        return true;
     }
 }
