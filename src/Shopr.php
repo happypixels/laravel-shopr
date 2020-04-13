@@ -29,4 +29,14 @@ class Shopr
 
         return $middleware;
     }
+
+    /**
+     * Returns the configured tax mode.
+     *
+     * @return string
+     */
+    public static function getTaxMode()
+    {
+        return config('shopr.tax_mode') ?: 'gross';
+    }
 }

@@ -35,6 +35,13 @@ return [
      */
     'tax' => 0,
 
+    /**
+     * Available values: gross, net.
+     * When net is selected, tax will be added to the price.
+     * When gross is selected, tax is included in the price.
+     */
+    'tax_mode' => 'gross',
+
     /*
      * Email addresses to the administrators. These will receive the
      * emails defined in the 'emails.admins' key below.

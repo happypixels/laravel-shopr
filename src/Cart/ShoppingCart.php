@@ -12,6 +12,7 @@ use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Models\Order;
 use Happypixels\Shopr\Money\Formatter;
 use Happypixels\Shopr\PaymentProviders\PaymentProviderManager;
+use Happypixels\Shopr\Shopr;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
@@ -33,6 +34,13 @@ class ShoppingCart implements Arrayable
     protected $moneyFormatter;
 
     /**
+     * The configured tax mode.
+     *
+     * @var string
+     */
+    protected $taxMode;
+
+    /**
      * Create a cart instance.
      *
      * @param CartDriver $driver
@@ -41,6 +49,7 @@ class ShoppingCart implements Arrayable
     {
         $this->driver = $driver;
         $this->moneyFormatter = $moneyFormatter;
+        $this->taxMode = Shopr::getTaxMode();
     }
 
     /**
@@ -232,15 +241,31 @@ class ShoppingCart implements Arrayable
     }
 
     /**
-     * Returns the total amount of the items in the cart.
+     * The total amount before tax has been applied.
+     *
+     * @return float
+     */
+    public function totalBeforeTax()
+    {
+        return $this->all()->sum(function ($item) {
+            return $item->total_price;
+        });
+    }
+
+    /**
+     * Returns the total price of the items in the cart.
      *
      * @return float
      */
     public function total()
     {
-        return $this->all()->sum(function ($item) {
-            return $item->total_price;
-        });
+        $total = $this->totalBeforeTax();
+
+        if ($this->taxMode === 'net') {
+            return $total + ($total * (config('shopr.tax') / 100));
+        }
+
+        return $total;
     }
 
     /**
@@ -250,7 +275,11 @@ class ShoppingCart implements Arrayable
      */
     public function subTotal()
     {
-        return $this->total() - $this->taxTotal();
+        if ($this->taxMode === 'net') {
+            return $this->totalBeforeTax();
+        }
+
+        return $this->totalBeforeTax() - $this->taxTotal();
     }
 
     /**
@@ -266,7 +295,11 @@ class ShoppingCart implements Arrayable
             return 0;
         }
 
-        return $this->total() * $tax / (100 + $tax);
+        if ($this->taxMode === 'net') {
+            return $this->totalBeforeTax() * ($tax / 100);
+        } else {
+            return $this->totalBeforeTax() * $tax / (100 + $tax);
+        }
     }
 
     /**
