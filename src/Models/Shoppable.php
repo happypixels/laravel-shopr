@@ -3,6 +3,7 @@
 namespace Happypixels\Shopr\Models;
 
 use Happypixels\Shopr\Contracts\Shoppable as ShoppableContract;
+use Happypixels\Shopr\Facades\Cart;
 use Illuminate\Database\Eloquent\Model;
 
 class Shoppable extends Model implements ShoppableContract
@@ -55,5 +56,16 @@ class Shoppable extends Model implements ShoppableContract
     public function shouldBeIncludedInItemList(): bool
     {
         return true;
+    }
+
+    /**
+     * Adds the shoppable to the cart with the given options.
+     *
+     * @param array $options
+     * @return CartItem
+     */
+    public function addToCart($options = [])
+    {
+        return Cart::add($this, $options);
     }
 }
