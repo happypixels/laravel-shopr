@@ -122,7 +122,7 @@ class CheckoutTest extends TestCase
         $this->assertEquals('Stripe', $order->payment_gateway);
         $this->assertEquals('the-reference', $order->transaction_reference);
         $this->assertEquals('the-id', $order->transaction_id);
-        $this->assertEquals('pending_confirmation', $order->payment_status);
+        $this->assertEquals('paid', $order->payment_status);
         $this->assertEquals($cartSummary['total'], $order->total);
         $this->assertEquals($cartSummary['sub_total'], $order->sub_total);
         $this->assertEquals($cartSummary['tax_total'], $order->tax);
@@ -279,6 +279,30 @@ class CheckoutTest extends TestCase
     {
         Event::fake();
 
+        $this->mockRedirectPayment();
+
+        Cart::add(TestShoppable::first());
+
+        Cart::checkout('Stripe', [
+            'email' => 'test@example.com',
+            'first_name' => 'Testy',
+            'last_name' => 'McTestface',
+        ]);
+
+        $this->assertEquals(1, Order::count());
+
+        Event::assertDispatched('shopr.orders.created', function ($event, $data) {
+            return $data->is(Order::first());
+        });
+
+        Event::assertNotDispatched('shopr.orders.confirmed');
+    }
+
+    /** @test */
+    public function if_successful_it_fires_both_created_and_confirmed_events()
+    {
+        Event::fake();
+
         $this->mockSuccessfulPayment();
 
         Cart::add(TestShoppable::first());
@@ -290,6 +314,10 @@ class CheckoutTest extends TestCase
         ]);
 
         Event::assertDispatched('shopr.orders.created', function ($event, $data) use ($order) {
+            return $data->is($order);
+        });
+
+        Event::assertDispatched('shopr.orders.confirmed', function ($event, $data) use ($order) {
             return $data->is($order);
         });
     }

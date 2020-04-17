@@ -532,6 +532,10 @@ class ShoppingCart implements Arrayable
 
         event('shopr.orders.created', $order);
 
+        if ($order->payment_status === 'paid') {
+            event('shopr.orders.confirmed', $order);
+        }
+
         // If the payment response is a redirect, return it rather than the order.
         if (! $response['success']) {
             return $response;

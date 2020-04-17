@@ -66,12 +66,6 @@ class ShoprServiceProvider extends ServiceProvider
      */
     protected function registerEventListeners()
     {
-        Event::listen('shopr.orders.created', function (Order $order) {
-            if ($order->payment_status === 'paid') {
-                event('shopr.orders.confirmed', $order);
-            }
-        });
-
         Event::listen('shopr.orders.confirmed', function (Order $order) {
             (new OrderObserver)->confirmed($order);
         });
