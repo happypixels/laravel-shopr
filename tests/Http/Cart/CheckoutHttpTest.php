@@ -60,15 +60,15 @@ class CheckoutHttpTest extends TestCase
             'last_name' => 'McTestface',
         ];
 
-        Cart::shouldReceive('checkout')->once()->with('Stripe', $data)->andReturn(new Order(['token' => '1234']));
+        Cart::shouldReceive('checkout')->once()->with('Stripe', $data);
 
-        $this->json('POST', '/api/shopr/cart/checkout', $data)->assertJsonFragment(['token' => '1234']);
+        $this->json('POST', '/api/shopr/cart/checkout', $data);
     }
 
     /** @test */
     public function it_returns_payment_redirect_info_if_payment_response_is_a_redirect()
     {
-        $this->mockRedirectPayment();
+        $this->mockRedirectPayment('the-redirect-url');
 
         Cart::add(TestShoppable::first());
 
@@ -77,11 +77,11 @@ class CheckoutHttpTest extends TestCase
             'gateway' => 'Stripe',
             'first_name' => 'Testy',
             'last_name' => 'McTestface',
-        ])->assertStatus(200)->assertJsonFragment($this->redirectPaymentResponse);
+        ])->assertStatus(200)->assertJsonFragment(['redirect' => 'the-redirect-url']);
     }
 
     /** @test */
-    public function it_returns_redirect_url_to_the_confirmation_page_if_successful()
+    public function it_returns_success_response_if_successful()
     {
         $this->mockSuccessfulPayment();
 

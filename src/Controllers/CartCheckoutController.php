@@ -27,21 +27,10 @@ class CartCheckoutController extends Controller
             'last_name' => 'required|string|max:255',
         ]);
 
-        $checkoutResponse = Cart::checkout($request->gateway, $request->all());
+        $response = Cart::checkout($request->gateway, $request->all());
 
-        // The response can either be an array or an order. If an array, that means the payment requires additional
-        // confirmation from a third party (bank). In those cases the response will include a redirect url.
-        // If the response is an order, that means the payment was successful and that it only needs to be confirmed.
-        if (is_array($checkoutResponse)) {
-            return response()->json($checkoutResponse);
-        } elseif ($checkoutResponse instanceof Order) {
-            $response = ['token' => $checkoutResponse->token];
-
-            if (config('shopr.templates.order-confirmation')) {
-                $response['redirect'] = route('shopr.order-confirmation', ['token' => $checkoutResponse->token]);
-            }
-
-            return response()->json($response, 201);
-        }
+        return $response->isSuccessful()
+            ? response()->json($response, 201)
+            : response()->json($response, 200);
     }
 }

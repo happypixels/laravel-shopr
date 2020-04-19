@@ -3,30 +3,17 @@
 namespace Happypixels\Shopr\Tests\Support\Traits;
 
 use Happypixels\Shopr\Exceptions\PaymentFailedException;
+use Happypixels\Shopr\PaymentProviders\RedirectCheckoutResponse;
 use Happypixels\Shopr\PaymentProviders\Stripe;
+use Happypixels\Shopr\PaymentProviders\SuccessfulCheckoutResponse;
 
 trait InteractsWithPaymentProviders
 {
-    protected $successfulPaymentResponse = [
-        'success' => true,
-        'transaction_reference' => 'the-reference',
-        'transaction_id' => 'the-id',
-        'payment_status' => 'paid',
-    ];
-
-    protected $redirectPaymentResponse = [
-        'success' => false,
-        'transaction_reference' => 'the-reference',
-        'redirect' => 'the-redirect-url',
-        'payment_status' => 'pending',
-    ];
-
     public function mockPaymentProvider($class)
     {
         $mock = $this->mock($class);
         $this->app->instance($class, $mock);
 
-        // Default expectations.
         $mock
             ->shouldReceive('initialize')->once()->andReturnSelf()
             ->shouldReceive('handleRequest')->once()->andReturnSelf();
@@ -36,19 +23,23 @@ trait InteractsWithPaymentProviders
 
     public function mockSuccessfulPayment()
     {
-        $this->mockPaymentProvider(Stripe::class)->shouldReceive('payForCart')->once()->andReturn($this->successfulPaymentResponse);
+        $this->mockPaymentProvider(Stripe::class)->shouldReceive('payForCart')->once()->andReturn(
+            new SuccessfulCheckoutResponse('the-reference')
+        );
     }
 
-    public function mockRedirectPayment()
+    public function mockRedirectPayment($redirectUrl = 'the-redirect-url')
     {
-        $this->mockPaymentProvider(Stripe::class)->shouldReceive('payForCart')->once()->andReturn($this->redirectPaymentResponse);
+        $this->mockPaymentProvider(Stripe::class)->shouldReceive('payForCart')->once()->andReturn(
+            new RedirectCheckoutResponse('the-reference', $redirectUrl)
+        );
     }
 
-    public function mockFailedPayment($exception = PaymentFailedException::class)
+    public function mockFailedPayment($exception = PaymentFailedException::class, $message = 'Insufficient funds')
     {
         $this->mockPaymentProvider(Stripe::class)
             ->shouldReceive('payForCart')
             ->once()
-            ->andThrow(new $exception('Insufficient funds'));
+            ->andThrow(new $exception($message));
     }
 }

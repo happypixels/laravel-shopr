@@ -21,7 +21,7 @@ abstract class PaymentProvider
     /**
      * The gateway-specific finalization of the payment. Makes the purchase through Omnipay.
      *
-     * @return ResponseInterface
+     * @return \Omnipay\Common\Message\ResponseInterface
      */
     abstract public function purchase();
 
@@ -34,39 +34,33 @@ abstract class PaymentProvider
     abstract public function getPaymentConfirmationData(): array;
 
     /**
-     * Makes the purchase and returns the results if successful. Throws exception if unsuccessful.
+     * Makes the purchase and returns a checkoutresponse. Throws exception if unsuccessful.
+     * This method wraps up the results of the purchase method, which is provider specific.
      *
-     * @return array
+     * @return CheckoutResponse
      */
     public function payForCart()
     {
         $response = $this->purchase();
 
         if ($response->isRedirect()) {
-            return [
-                'success' => false,
-                'transaction_reference' => $response->getPaymentIntentReference(),
-                'redirect' => $response->getRedirectUrl(),
-                'payment_status' => 'pending',
-            ];
+            return new RedirectCheckoutResponse(
+                $response->getPaymentIntentReference(),
+                $response->getRedirectUrl()
+            );
         }
 
-        if (! $response->isSuccessful()) {
-            throw new PaymentFailedException($response->getMessage());
+        if ($response->isSuccessful()) {
+            return new SuccessfulCheckoutResponse($response->getTransactionReference());
         }
 
-        return [
-            'success' => true,
-            'transaction_reference' => $response->getTransactionReference(),
-            'transaction_id' => $response->getTransactionId(),
-            'payment_status' => 'paid',
-        ];
+        throw new PaymentFailedException($response->getMessage());
     }
 
     /**
      * Confirms a payment if needed.
      *
-     * @return array
+     * @return SuccessfulCheckoutResponse
      */
     public function confirmPayment()
     {
@@ -76,12 +70,7 @@ abstract class PaymentProvider
             throw new PaymentFailedException($response->getMessage());
         }
 
-        return [
-            'success' => true,
-            'transaction_reference' => $response->getTransactionReference(),
-            'transaction_id' => $response->getTransactionId(),
-            'payment_status' => 'paid',
-        ];
+        return new SuccessfulCheckoutResponse($response->getTransactionReference());
     }
 
     /**

@@ -10,6 +10,8 @@ use Happypixels\Shopr\Exceptions\PaymentFailedException;
 use Happypixels\Shopr\Facades\Cart;
 use Happypixels\Shopr\Models\DiscountCoupon;
 use Happypixels\Shopr\Models\Order;
+use Happypixels\Shopr\PaymentProviders\RedirectCheckoutResponse;
+use Happypixels\Shopr\PaymentProviders\SuccessfulCheckoutResponse;
 use Happypixels\Shopr\Tests\Support\Models\TestShoppable;
 use Happypixels\Shopr\Tests\Support\Traits\InteractsWithPaymentProviders;
 use Happypixels\Shopr\Tests\TestCase;
@@ -113,20 +115,48 @@ class CheckoutTest extends TestCase
 
         $cartSummary = Cart::get();
 
-        $order = Cart::checkout('Stripe', $data);
+        $response = Cart::checkout('Stripe', $data);
 
-        $this->assertTrue($order instanceof Order);
-        $this->assertEquals($data['email'], $order->email);
-        $this->assertEquals($data['first_name'], $order->first_name);
-        $this->assertEquals($data['last_name'], $order->last_name);
-        $this->assertEquals('Stripe', $order->payment_gateway);
-        $this->assertEquals('the-reference', $order->transaction_reference);
-        $this->assertEquals('the-id', $order->transaction_id);
-        $this->assertEquals('paid', $order->payment_status);
-        $this->assertEquals($cartSummary['total'], $order->total);
-        $this->assertEquals($cartSummary['sub_total'], $order->sub_total);
-        $this->assertEquals($cartSummary['tax_total'], $order->tax);
-        $this->assertNotNull($order->token);
+        $this->assertTrue($response instanceof SuccessfulCheckoutResponse);
+
+        $this->assertTrue($response->order instanceof Order);
+        $this->assertEquals($data['email'], $response->order->email);
+        $this->assertEquals($data['first_name'], $response->order->first_name);
+        $this->assertEquals($data['last_name'], $response->order->last_name);
+        $this->assertEquals('Stripe', $response->order->payment_gateway);
+        $this->assertEquals('the-reference', $response->order->transaction_reference);
+        $this->assertEquals('paid', $response->order->payment_status);
+        $this->assertEquals($cartSummary['total'], $response->order->total);
+        $this->assertEquals($cartSummary['sub_total'], $response->order->sub_total);
+        $this->assertEquals($cartSummary['tax_total'], $response->order->tax);
+        $this->assertNotNull($response->order->token);
+    }
+
+    /** @test */
+    public function it_creates_a_pending_order_and_returns_redirect_response_in_case_of_redirect()
+    {
+        Event::fake();
+
+        $this->mockRedirectPayment();
+
+        Cart::add(TestShoppable::first(), ['price' => 100]);
+
+        $response = Cart::checkout('Stripe', [
+            'email' => 'test@example.com',
+            'first_name' => 'Testy',
+            'last_name' => 'McTestface',
+        ]);
+
+        $this->assertTrue($response instanceof RedirectCheckoutResponse);
+
+        // The order is still created, but in a pending state.
+        $order = Order::where('transaction_reference', $response->getTransactionReference())->first();
+        $this->assertEquals('pending', $order->payment_status);
+
+        // The event is still fired.
+        Event::assertDispatched('shopr.orders.created', function ($event, $data) use ($order) {
+            return $data->is($order);
+        });
     }
 
     /** @test */
@@ -136,20 +166,20 @@ class CheckoutTest extends TestCase
 
         Cart::add($shoppable = TestShoppable::first());
 
-        $order = Cart::checkout('Stripe', [
+        $response = Cart::checkout('Stripe', [
             'email' => 'test@example.com',
             'first_name' => 'Testy',
             'last_name' => 'McTestface',
         ]);
-        $order->load('items');
+        $response->order->load('items');
 
-        $this->assertEquals(1, $order->items->count());
-        $this->assertEquals(TestShoppable::class, $order->items->first()->shoppable_type);
-        $this->assertEquals($shoppable->id, $order->items->first()->shoppable_id);
-        $this->assertEquals(1, $order->items->first()->quantity);
-        $this->assertEquals('Test product', $order->items->first()->title);
-        $this->assertEquals(500, $order->items->first()->price);
-        $this->assertNull($order->items->first()->options);
+        $this->assertEquals(1, $response->order->items->count());
+        $this->assertEquals(TestShoppable::class, $response->order->items->first()->shoppable_type);
+        $this->assertEquals($shoppable->id, $response->order->items->first()->shoppable_id);
+        $this->assertEquals(1, $response->order->items->first()->quantity);
+        $this->assertEquals('Test product', $response->order->items->first()->title);
+        $this->assertEquals(500, $response->order->items->first()->price);
+        $this->assertNull($response->order->items->first()->options);
     }
 
     /** @test */
@@ -163,17 +193,17 @@ class CheckoutTest extends TestCase
             ],
         ]);
 
-        $order = Cart::checkout('Stripe', [
+        $response = Cart::checkout('Stripe', [
             'email' => 'test@example.com',
             'first_name' => 'Testy',
             'last_name' => 'McTestface',
         ]);
-        $order->load('parentItems.children');
+        $response->order->load('parentItems.children');
 
-        $this->assertEquals(1, $order->parentItems->count());
-        $this->assertEquals(1, $order->parentItems->first()->children->count());
+        $this->assertEquals(1, $response->order->parentItems->count());
+        $this->assertEquals(1, $response->order->parentItems->first()->children->count());
 
-        $subItem = $order->parentItems->first()->children->first();
+        $subItem = $response->order->parentItems->first()->children->first();
         $this->assertEquals(TestShoppable::class, $subItem->shoppable_type);
         $this->assertEquals($shoppable->id, $subItem->shoppable_id);
         $this->assertEquals(1, $subItem->quantity);
@@ -194,22 +224,22 @@ class CheckoutTest extends TestCase
         Cart::add(TestShoppable::first());
         Cart::addDiscount($discount);
 
-        $order = Cart::checkout('Stripe', [
+        $response = Cart::checkout('Stripe', [
             'email' => 'test@example.com',
             'first_name' => 'Testy',
             'last_name' => 'McTestface',
         ]);
-        $order->load('items');
+        $response->order->load('items');
 
         // Tax is calculated on the reduced price.
-        $this->assertEquals(200, $order->total);
-        $this->assertEquals(160, $order->sub_total);
-        $this->assertEquals(40, $order->tax);
+        $this->assertEquals(200, $response->order->total);
+        $this->assertEquals(160, $response->order->sub_total);
+        $this->assertEquals(40, $response->order->tax);
 
-        $this->assertEquals(2, $order->items->count());
-        $this->assertEquals($discount->code, $order->items->last()->title);
-        $this->assertEquals(-300, $order->items->last()->price);
-        $this->assertEquals(1, $order->items->last()->quantity);
+        $this->assertEquals(2, $response->order->items->count());
+        $this->assertEquals($discount->code, $response->order->items->last()->title);
+        $this->assertEquals(-300, $response->order->items->last()->price);
+        $this->assertEquals(1, $response->order->items->last()->quantity);
     }
 
     /** @test */
@@ -237,41 +267,14 @@ class CheckoutTest extends TestCase
 
         Cart::add(TestShoppable::first(), ['price' => 100]);
 
-        $order = Cart::checkout('Stripe', [
-            'email' => 'test@example.com',
-            'first_name' => 'Testy',
-            'last_name' => 'McTestface',
-        ]);
-
-        $this->assertEquals(100, $order->total);
-        $this->assertEquals(100, $order->items->first()->price);
-    }
-
-    /** @test */
-    public function payment_redirect_responses_store_the_order_but_return_the_confirmation_data()
-    {
-        Event::fake();
-
-        $this->mockRedirectPayment();
-
-        Cart::add(TestShoppable::first(), ['price' => 100]);
-
         $response = Cart::checkout('Stripe', [
             'email' => 'test@example.com',
             'first_name' => 'Testy',
             'last_name' => 'McTestface',
         ]);
 
-        $this->assertEquals($this->redirectPaymentResponse, $response);
-
-        // The order is still created, but in a pending state.
-        $order = Order::where('transaction_reference', $this->redirectPaymentResponse['transaction_reference'])->first();
-        $this->assertEquals('pending', $order->payment_status);
-
-        // The event is still fired.
-        Event::assertDispatched('shopr.orders.created', function ($event, $data) use ($order) {
-            return $data->is($order);
-        });
+        $this->assertEquals(100, $response->order->total);
+        $this->assertEquals(100, $response->order->items->first()->price);
     }
 
     /** @test */
@@ -307,18 +310,18 @@ class CheckoutTest extends TestCase
 
         Cart::add(TestShoppable::first());
 
-        $order = Cart::checkout('Stripe', [
+        $response = Cart::checkout('Stripe', [
             'email' => 'test@example.com',
             'first_name' => 'Testy',
             'last_name' => 'McTestface',
         ]);
 
-        Event::assertDispatched('shopr.orders.created', function ($event, $data) use ($order) {
-            return $data->is($order);
+        Event::assertDispatched('shopr.orders.created', function ($event, $data) use ($response) {
+            return $data->is($response->order);
         });
 
-        Event::assertDispatched('shopr.orders.confirmed', function ($event, $data) use ($order) {
-            return $data->is($order);
+        Event::assertDispatched('shopr.orders.confirmed', function ($event, $data) use ($response) {
+            return $data->is($response->order);
         });
     }
 }

@@ -461,7 +461,7 @@ class ShoppingCart implements Arrayable
      *
      * @param  string $gateway
      * @param  array  $data
-     * @return \Happypixels\Shopr\Models\Order|false
+     * @return Happypixels\Shopr\PaymentProviders\CheckoutResponse
      */
     public function checkout($gateway, $data = [])
     {
@@ -481,14 +481,11 @@ class ShoppingCart implements Arrayable
 
         $response = PaymentProviderManager::make($gateway, $data)->payForCart();
 
-        $data = array_merge($data, $response);
-
         $order = app(Order::class)->create([
             'user_id' => auth()->id(),
             'payment_gateway' => $gateway,
-            'transaction_reference' => $data['transaction_reference'] ?? null,
-            'transaction_id' => $data['transaction_id'] ?? null,
-            'payment_status' => $data['payment_status'] ?? 'pending',
+            'transaction_reference' => $response->getTransactionReference() ?? null,
+            'payment_status' => $response->getPaymentStatus(),
             'delivery_status' => 'pending',
             'token' => Order::generateToken(),
             'total' => $this->total(),
@@ -536,12 +533,9 @@ class ShoppingCart implements Arrayable
             event('shopr.orders.confirmed', $order);
         }
 
-        // If the payment response is a redirect, return it rather than the order.
-        if (! $response['success']) {
-            return $response;
-        }
+        $response->setOrder($order);
 
-        return $order;
+        return $response;
     }
 
     /**

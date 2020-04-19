@@ -36,13 +36,13 @@ class PaymentConfirmationController extends Controller
         $previousStatus = $order->payment_status;
 
         $order->update([
-            'payment_status' => 'paid',
-            'transaction_reference' => $response['transaction_reference'],
+            'payment_status' => $response->getPaymentStatus(),
+            'transaction_reference' => $response->getTransactionReference(),
         ]);
 
         // If the previous status of the order is not 'paid', fire the event to indicate
         // the order has now been confirmed.
-        if ($previousStatus !== 'paid') {
+        if ($previousStatus !== 'paid' && $order->payment_status === 'paid') {
             event('shopr.orders.confirmed', $order);
         }
 

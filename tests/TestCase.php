@@ -49,14 +49,6 @@ class TestCase extends Orchestra
         (new \CreateDiscountCouponsTable())->up();
     }
 
-    public function mockWith($abstract, $class)
-    {
-        $mock = $this->mock($class);
-        $this->app->instance($abstract, $mock);
-
-        return $mock;
-    }
-
     /**
      * Define environment setup.
      *
